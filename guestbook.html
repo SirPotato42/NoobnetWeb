@@ -1,23 +1,125 @@
-<html>
-<body bgcolor=8888FF>
-<h2> A Noobular Guestbook </h2>
-<a href="index.html">Save MEEE</a>
-<hr>
-<form method=post action="/cgi-bin/guestBook.pl">
-<input type=hidden name=fields value="Name,Email,Comments">
-Name: <input type=text name=Name><br>
-Email Address: <input type=text name=Email><br>
-Comments: <br><textarea name=Comments rows=5 cols=60>
-</textarea><br>
-<input type=submit value="Submit">
-</form>
-<hr noshade>
-
-<!--GUESTBOOK-OPTIONS: maxEntries=10-->
-<!--GUESTBOOK-->
-<!--GUESTBOOK-->
-
-<hr noshade>
-
-</body>
-</html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">	
+      
+      <title>Serverless Guest Book | Built by github.com/MarketingPipeline</title>
+    <link href="https://fonts.googleapis.com/css?family=Muli|Ovo" rel="stylesheet">
+    <link rel="stylesheet" href="assets/style.css">
+        
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>	
+    </head>
+    <body>
+    <div id="GuestBook">
+        <h1 class="main-header"> Serverless Guestbook</h1>
+        <h3 id="t">Recent Entries</h3>
+    <!-- Homepage -->
+    <div class="container">
+    
+        <div class="left-block">
+            <div id="json" class="guestbook">
+                
+            </div>
+        
+        </div>
+    
+    
+        
+        
+        <div class="right-block">
+            <h1>Sign my guestbook</h1>
+            <p> Thanks for checking this out. This is my guestbook. Feel free to sign it so I can see you were here.</p>
+            <div class="links">
+               <a href="#AllEntries">View All Entries</a>
+                <a href="#SignGuestBook">Sign the Guestbook</a>
+            <a onClick="window.location.reload();">Refresh Guestbook</a>	
+               
+            </div>
+        </div>
+    </div>
+        
+    <div id="SignGuestBook" class="overlay">
+        <div id="SendForm" class="sign-guest-book-popup">
+            <h1>Sign The Guestbook</h1>
+            <a class="close" href="#">&times;</a>
+            <div class="content">
+          <label style="display: block;
+        text-align: center;" class="aterisk_before" for="gform"> indicates a required field</label>
+          <br>
+            
+        <form name="gform" id="gform" enctype="text/plain" action="GOOGLE_FORM_URL" target="hidden_iframe" onsubmit="submitted=true;">
+          
+           <label for="GOOGLE_ENTRY_ID_Name"  class="aterisk_after">Name </label>
+          
+            <input class="form-element short" type="text" name="GOOGLE_ENTRY_ID_Name" id="GOOGLE_ENTRY_ID_Name" placeholder="John Doe." style="background: #5EC6C8;" required>
+          
+            <label for="GOOGLE_ENTRY_ID_Email">GitHub Username</label>
+          
+       
+            <input class="form-element short" type="text" name="GOOGLE_ENTRY_ID_Email" id="GOOGLE_ENTRY_ID_Email" placeholder="MarketingPip" style="background: #5EC6C8;">
+          
+       <label for="GOOGLE_ENTRY_ID_TextArea"  class="max-length">Guestbook Entry</label>
+          
+          <textarea class="form-element" name="GOOGLE_ENTRY_ID_TextArea" id="GOOGLE_ENTRY_ID_TextArea" rows="5" cols="30" oninvalid="this.setCustomValidity('You must sign the guestbook')"
+      oninput="this.setCustomValidity('')"  maxlength="50" placeholder="Enter Your Message Here" required></textarea>
+          
+             <label for="g-recaptcha"  class="aterisk_after">Captcha</label>      
+         <div class="g-recaptcha"
+           data-sitekey="GOOGLE_Captcha_Key"></div>   
+          
+            <input class="form-button" type="submit" value="Submit">
+            <input class="form-button" type="reset" value="Reset Form">
+     
+        </form>
+            </div>
+        </div>
+    </div>
+    <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>	
+        
+    <div id="AllEntries" class="overlay">
+        <div class="popup">
+            <h2>All Entries</h2>
+            <a class="close" href="#">&times;</a>
+            <div id="AllEntries_Content" class="content" style="height: 25em;overflow-y: auto;">
+        
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    
+    </body>
+    <script type="text/javascript">
+        
+        
+      // Put your Google Entry Form ID(s) Here
+      var GOOGLE_ENTRY_ID_Name="entry.1368848907";   // Name Entry ID
+            
+     var GOOGLE_ENTRY_ID_Email="entry.915090279";	// Email Entry ID			
+            
+    var GOOGLE_ENTRY_ID_Guestbook="entry.1081107374"; // Guestbook Entry ID				
+        
+       // Put your Google Form Link Here  (Make sure to use correct link as documented)
+            
+            
+    
+      var Google_Form_Link="https://docs.google.com/forms/d/e/1FAIpQLSfCsjdIhc24qypezgs97Aft4F6pWkfLISwdyyNM0gTKvRp-gg/formResponse?"  
+        
+        
+         var Google_Form_ID="12dHNazq1AW04WG8DHy0-qKsqejpT6urRY0EgGRfPxdc"  
+         
+         var Google_Form_Name="Form+Responses+1"  
+        
+      
+      // Google Recaptcha Key 
+         
+        var CaptchaKey = "6LcmzH4gAAAAAAHKvR7hX8TkMcUsTlNzPU0m-U23" // put your Google Captcha Key here
+      </script> 
+    <script src="assets/replace-vars.js">
+    </script>
+    
+    
+    <script>
+    
+    
+      </script>
+    
+    <script src="assets/guest-book-WIP.js"></script>
