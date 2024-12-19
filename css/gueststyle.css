@@ -1,6 +1,6 @@
-body {
-	 background: #ffffff;
-	 font-family: 'Muli', sans-serif;
+body * {
+	background-color: rgb(186, 186, 157);
+	margin: 0 14% 0 14%;
 }
  .container {
 	 width: 60%;
@@ -33,8 +33,9 @@ body {
 	 background: #ed1b51;
 	 color: #fff;
 }
- h1 {
-	 font-family: 'Ovo', serif;
+html {
+	background-size: 400px 300px;
+	background-image: url("../assets/images/lungcancer.png");
 }
  .left-block, .right-block {
 	 float: left;
@@ -50,7 +51,6 @@ body {
  .entry {
 	 background: #5ec6c8;
 	 padding: 0.5rem 1.5rem;
-	 transition: background 0.25s ease;
 }
  .entry:nth-child(even) {
 	 background: #3cbeb9;
@@ -198,7 +198,6 @@ body {
  .popup h2 {
 	 margin-top: 0;
 	 color: #333;
-	 font-family: Tahoma, Arial, sans-serif;
 }
  .popup .close {
 	 position: absolute;
@@ -239,7 +238,6 @@ body {
  .sign-guest-book-popup h2 {
 	 margin-top: 0;
 	 color: #333;
-	 font-family: Tahoma, Arial, sans-serif;
 }
  .sign-guest-book-popup .close {
 	 position: absolute;
