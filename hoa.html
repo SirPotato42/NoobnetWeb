@@ -1,34 +1,39 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>slop city</title>
+  <title>hoa city</title>
+  <style>
+    .container {
+        display: block;
+        width: 50%;
+        justify-content: center;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .container * { 
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .floatleft {
+        float: left;
+    }
+    .floatright {
+        float: right;
+    }
+  </style>
 </head>
 <body>
-  <audio controls autoplay loop>
-    <source src="assets/audio/ohhhhyeaahhh.wav" type="audio/wav">
-    no ding for you :/
-  </audio>
-  <img src="assets/gifs/hey-buddy-you-have-to-be-quiet.gif" alt="Computer man" style="width:70vw; height:70vw; margin-left:15vw">
-  <h1 id="sloptitle">WELCOME TO SLOPOPOLIS!</h1>
-  <script>
-    // Make the audio play immediately
-    var audio = new Audio();
-    audio.src = "assets/audio/ohhhhyeaahhh.wav";
-    audio.preload = "auto";
-    audio.play();
-
-    // Make sloptitle flash colors
-    var sloptitle = document.getElementById("sloptitle");
-    var colors = ["red", "orange", "yellow", "green", "blue", "indigo", "violet"];
-    var i = 0;
-    setInterval(function() {
-      sloptitle.style.color = colors[i];
-      i = (i + 1) % colors.length;
-      if (i != 0) {
-        sloptitle.style.fontSize = Math.floor(Math.random() * 50 + 40) + "px";
-      }
-    }, 30);
-  </script>
-   <img src="assets/gifs/bear-jumpscare.gif" alt="Computer man" style="width:40vw; height:50vw; margin-left:15vw">
+    <audio controls autoplay loop>
+        <source src="assets/audio/papersplease.mp3" type="audio/mp3">
+    </audio>
+    <h1 style="width: 100%; justify-content: center; font-size: 400%;">
+        the questionably offical noobular HOA.
+    </h1>
+    <hr>
+    <img src="assets/gifs/hey-buddy-you-have-to-be-quiet.gif" style="height: 40vh;" alt="computer">
+    <img src="assets/images/mobfarm.png" style="height: 40vh;" alt="trash city">
+    <p style="width: 100vw; text-align: left; margin-left: 10px;">why dont you make your farms look nicer?</p>
+    <hr>
+    <img src="assets/gifs/grr.gif" style="height: 60vh; width: 100%;" alt="???">
 </body>
 </html>

@@ -407,6 +407,6 @@ body {
 
 .max-length:after {
     color: #e32;
-    content: "  *" " Max Length (100 Characters)";
+    content: "  *" " Max Length (100 Elves)";
     display:inline;
 }
