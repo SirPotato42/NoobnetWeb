@@ -1,4 +1,14 @@
 html {
 	background-size: 250px 350px;
 	background-image: url("../assets/images/grinchmountain.png");
+	filter: saturate(1);
+}
+* {
+	background-size: 400px 300px;
+	background-image: url("../assets/images/lungcancer.png");
+	margin: 3% 5% 0 5%;
+	box-sizing: content-box;
+	justify-self: center;
+	color: white;
+	font-size: 150%;
 }
