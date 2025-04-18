@@ -1,0 +1,20 @@
+h1 {
+    text-align: center;
+    text-decoration: solid;
+    color: hotpink;
+    font-family: Brush Script MT;
+    font-size: 300 
+}
+h2 {
+    text-align: center;
+    background-color: aliceblue;
+    color: black;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 300;
+}
+.center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+}
