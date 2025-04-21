@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Links</title>
+    <link rel="icon" href="/linkpage/pageHeader.jpg" type="image/x-icon">
+</head>
+<body>
+    <!--Viewport & Bootstrap-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--Body-->
+    <div class="headerDiv">
+        <div>
+            <h1>
+                FINNS OLD WEBSITE
+            </h1>
+            <!--_-->
+            <!-- That is a comment face. BTW, why are you stalking my code?-->
+        </div>
+    </div>
+    <div class="linksSect">
+        <h2>
+            eeeee
+        </h2>
+        <div style="border-top:none">
+            <p>This website is based on Finns old website but with none of the cringe old stuff links.</p>
+        </div>
+    </div>
+    <div class="permLinks">
+        <h3>BIG HEADER IN THE MIDDLE OF THE WEBPAGE</h3>
+    </div>
+    <div class="linksSect">
+        <h2>
+            no
+        </h2>
+        <div>
+            <p>All of the css for this webpage was made in like 2016 or something stupid like that</p>
+        </div>
+    </div>
+    <div class="linksSect">
+        <h2>
+            Discord
+        </h2>
+        <div>
+            <p>My Discord is Sirpotato42 If you would like to contact me, I would personally recommend using Discord to do so as I am most active there.</p>
+        </div>
+    </div>
+    <div class="linksSect">
+        <h2>More links coming soon!</h2>
+    </div>
+    <style>
+        /*Stylesheet*/
+        @import url('https://fonts.googleapis.com/css?family=Open+Sans');
+        body {
+            margin: 0px;
+            /* _ */
+            /* Other comment face */
+            padding: 0px;
+            background-color: #ffffff;
+            background-image: linear-gradient(to bottom right, #42f48c, #8e17c1, #e88f00);
+            width: 100vw;
+            height: 100vw;
+            background-repeat: no-repeat;
+            background-position: right top;
+            background-attachment: fixed;
+            font-family: 'Open Sans', sans-serif;
+        }
+        a:link {
+            color: #42f4a4;
+        }
+        a:visited {
+            color: #2ab275;
+        }
+        a:hover {
+            color: #10472e;
+        }
+        a:active {
+            color: #42f4d1;
+        }
+        .headerDiv {
+            background-color: #42f4a4;
+            padding: 10px;
+            border-bottom: solid 5px #2ab275;
+        }
+        .headerDiv>div {
+            padding: 10px;
+            border: solid 5px #2ab275;
+            border-radius: 25px;
+            background-color: #ffffff;
+        }
+        .headerDiv>div>h1 {
+            margin: 0px;
+            text-align: center;
+            font-size: 35px;
+        }
+        .linksSect {
+            margin: 10px;
+            border: 5px solid #2ab275;
+            border-radius: 25px;
+            background-color: #ffffff;
+        }
+        .linksSect>h2 {
+            text-align: center;
+            padding: 0px;
+            margin: 0px;
+            font-size: 25px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+        .linksSect>div {
+            border-top: solid 5px #2ab275;
+            text-align: center;
+        }
+        .linksSect>div>p {
+            text-align: center;
+            font-size: 15px;
+            margin: 5px;
+        }
+        .permLinks {
+            margin: 0px;
+            background-color: white;
+            border-top: solid 5px #2ab275;
+            border-bottom: solid 5px #2ab275;
+        }
+        .permLinks>h3 {
+            margin: 0px;
+            text-align: center;
+            padding: 0px;
+            font-size: 30px;
+        }
+        .buttonClass {
+            background-color: #42f4a4;
+            border: 2.5px solid #2ab275;
+            border-radius: 15px;
+            padding: 5px;
+            margin-left: 0px;
+            margin-right: 0px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+            text-align: center;
+            font-size: 16px;
+            cursor: pointer;
+            color: #000000;
+        }
+        .buttonClass:hover {
+            background-color: #2ab275;
+            color: #ffffff;
+        }
+        @media screen and (max-width: 468px) {
+            .headerDiv>div>h1 {
+                font-size: 7vw;
+            }
+        }
+        @media screen and (max-width: 408px) {
+            .linksSect>h2 {
+                font-size: 5vw;
+            }
+            .linksSect>div>p {
+                font-size: 4vw;
+            }
+            .permLinks>h3 {
+                font-size: 4vw;
+            }
+            a {
+                font-size: 4vw;
+            }
+            .buttonClass {
+                font-size: 4vw;
+            }
+            .miniParagraph {
+                font-size: 4vw;
+            }
+        }
+    </style>
+    <script>
+        document.getElementById("supportButton").hidden = 0;
+        document.getElementById("supportMeDiv").hidden = 1;
+        var supportVar = 0;
+        //_// < Third comment face
+        function supportMe() {
+            if (supportVar === 0) {
+                document.getElementById("supportButton").innerHTML = ("Hide");
+                supportVar = 1;
+                document.getElementById("supportMeDiv").hidden = 0;
+            } else {
+                document.getElementById("supportButton").innerHTML = ("Support Me");
+                document.getElementById("supportMeDiv").hidden = 1;
+                supportVar = 0;
+            }
+        }
+    </script>
+</body>
+</html>
