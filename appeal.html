@@ -1,21 +1,451 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Have you been banned lately?</title>
+        <title>!!! URGENT: YOUR UNBAN STATUS !!!</title>
+        <meta charset="UTF-8">
         <style>
+            body {
+                font-family: "Comic Sans MS", cursive, sans-serif;
+                text-align: center;
+                background-color: #00FFFF;
+                background-image: repeating-linear-gradient(
+                    45deg,
+                    #FF00FF 0px,
+                    #FF00FF 20px,
+                    #FFFF00 20px,
+                    #FFFF00 40px
+                );
+                color: #00FF00;
+                padding: 20px;
+                animation: flash-bg 0.2s linear infinite;
+            }
+            h1 {
+                color: #FF0000;
+                text-shadow: 3px 3px #0000FF;
+                font-size: 3em;
+                animation: bounce 0.4s infinite;
+            }
+            h2 {
+                color: #FF00FF;
+                text-shadow: 2px 2px #FFFF00;
+            }
             p {
-                font-size: 200%;
+                color: #0000FF;
+                font-size: 1.1em;
+                background-color: rgba(255, 255, 255, 0.7);
+                padding: 5px;
+                border: 1px dotted #FF0000;
+            }
+            #purchase-section {
+                margin-bottom: 30px;
+                position: relative;
+                z-index: 1;
+                background-color: rgba(0, 255, 255, 0.7);
+                padding: 10px;
+                border: 2px dashed #FF00FF;
+            }
+            .arrow {
+                font-size: 3em;
+                margin: 10px;
+                animation: bounce 0.4s infinite;
+                display: inline-block;
+            }
+            @keyframes bounce {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-10px); }
+            }
+            #purchase-button {
+                font-size: 2em;
+                cursor: pointer;
+                background-color: #FFFF00;
+                color: #FF0000;
+                border: 3px dashed #0000FF;
+                font-family: "Comic Sans MS", cursive, sans-serif;
+                text-decoration: underline;
+                padding: 10px 20px;
+                animation: blink 0.3s linear infinite;
+                border-radius: 0;
+                box-shadow: none;
+            }
+            #purchase-button:hover {
+                background-color: #FF0000;
+                color: #FFFF00;
+                border-color: #00FF00;
+            }
+            @keyframes blink {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0.3; }
+            }
+            #progress-section {
+                display: none;
+                width: 80%;
+                max-width: 600px;
+                margin: 30px auto;
+                background-color: #CCCCCC;
+                border: 5px ridge #FF00FF;
+                padding: 15px;
+                position: relative;
+                z-index: 1;
+                flex-direction: column;
+                align-items: center;
+            }
+            #progress-bar {
+                width: 100%;
+                height: 30px;
+                appearance: none;
+                border: 2px solid #000000;
+                border-radius: 0;
+                overflow: hidden;
+                background-color: #FFFFFF;
+            }
+            #progress-bar::-webkit-progress-bar {
+                background-color: #FFFFFF;
+                border-radius: 0;
+            }
+            #progress-bar::-webkit-progress-value {
+                background-color: #00FF00;
+                transition: width 0.1s linear;
+                border-radius: 0;
+                background-image: linear-gradient(45deg, rgba(0, 0, 0, .2) 25%, transparent 25%, transparent 50%, rgba(0, 0, 0, .2) 50%, rgba(0, 0, 0, .2) 75%, transparent 75%, transparent);
+                background-size: 20px 20px;
+                animation: flash-progress 0.4s linear infinite;
+            }
+            #progress-bar::-moz-progress-bar {
+                background-color: #00FF00;
+                transition: width 0.1s linear;
+                border-radius: 0;
+                background-image: linear-gradient(45deg, rgba(0, 0, 0, .2) 25%, transparent 25%, transparent 50%, rgba(0, 0, 0, .2) 50%, rgba(0, 0, 0, .2) 75%, transparent 75%, transparent);
+                background-size: 20px 20px;
+                animation: flash-progress 0.4s linear infinite;
+            }
+            #progress-message {
+                margin-top: 15px;
+                font-size: 1.3em;
+                min-height: 1.5em;
+                color: #FF0000;
+                font-weight: bold;
+                background-color: transparent;
+                border: none;
+            }
+            #final-confirmation {
+                display: none;
+                margin-top: 30px;
+                background-color: rgba(0, 0, 255, 0.7);
+                border: 5px dotted #FFFF00;
+                padding: 20px;
+                position: relative;
+                z-index: 1;
+            }
+             #final-confirmation h1 {
+                 color: #FFFF00;
+                 text-shadow: 3px 3px #FF00FF;
+             }
+             #final-confirmation p {
+                 font-size: 1.2em;
+                 color: #FFFFFF;
+                 background-color: transparent;
+                 border: none;
+                 margin: 10px 0;
+             }
+             #final-confirmation a {
+                 color: #00FF00;
+                 font-weight: bold;
+                 font-size: 1.3em;
+             }
+             #final-confirmation a:hover {
+                 color: #FF00FF;
+             }
+             audio {
+                 border: 3px solid #FF0000;
+                 margin-bottom: 20px;
+             }
+            .bouncing-gif {
+                position: absolute;
+                width: 150px;
+                height: 150px;
+                z-index: 0;
+                animation: bounce-around 5s linear infinite;
+                border: 3px dotted red;
+            }
+            @keyframes bounce-around {
+                0%, 100% { top: 5%; left: 5%; transform: rotate(0deg); }
+                20% { top: 70%; left: 80%; transform: rotate(72deg); }
+                40% { top: 80%; left: 20%; transform: rotate(144deg); }
+                60% { top: 10%; left: 90%; transform: rotate(216deg); }
+                80% { top: 40%; left: 10%; transform: rotate(288deg); }
+            }
+            #plinko-area {
+                margin-top: 20px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            #plinko-canvas {
+                border: 3px dashed #0000FF;
+                background-color: #FAFAFA;
+            }
+            #drop-ball-button {
+                font-size: 1em;
+                cursor: pointer;
+                background-color: #FFFF00;
+                color: #FF0000;
+                border: 2px dashed #0000FF;
+                font-family: "Comic Sans MS", cursive, sans-serif;
+                text-decoration: underline;
+                padding: 5px 10px;
+                margin-top: 10px;
+                animation: blink 0.3s linear infinite;
+            }
+            #drop-ball-button:hover {
+                background-color: #FF0000;
+                color: #FFFF00;
+            }
+            @keyframes flash-bg {
+                0%, 100% { background-color: #00FFFF; background-image: repeating-linear-gradient(45deg, #FF00FF 0px, #FF00FF 20px, #FFFF00 20px, #FFFF00 40px); }
+                50% { background-color: #FF0000; background-image: repeating-linear-gradient(135deg, #00FF00 0px, #00FF00 15px, #0000FF 15px, #0000FF 30px); }
+            }
+            @keyframes flash-progress {
+                0%, 100% { background-color: #00FF00; }
+                50% { background-color: #FFFF00; }
             }
         </style>
     </head>
     <body>
-        <audio controls autoplay loop>
+        <audio id="cha-ching-sound">
             <source src="assets/audio/cha-ching.mp3" type="audio/mpeg">
-            no ding for you :/
+            Your browser does not support the audio element.
         </audio>
-        <h1>You have just purchased an unban! contact mxwl on discord with a screenshot of this purchase confirmation to redeem!</h1>
-        <p>(300$ noobular unban is a non refundable purchase)</p>
-        <p>Please direct all complaints to 1-800-NOOBNET</p>
-        <a href="/hoa.html">(Click to go back)</a>
+        <audio id="bubby-drop-sound" preload="auto">
+            <source src="assets/sounds/bubby.mp3" type="audio/mpeg">
+             Your browser doesn't support this audio.
+        </audio>
+
+        <div id="purchase-section">
+            <h1>Ready to rejoin the fun?</h1>
+            <img src="assets/gifs/gif1.gif" alt="Animated GIF 1" width="150" height="150" class="bouncing-gif" style="animation-delay: 0s;">
+            <p>Click the button below to purchase your unban!</p>
+            <div>
+                <span class="arrow">➡️</span>
+                <img src="assets/gifs/gif2.gif" alt="Animated GIF 2" width="150" height="150" class="bouncing-gif" style="top: 20%; left: 70%; animation-delay: -2s;">
+                <button id="purchase-button">!! CLICK HERE FOR INSTANT UNBAN !! (GUARANTEED)</button>
+                <img src="assets/gifs/gif3.gif" alt="Animated GIF 3" width="150" height="150" class="bouncing-gif" style="top: 50%; left: 15%; animation-delay: -4s;">
+                <span class="arrow">⬅️</span>
+            </div>
+        </div>
+
+        <div id="progress-section">
+            <h2>Processing Your Unban Request...</h2>
+            <img src="assets/gifs/gif6.gif" alt="Animated GIF 6" width="150" height="150" class="bouncing-gif" style="top: 85%; left: 50%; animation-delay: -10s;">
+            <progress id="progress-bar" value="0" max="100"></progress>
+            <p id="progress-message">Booting up...</p>
+            <div id="plinko-area">
+                <canvas id="plinko-canvas" width="300" height="400"></canvas>
+                <button id="drop-ball-button">DROP PLINKO BALL!</button>
+            </div>
+            <img src="assets/gifs/gif7.gif" alt="Animated GIF 7" width="150" height="150" class="bouncing-gif" style="top: 5%; left: 50%; animation-delay: -12s;">
+        </div>
+
+        <div id="final-confirmation">
+             <h1>Purchase Complete!</h1>
+             <p>You have just purchased an unban! Contact felipe on discord with a screenshot of this purchase confirmation to redeem!</p>
+            <p>(noobular unban is a non refundable purchase)</p>
+            <p>Please direct all complaints to 1-800-NOOBNET</p>
+            <img src="assets/gifs/gif4.gif" alt="Animated GIF 4" width="150" height="150" class="bouncing-gif" style="top: 75%; left: 75%; animation-delay: -6s;">
+            <a href="/hoa.html">(Click to go back)</a>
+            <img src="assets/gifs/gif5.gif" alt="Animated GIF 5" width="150" height="150" class="bouncing-gif" style="top: 15%; left: 45%; animation-delay: -8s;">
+        </div>
+
+        <script>
+            const purchaseButton = document.getElementById('purchase-button');
+            const purchaseSection = document.getElementById('purchase-section');
+            const progressSection = document.getElementById('progress-section');
+            const progressBar = document.getElementById('progress-bar');
+            const progressMessage = document.getElementById('progress-message');
+            const finalConfirmation = document.getElementById('final-confirmation');
+            const chaChingSound = document.getElementById('cha-ching-sound');
+            const bubbyDropSound = document.getElementById('bubby-drop-sound');
+            const plinkoCanvas = document.getElementById('plinko-canvas');
+            const plinkoCtx = plinkoCanvas.getContext('2d');
+            const dropBallButton = document.getElementById('drop-ball-button');
+            let pegs = [];
+            const bubbyImage = new Image();
+            let isBubbyLoaded = false;
+            const bubbyFileName = 'assets/images/bubby.png';
+            let bubbys = [];
+            const gravity = 0.1;
+            const bounceFactor = 0.6;
+            const pegRows = 10;
+            const pegCols = 7;
+            const pegRadius = 5;
+            const bubbyRadius = 15;
+            const rowSpacing = plinkoCanvas.height / (pegRows + 2);
+            const colSpacing = plinkoCanvas.width / (pegCols + 1);
+            bubbyImage.onload = () => {
+                console.log('Bubby image loaded successfully!');
+                isBubbyLoaded = true;
+                dropBallButton.disabled = false;
+                dropBallButton.textContent = "DROP BUBBY!";
+            };
+            bubbyImage.onerror = () => {
+                console.error('Failed to load Bubby image!');
+                dropBallButton.textContent = "Error loading Bubby :(";
+            };
+            dropBallButton.disabled = true;
+            dropBallButton.textContent = "Loading Bubby...";
+            bubbyImage.src = bubbyFileName;
+            function setupPegs() {
+                pegs = [];
+                for (let i = 0; i < pegRows; i++) {
+                    const y = rowSpacing * (i + 1.5);
+                    const isOffsetRow = i % 2 !== 0;
+                    const colsInRow = isOffsetRow ? pegCols - 1 : pegCols;
+                    const startX = isOffsetRow ? colSpacing * 1.5 : colSpacing;
+                    for (let j = 0; j < colsInRow; j++) {
+                        const x = startX + j * colSpacing;
+                        pegs.push({ x: x, y: y, radius: pegRadius });
+                    }
+                }
+            }
+            function drawPegs() {
+                plinkoCtx.fillStyle = '#555';
+                pegs.forEach(peg => {
+                    plinkoCtx.beginPath();
+                    plinkoCtx.arc(peg.x, peg.y, peg.radius, 0, Math.PI * 2);
+                    plinkoCtx.fill();
+                });
+            }
+            function drawBubby() {
+                if (!isBubbyLoaded) return;
+                bubbys.forEach(bubby => {
+                    const drawSize = bubby.radius * 2;
+                    plinkoCtx.drawImage(bubbyImage, bubby.x - bubby.radius, bubby.y - bubby.radius, drawSize, drawSize);
+                });
+            }
+            function drawBoundaries() {
+                plinkoCtx.strokeStyle = '#333';
+                plinkoCtx.lineWidth = 2;
+                plinkoCtx.beginPath();
+                plinkoCtx.moveTo(0, 0);
+                plinkoCtx.lineTo(0, plinkoCanvas.height);
+                plinkoCtx.moveTo(plinkoCanvas.width, 0);
+                plinkoCtx.lineTo(plinkoCanvas.width, plinkoCanvas.height);
+                plinkoCtx.stroke();
+            }
+            function updatePhysics() {
+                bubbys.forEach((bubby, index) => {
+                    bubby.vy += gravity;
+                    bubby.x += bubby.vx;
+                    bubby.y += bubby.vy;
+                    if (bubby.x - bubby.radius < 0) {
+                        bubby.vx *= -bounceFactor;
+                        bubby.x = bubby.radius;
+                    } else if (bubby.x + bubby.radius > plinkoCanvas.width) {
+                        bubby.vx *= -bounceFactor;
+                        bubby.x = plinkoCanvas.width - bubby.radius;
+                    }
+                    pegs.forEach(peg => {
+                        const dx = bubby.x - peg.x;
+                        const dy = bubby.y - peg.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        const minDistance = bubby.radius + peg.radius;
+                        if (distance < minDistance) {
+                            const nx = dx / distance;
+                            const ny = dy / distance;
+                            const dotProduct = bubby.vx * nx + bubby.vy * ny;
+                            bubby.vx -= 2 * dotProduct * nx;
+                            bubby.vy -= 2 * dotProduct * ny;
+                            bubby.vx *= bounceFactor;
+                            bubby.vy *= bounceFactor;
+                            const overlap = minDistance - distance;
+                            bubby.x += nx * overlap;
+                            bubby.y += ny * overlap;
+                        }
+                    });
+                });
+                bubbys = bubbys.filter(bubby => bubby.y - bubby.radius <= plinkoCanvas.height);
+            }
+            function gameLoop() {
+                plinkoCtx.clearRect(0, 0, plinkoCanvas.width, plinkoCanvas.height);
+                updatePhysics();
+                drawBoundaries();
+                drawPegs();
+                drawBubby();
+                requestAnimationFrame(gameLoop);
+            }
+            dropBallButton.addEventListener('click', () => {
+                if (isBubbyLoaded) {
+                    const minRadiusFactor = 0.90;
+                    const randomFactor = Math.random() * (1 - minRadiusFactor) + minRadiusFactor;
+                    const randomRadius = bubbyRadius * randomFactor;
+                    const newBubby = {
+                        x: plinkoCanvas.width / 2,
+                        y: 20,
+                        vx: (Math.random() - 0.5) * 2,
+                        vy: 0,
+                        radius: randomRadius
+                    };
+                    bubbys.push(newBubby);
+                    if (bubbyDropSound) {
+                        bubbyDropSound.currentTime = 0;
+                        bubbyDropSound.play();
+                    }
+                }
+            });
+            setupPegs();
+            gameLoop();
+            const messages = [
+                "Connecting to secure server...",
+                "Validating payment method...",
+                "Encrypting JollarWallet details...",
+                "Contacting the Noobnet...",
+                "Bypassing swamptown password...",
+                "Negotiating with Finn...",
+                "Checking your previous infractions...",
+                "Calculating remorse score...",
+                "Re-evaluating your ban status...",
+                "Sorting through 3rd floor file cabinets...",
+                "Josh is a nice person...",
+                "Re-allocating server resources...",
+                "Generating official unban certificate...",
+                "Starting JollarCoin miner...",
+                "Updating global user database...",
+                "Mining JollarCoin...",
+                "Finalizing unban...",
+                "Almost there...",
+                "Syncing with the Noobnet...",
+                "Verifying unban status...",
+                "Pinging Felipe..."
+            ];
+            purchaseButton.addEventListener('click', () => {
+                const duration = 5 * 60 * 1000;
+                const intervalTime = 200;
+                const totalSteps = duration / intervalTime;
+                let currentStep = 0;
+                let messageIndex = 0;
+                if (chaChingSound) {
+                    chaChingSound.play();
+                }
+                purchaseSection.style.display = 'none';
+                progressSection.style.display = 'flex';
+                const interval = setInterval(() => {
+                    currentStep++;
+                    const progress = Math.min((currentStep / totalSteps) * 100, 100);
+                    progressBar.value = progress;
+                    if (currentStep % (totalSteps / messages.length * 2) < 1) {
+                        messageIndex = (messageIndex + 1) % messages.length;
+                        progressMessage.textContent = messages[messageIndex];
+                    }
+                    if (currentStep >= totalSteps) {
+                        clearInterval(interval);
+                        progressBar.value = 100;
+                        progressMessage.textContent = "Unban Complete";
+                        setTimeout(() => {
+                             progressSection.style.display = 'none';
+                             finalConfirmation.style.display = 'block';
+                        }, 500);
+                    }
+                }, intervalTime);
+            });
+        </script>
     </body>
 </html>
