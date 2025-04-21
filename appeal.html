@@ -213,36 +213,37 @@
     <body>
         <audio id="cha-ching-sound">
             <source src="assets/audio/cha-ching.mp3" type="audio/mpeg">
-            Your browser does not support the audio element.
         </audio>
         <audio id="bubby-drop-sound" preload="auto">
             <source src="assets/sounds/bubby.mp3" type="audio/mpeg">
-             Your browser doesn't support this audio.
+        </audio>
+        <audio id="waiting-music" preload="auto" loop>
+            <source src="assets/audio/ohhhyeahjazzycuttime.mp3" type="audio/mpeg">
         </audio>
 
         <div id="purchase-section">
             <h1>Ready to rejoin the fun?</h1>
-            <img src="assets/gifs/gif1.gif" alt="Animated GIF 1" width="150" height="150" class="bouncing-gif" style="animation-delay: 0s;">
+            <img src="assets/gifs/gif1.gif" width="150" height="150" class="bouncing-gif" style="animation-delay: 0s;">
             <p>Click the button below to purchase your unban!</p>
             <div>
                 <span class="arrow">➡️</span>
-                <img src="assets/gifs/gif2.gif" alt="Animated GIF 2" width="150" height="150" class="bouncing-gif" style="top: 20%; left: 70%; animation-delay: -2s;">
+                <img src="assets/gifs/gif2.gif" width="150" height="150" class="bouncing-gif" style="top: 20%; left: 70%; animation-delay: -2s;">
                 <button id="purchase-button">!! CLICK HERE FOR INSTANT UNBAN !! (GUARANTEED)</button>
-                <img src="assets/gifs/gif3.gif" alt="Animated GIF 3" width="150" height="150" class="bouncing-gif" style="top: 50%; left: 15%; animation-delay: -4s;">
+                <img src="assets/gifs/gif3.gif" width="150" height="150" class="bouncing-gif" style="top: 50%; left: 15%; animation-delay: -4s;">
                 <span class="arrow">⬅️</span>
             </div>
         </div>
 
         <div id="progress-section">
             <h2>Processing Your Unban Request...</h2>
-            <img src="assets/gifs/gif6.gif" alt="Animated GIF 6" width="150" height="150" class="bouncing-gif" style="top: 85%; left: 50%; animation-delay: -10s;">
+            <img src="assets/gifs/gif6.gif" width="150" height="150" class="bouncing-gif" style="top: 85%; left: 50%; animation-delay: -10s;">
             <progress id="progress-bar" value="0" max="100"></progress>
             <p id="progress-message">Booting up...</p>
             <div id="plinko-area">
                 <canvas id="plinko-canvas" width="300" height="400"></canvas>
                 <button id="drop-ball-button">DROP PLINKO BALL!</button>
             </div>
-            <img src="assets/gifs/gif7.gif" alt="Animated GIF 7" width="150" height="150" class="bouncing-gif" style="top: 5%; left: 50%; animation-delay: -12s;">
+            <img src="assets/gifs/gif7.gif" width="150" height="150" class="bouncing-gif" style="top: 5%; left: 50%; animation-delay: -12s;">
         </div>
 
         <div id="final-confirmation">
@@ -250,9 +251,9 @@
              <p>You have just purchased an unban! Contact felipe on discord with a screenshot of this purchase confirmation to redeem!</p>
             <p>(noobular unban is a non refundable purchase)</p>
             <p>Please direct all complaints to 1-800-NOOBNET</p>
-            <img src="assets/gifs/gif4.gif" alt="Animated GIF 4" width="150" height="150" class="bouncing-gif" style="top: 75%; left: 75%; animation-delay: -6s;">
+            <img src="assets/gifs/gif4.gif" width="150" height="150" class="bouncing-gif" style="top: 75%; left: 75%; animation-delay: -6s;">
             <a href="/hoa.html">(Click to go back)</a>
-            <img src="assets/gifs/gif5.gif" alt="Animated GIF 5" width="150" height="150" class="bouncing-gif" style="top: 15%; left: 45%; animation-delay: -8s;">
+            <img src="assets/gifs/gif5.gif" width="150" height="150" class="bouncing-gif" style="top: 15%; left: 45%; animation-delay: -8s;">
         </div>
 
         <script>
@@ -264,6 +265,7 @@
             const finalConfirmation = document.getElementById('final-confirmation');
             const chaChingSound = document.getElementById('cha-ching-sound');
             const bubbyDropSound = document.getElementById('bubby-drop-sound');
+            const waitingMusic = document.getElementById('waiting-music');
             const plinkoCanvas = document.getElementById('plinko-canvas');
             const plinkoCtx = plinkoCanvas.getContext('2d');
             const dropBallButton = document.getElementById('drop-ball-button');
@@ -281,14 +283,11 @@
             const rowSpacing = plinkoCanvas.height / (pegRows + 2);
             const colSpacing = plinkoCanvas.width / (pegCols + 1);
             bubbyImage.onload = () => {
-                console.log('Bubby image loaded successfully!');
                 isBubbyLoaded = true;
                 dropBallButton.disabled = false;
                 dropBallButton.textContent = "DROP BUBBY!";
             };
             bubbyImage.onerror = () => {
-                console.error('Failed to load Bubby image!');
-                dropBallButton.textContent = "Error loading Bubby :(";
             };
             dropBallButton.disabled = true;
             dropBallButton.textContent = "Loading Bubby...";
@@ -427,6 +426,10 @@
                 }
                 purchaseSection.style.display = 'none';
                 progressSection.style.display = 'flex';
+                if (waitingMusic) {
+                    waitingMusic.currentTime = 0;
+                    waitingMusic.play();
+                }
                 const interval = setInterval(() => {
                     currentStep++;
                     const progress = Math.min((currentStep / totalSteps) * 100, 100);
@@ -439,6 +442,10 @@
                         clearInterval(interval);
                         progressBar.value = 100;
                         progressMessage.textContent = "Unban Complete";
+                        if (waitingMusic) {
+                            waitingMusic.pause();
+                            waitingMusic.currentTime = 0;
+                        }
                         setTimeout(() => {
                              progressSection.style.display = 'none';
                              finalConfirmation.style.display = 'block';
