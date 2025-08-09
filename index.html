@@ -3,6 +3,19 @@
   <head>
     <title>OFFICIAL christmas Noobular!</title>
     <link rel="stylesheet" href="css/mainstyle.css">
+    <style>
+      html.REMOVE-EVERYTHING body > *, body.REMOVE-EVERYTHING > * { display: none !important; }
+    </style>
+    <script>
+      // Apply persistent hide on initial load to avoid flash
+      try {
+        if (localStorage.getItem('REMOVE-EVERYTHING') === '1') {
+          document.documentElement.classList.add('REMOVE-EVERYTHING');
+        }
+      } catch (e) {
+        // ignore storage errors
+      }
+    </script>
   </head>
   <body>
     <table cellpadding="2" cellspacing="2">
@@ -95,6 +108,7 @@
     <p>ho ho ho</p>
     <audio id="splat-audio" src="assets/audio/splat.mp3" preload="auto" style="display:none"></audio>
     <script>
+      let typedBuffer = '';
       window.addEventListener('keydown', function handleKeydown(event) {
         if (event.defaultPrevented) return;
         const target = event.target;
@@ -106,10 +120,11 @@
           );
         if (isTypingContext) return;
         if (!event.ctrlKey && !event.metaKey && !event.altKey && !event.shiftKey) {
-          if (String(event.key || '').toLowerCase() === 'p') {
+          const key = String(event.key || '').toLowerCase();
+          if (key === 'p') {
             window.location.href = 'https://cinema.noobular.top'; //kino
           }
-          if (String(event.key || '').toLowerCase() === 's') {
+          if (key === 's') {
             const splat = document.getElementById('splat-audio');
             if (splat && typeof splat.play === 'function') {
               try {
@@ -118,6 +133,23 @@
               } catch (e) {
                 // i hate html
               }
+            }
+          }
+          if (key.length === 1 && key >= 'a' && key <= 'z') { //WHATEVER YOU DO DO NOT TYPE RICKY
+            typedBuffer += key;
+            if (typedBuffer.length > 16) typedBuffer = typedBuffer.slice(-16);
+            if (typedBuffer.endsWith('ricky')) {
+              try {
+                localStorage.setItem('REMOVE-EVERYTHING', '1');
+              } catch (e) {}
+              document.documentElement.classList.add('REMOVE-EVERYTHING');
+              if (document.body) document.body.classList.add('REMOVE-EVERYTHING');
+            } else if (typedBuffer.endsWith('sorry')) {
+              try {
+                localStorage.removeItem('REMOVE-EVERYTHING');
+              } catch (e) {}
+              document.documentElement.classList.remove('REMOVE-EVERYTHING');
+              if (document.body) document.body.classList.remove('REMOVE-EVERYTHING');
             }
           }
         }
