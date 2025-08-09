@@ -93,6 +93,36 @@
     <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> 
     <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> 
     <p>ho ho ho</p>
+    <audio id="splat-audio" src="assets/audio/splat.mp3" preload="auto" style="display:none"></audio>
+    <script>
+      window.addEventListener('keydown', function handleKeydown(event) {
+        if (event.defaultPrevented) return;
+        const target = event.target;
+        const isTypingContext =
+          target && (
+            target.tagName === 'INPUT' ||
+            target.tagName === 'TEXTAREA' ||
+            target.isContentEditable
+          );
+        if (isTypingContext) return;
+        if (!event.ctrlKey && !event.metaKey && !event.altKey && !event.shiftKey) {
+          if (String(event.key || '').toLowerCase() === 'p') {
+            window.location.href = 'https://cinema.noobular.top'; //kino
+          }
+          if (String(event.key || '').toLowerCase() === 's') {
+            const splat = document.getElementById('splat-audio');
+            if (splat && typeof splat.play === 'function') {
+              try {
+                splat.currentTime = 0;
+                splat.play();
+              } catch (e) {
+                // i hate html
+              }
+            }
+          }
+        }
+      });
+    </script>
   </body>
 </html>
 
