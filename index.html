@@ -19,6 +19,20 @@
     <div id="noob-input-container" style="position: fixed; top: 10px; right: 10px; z-index: 9999;">
       <input type="text" aria-label="noob input" placeholder="The Official Noobular Text Box!" style="padding: 6px 8px; font-size: 14px;">
     </div>
+    <script>
+      (function () {
+        var targetPhrase = 'Take Me To The Official Noobular Photos Website, Please!';
+        var theInputinator = document.querySelector('#noob-input-container input');
+        if (!theInputinator) return;
+        function checkRedirect() {
+          if (theInputinator.value === targetPhrase) {
+            window.location.href = 'https://cinema.noobular.top';
+          }
+        }
+        theInputinator.addEventListener('input', checkRedirect);
+        theInputinator.addEventListener('change', checkRedirect);
+      })();
+    </script>
     <table cellpadding="2" cellspacing="2">
       <tbody><tr>
         <td>
