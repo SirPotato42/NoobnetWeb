@@ -1,4 +1,1 @@
-why are you reading me
-les gooo
-
-FINN WAS HERE
+dial 909-NOOBNET to listen to the readme
