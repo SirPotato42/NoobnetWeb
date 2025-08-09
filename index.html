@@ -7,17 +7,18 @@
       html.REMOVE-EVERYTHING body > *, body.REMOVE-EVERYTHING > * { display: none !important; }
     </style>
     <script>
-      // Apply persistent hide on initial load to avoid flash
       try {
         if (localStorage.getItem('REMOVE-EVERYTHING') === '1') {
           document.documentElement.classList.add('REMOVE-EVERYTHING');
         }
       } catch (e) {
-        // ignore storage errors
       }
     </script>
   </head>
   <body>
+    <div id="noob-input-container" style="position: fixed; top: 10px; right: 10px; z-index: 9999;">
+      <input type="text" aria-label="noob input" placeholder="The Official Noobular Text Box!" style="padding: 6px 8px; font-size: 14px;">
+    </div>
     <table cellpadding="2" cellspacing="2">
       <tbody><tr>
         <td>
