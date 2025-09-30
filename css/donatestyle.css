@@ -1,0 +1,29 @@
+.rainbow-text {
+  font-size: 42px;
+  font-family: Arial Black, Gadget, sans-serif;
+  animation: rainbow-color-change 3s linear infinite alternate;
+}
+@keyframes rainbow-color-change {
+  0%,
+  100% {
+    color: #ff0000;
+  } /* Red */
+  14% {
+    color: #ff8b00;
+  } /* Orange */
+  28% {
+    color: #e8ff00;
+  } /* Yellow */
+  42% {
+    color: #5dff00;
+  } /* Green */
+  56% {
+    color: #00b9ff;
+  } /* Blue */
+  70% {
+    color: #5d00ff;
+  } /* Indigo */
+  84% {
+    color: #e800ff;
+  } /* Violet */
+}
