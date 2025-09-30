@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>THE MOVIES</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background-image: url('assets/images/movies.jpg');
+        background-repeat: repeat;
+        background-size: auto;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+      }
+      #watch-button {
+        background-color: red;
+        color: white;
+        border: 5px solid black;
+        padding: 30px 60px;
+        font-size: 48px;
+        cursor: pointer;
+        font-weight: bold;
+        font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+      }
+      #status-text {
+        color: white;
+        font-size: 36px;
+        margin: 20px;
+        font-weight: bold;
+        text-align: center;
+        text-shadow: 2px 2px 4px black;
+        font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+      }
+      #video-player {
+        max-width: 90%;
+        max-height: 80vh;
+      }
+      #movie-number-input {
+        background-color: white;
+        border: 3px solid black;
+        padding: 10px 20px;
+        font-size: 24px;
+        margin-bottom: 20px;
+        font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+        text-align: center;
+        width: 200px;
+      }
+      label {
+        color: white;
+        font-size: 24px;
+        font-weight: bold;
+        text-shadow: 2px 2px 4px black;
+        margin-bottom: 10px;
+      }
+      .input-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="input-container">
+      <label for="movie-number-input">Movie Number:</label>
+      <input type="number" id="movie-number-input" min="1" placeholder="Random">
+    </div>
+    <button id="watch-button" onclick="startWatching()">WATCH A MOVIE</button>
+    <div id="status-text"></div>
+    <video id="video-player" controls style="display: none;"></video>
+    <audio id="applause-audio" src="assets/audio/applause-4.mp3"></audio>
+
+    <script>
+      async function getMovies() {
+        try {
+          const response = await fetch('assets/movies/');
+          const text = await response.text();
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(text, 'text/html');
+          const links = Array.from(doc.querySelectorAll('a'));
+          const movies = links
+            .map(link => link.getAttribute('href'))
+            .filter(href => href && (href.endsWith('.mp4') || href.endsWith('.mov')))
+            .map(href => decodeURIComponent(href.split('/').pop()));
+          return movies.length > 0 ? movies : [
+            'action movie.mp4',
+            "andrew's big mic.mp4",
+            'noobular live!.mp4'
+          ];
+        } catch (error) {
+          return [
+            'action movie.mp4',
+            "andrew's big mic.mp4",
+            'noobular live!.mp4'
+          ];
+        }
+      }
+
+      async function startWatching() {
+        const button = document.getElementById('watch-button');
+        const statusText = document.getElementById('status-text');
+        const videoPlayer = document.getElementById('video-player');
+        const applauseAudio = document.getElementById('applause-audio');
+        const movieNumberInput = document.getElementById('movie-number-input');
+        const inputContainer = document.querySelector('.input-container');
+        
+        button.style.display = 'none';
+        inputContainer.style.display = 'none';
+        statusText.textContent = 'But first, a word from our sponsor';
+        videoPlayer.style.display = 'block';
+        videoPlayer.src = 'assets/noobular ad.mp4';
+        videoPlayer.play();
+        
+        videoPlayer.onended = async function() {
+          if (videoPlayer.src.includes('noobular%20ad.mp4') || videoPlayer.src.includes('noobular ad.mp4')) {
+            const movies = await getMovies();
+            let selectedMovie;
+            
+            const movieNumber = movieNumberInput.value;
+            if (movieNumber && movieNumber >= 1 && movieNumber <= movies.length) {
+              selectedMovie = movies[movieNumber - 1];
+            } else {
+              selectedMovie = movies[Math.floor(Math.random() * movies.length)];
+            }
+            
+            const movieName = selectedMovie.replace('.mp4', '').replace('.mov', '');
+            
+            statusText.textContent = movieName;
+            videoPlayer.src = 'assets/movies/' + selectedMovie;
+            videoPlayer.play();
+          } else if (videoPlayer.src.includes('assets/movies/')) {
+            applauseAudio.play();
+            applauseAudio.onended = function() {
+              location.reload();
+            };
+          }
+        };
+      }
+    </script>
+  </body>
+</html>
