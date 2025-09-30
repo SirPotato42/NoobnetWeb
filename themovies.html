@@ -84,19 +84,12 @@
           const links = Array.from(doc.querySelectorAll('a'));
           const movies = links
             .map(link => link.getAttribute('href'))
-            .filter(href => href && (href.endsWith('.mp4') || href.endsWith('.mov')))
+            .filter(href => href && (href.endsWith('.mp4') || href.endsWith('.mov') || href.endsWith('.avi') || href.endsWith('.mkv') || href.endsWith('.webm')))
             .map(href => decodeURIComponent(href.split('/').pop()));
-          return movies.length > 0 ? movies : [
-            'action movie.mp4',
-            "andrew's big mic.mp4",
-            'noobular live!.mp4'
-          ];
+          return movies;
         } catch (error) {
-          return [
-            'action movie.mp4',
-            "andrew's big mic.mp4",
-            'noobular live!.mp4'
-          ];
+          console.error('Error fetching movies:', error);
+          return [];
         }
       }
 
@@ -118,16 +111,22 @@
         videoPlayer.onended = async function() {
           if (videoPlayer.src.includes('noobular%20ad.mp4') || videoPlayer.src.includes('noobular ad.mp4')) {
             const movies = await getMovies();
-            let selectedMovie;
             
+            if (movies.length === 0) {
+              statusText.textContent = 'No movies available';
+              return;
+            }
+            
+            let selectedMovie;
             const movieNumber = movieNumberInput.value;
+            
             if (movieNumber && movieNumber >= 1 && movieNumber <= movies.length) {
               selectedMovie = movies[movieNumber - 1];
             } else {
               selectedMovie = movies[Math.floor(Math.random() * movies.length)];
             }
             
-            const movieName = selectedMovie.replace('.mp4', '').replace('.mov', '');
+            const movieName = selectedMovie.replace(/\.(mp4|mov|avi|mkv|webm)$/i, '');
             
             statusText.textContent = movieName;
             videoPlayer.src = 'assets/movies/' + selectedMovie;
