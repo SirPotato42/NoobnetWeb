@@ -369,7 +369,7 @@
         const hasMaxLength = username.length < 13;
         const hasNumber = /\d/.test(username);
         const hasCapital = /[A-Z]/.test(username);
-        const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(username);
+        const hasSpecial = /[!@#$%^&*()q,.?":{}|<>]/.test(username);
         const hasNoobular = username.includes('I<3NOOBULAR');
         
         const allValid = hasMinLength && hasNumber && hasCapital && hasSpecial && hasNoobular && hasMaxLength;
