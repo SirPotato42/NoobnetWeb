@@ -16,6 +16,19 @@
     </script>
   </head>
   <body>
+    //the jolly alert:
+    <div id="warning-popup" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8); z-index: 10000; justify-content: center; align-items: center;">
+      <div style="background-color: orange; border: 3px solid black; padding: 20px; text-align: center; max-width: 500px; margin: 20px;">
+        <h2 style="color: black; font-size: 40px; margin: 0 0 15px 0;">⚠️ WARNING! ⚠️</h2>
+        <p style="color: black; font-size: 28px; margin: 0 0 20px 0; font-weight: bold;">JOLLY OVERLOAD</p>
+        <p style="color: black; font-size: 20px; margin: 0 0 20px 0;">conginue?</p>
+        <div style="display: flex; gap: 15px; justify-content: center;">
+          <button onclick="proceedToChristmas()" style="background-color: green; color: white; border: 2px solid black; padding: 10px 20px; font-size: 20px; cursor: pointer; font-weight: bold;">Proceed</button>
+          <button onclick="hideJollyWarning()" style="background-color: red; color: white; border: 2px solid black; padding: 10px 20px; font-size: 20px; cursor: pointer; font-weight: bold;">grinch button</button>
+        </div>
+      </div>
+    </div>
+
     <div id="noob-input-container" style="position: fixed; top: 10px; right: 10px; z-index: 9999;">
       <input type="text" aria-label="noob input" placeholder="The Official Noobular Text Box!" style="padding: 6px 8px; font-size: 14px;">
     </div>
@@ -106,7 +119,7 @@
         <button onclick="window.location.href='/guestbook.html'" style="background-color:mediumslateblue; width: 100%; height: 100px; font-size: 60px;">
           go to the broken guestbook
         </button>
-        <button onclick="window.location.href='/oldchristmasmainpage.html'" style="background-color:orange; width: 100%; height: 100px; font-size: 60px;">
+        <button onclick="showJollyWarning()" style="background-color:orange; width: 100%; height: 100px; font-size: 60px;">
           go to the website's old christmas 2024 edition! (very cool)
         </button>
         <button onclick="window.location.href='/hoa.html'" style="background-color:tomato; width: 100%; height: 100px; font-size: 60px;">
@@ -1565,6 +1578,24 @@ I had virtually no rehearsal for that.</p>
           }
         }
       });
+
+      function showJollyWarning() {
+        const popup = document.getElementById('warning-popup');
+        if (popup) {
+          popup.style.display = 'flex';
+        }
+      }
+
+      function hideJollyWarning() {
+        const popup = document.getElementById('warning-popup');
+        if (popup) {
+          popup.style.display = 'none';
+        }
+      }
+
+      function proceedToChristmas() {
+        window.location.href = '/oldchristmasmainpage.html';
+      }
     </script>
   </body>
 </html>
