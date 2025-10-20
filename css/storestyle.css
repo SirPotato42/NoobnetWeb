@@ -50,7 +50,8 @@ aside.sale {
     border: 5px black solid;
     animation: shake 0.5s infinite;
     color: white;
-    background-image: url("../assets/images/lungcancer.png");
+    background-image: url("../assets/images/halloween.png");
+    background-position-y: 50%;
     width: 40vw !important;
     font-size: 2vw;
 }
@@ -80,7 +81,7 @@ main {
 }
 
 body {
-    background-image: url("../assets/images/store-background.jpg");
+    background-image: url("../assets/images/store-background-scary.jpg");
 	background-size: 500px 500px;
 }
 
