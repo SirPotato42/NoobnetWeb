@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Noobular — Wiki</title>
+    <style>
+        :root{
+            --bg:#f6f7fb; --card:#fff; --muted:#6b7280; --accent:#4f46e5;
+            --max:1000px; font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+        }
+        html,body{height:100%}
+        body{margin:0;background:linear-gradient(180deg,var(--bg),#fff);color:#111;display:flex;align-items:flex-start;justify-content:center;padding:48px 16px}
+        .wrap{width:100%;max-width:var(--max)}
+        header{display:flex;align-items:center;gap:16px;margin-bottom:20px}
+        .logo{width:56px;height:56px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#8b5cf6);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;box-shadow:0 6px 18px rgba(79,70,229,0.12)}
+        h1{font-size:20px;margin:0}
+        .meta{color:var(--muted);font-size:13px}
+        nav{display:flex;gap:12px;margin:18px 0}
+        nav a{color:var(--accent);text-decoration:none;font-weight:600;font-size:14px}
+        main{display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start}
+        .card{background:var(--card);padding:18px;border-radius:12px;box-shadow:0 6px 18px rgba(15,23,42,0.06)}
+        h2{margin:0 0 8px 0;font-size:16px}
+        p{margin:0 0 12px 0;color:#222cf0a0}
+        .muted{color:var(--muted);font-size:13px}
+        ul{margin:8px 0 0 20px;padding:0}
+        .aside .small{font-size:13px;color:var(--muted);margin-bottom:10px}
+        footer{margin-top:18px;color:var(--muted);font-size:13px;text-align:center}
+        @media (max-width:880px){
+            main{grid-template-columns:1fr}
+            .aside{order:2}
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <header>
+            <div class="logo">N</div>
+            <div>
+                <h1>Noobular — Wiki</h1>
+                <div class="meta">Guides, structure, and governance for the Noobular site</div>
+            </div>
+        </header>
+
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="hoa.html">hoa</a>
+            <a href="contribute.html">Contribute</a>
+            <a href="changelog.html">Changelog</a>
+        </nav>
+
+        <main>
+            <section class="card">
+                <h2>Project overview</h2>
+                <p class="muted">Noobular is a small modular site focused on learning, community resources, and lightweight tools. This wiki documents site purpose, structure, and contribution workflows.</p>
+
+                <h2>Core principles</h2>
+                <ul>
+                    <li>Simple, accessible content for beginners</li>
+                    <li>Modular pages that can be reused across projects</li>
+                    <li>Open contribution model with clear guidelines</li>
+                </ul>
+
+                <h2>Site structure</h2>
+                <ul>
+                    <li><strong>index.html</strong> — landing / overview</li>
+                    <li><strong>hoa.html</strong> — a themed page (design reference)</li>
+                    <li><strong>wiki.html</strong> — this file: documentation and governance</li>
+                    <li><strong>/assets/</strong> — images, icons, fonts, styles</li>
+                    <li><strong>/docs/</strong> — extended guides and references</li>
+                </ul>
+
+                <h2>Pages & content</h2>
+                <p class="muted">Each page should be small, focused, and link back to the wiki for policies and conventions.</p>
+                <ul>
+                    <li>Use semantic HTML and clear headings</li>
+                    <li>Keep styles scoped and minimal—prefer utility CSS or small scoped rules</li>
+                    <li>Provide accessible navigation and alt text for images</li>
+                </ul>
+
+                <h2>How to contribute</h2>
+                <ul>
+                    <li>Fork the repo, create a branch, and open a pull request</li>
+                    <li>Follow formatting and linting rules in the repo</li>
+                    <li>Write short, focused commits and include a descriptive PR message</li>
+                </ul>
+
+                <h2>Technical notes</h2>
+                <ul>
+                    <li>Static site — no server-side runtime required</li>
+                    <li>Prefer lightweight vanilla JS; avoid heavy frameworks</li>
+                    <li>Images should be optimized and placed under /assets/images</li>
+                </ul>
+            </section>
+
+            <aside class="card aside">
+                <div class="small">Slow links</div>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="hoa.html">hoa (style reference)</a></li>
+                    <li><a href="contribute.html">Contribute guide</a></li>
+                    <li><a href="changelog.html">Changelog</a></li>
+                </ul>
+
+                <div style="height:14px"></div>
+
+                <div class="small">Contact</div>
+                <div class="muted">Project maintainers: <br/>everyone.on.earth@noobular.top<br/>1-800-NOOBNET</div>
+
+                <div style="height:14px"></div>
+
+                <div class="small">License</div>
+                <div class="muted">Content licensed under CC0 / code under an OSI-approved license (check repo)</div>
+            </aside>
+        </main>
+
+        <footer>
+            Last updated: 1984 • Noobular Project
+        </footer>
+    </div>
+</body>
+</html>
