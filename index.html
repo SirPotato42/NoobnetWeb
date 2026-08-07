@@ -337,12 +337,16 @@
       }
 
       function regg() {
-        const link = document.createElement('a');
-        link.href = 'assets/images/regg.png';
-        link.download = 'regg.png';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        if (window.noobDownloadRegg) {
+          window.noobDownloadRegg();
+        } else {
+          const link = document.createElement('a');
+          link.href = 'assets/images/regg.png';
+          link.download = 'regg.png';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }
         hideJollyWarning();
       }
 
@@ -558,6 +562,7 @@
         setInterval(theSimpsons, 1000 *3600);
       })();
     </script>
+  <script src="assets/cookie-banner.js"></script>
   </body>
 </html>
 
