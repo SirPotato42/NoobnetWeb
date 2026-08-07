@@ -578,10 +578,14 @@
         const MAX_LIFE = 2600;
         let busy = false;
 
+        const crash = new Audio('assets/sounds/glass breaking.m4a');
+        crash.preload = 'auto';
+
         chair.addEventListener('click', function () {
           if (busy) return;
           busy = true;
-          // a full second of the chair just sitting there, then it goes
+          // the fuse doubles as buffering time for the crash
+          crash.load();
           setTimeout(shatter, FUSE);
         });
 
@@ -599,7 +603,8 @@
           document.body.appendChild(shards);
 
           try {
-            new Audio('assets/audio/splat.mp3').play();
+            crash.currentTime = 0;
+            crash.play();
           } catch (e) {
           }
 
