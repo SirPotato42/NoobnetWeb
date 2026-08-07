@@ -42,7 +42,7 @@
       '  position: fixed; bottom: 0; left: 0; width: 100%; box-sizing: border-box;',
       '  z-index: 9998; background-color: black; color: lime;',
       '  border-top: 8px ridge red; animation: noob-cookie-rainbow 1s linear infinite;',
-      '  font-family: "Comic Sans MS", "Comic Sans", cursive; text-align: center;',
+      '  font-family: "Times New Roman", Times, serif; text-align: center;',
       '  padding: 10px 12px 14px 12px;',
       '}',
       '#noob-cookie-banner .noob-cookie-blink { animation: noob-cookie-blink 0.7s steps(1) infinite; }',
