@@ -86,53 +86,26 @@
     <audio id="applause-audio" src="assets/audio/applause-4.mp3"></audio>
 
     <script>
-      const MOVIE_EXTENSIONS = ['.mp4', '.mov', '.avi', '.mkv', '.webm'];
-
-      function isMovie(name) {
-        return MOVIE_EXTENSIONS.some(ext => name.toLowerCase().endsWith(ext));
-      }
+      // ---------------------------------------------------------------
+      // THE MOVIE LIST - add new movies here.
+      //
+      // Two steps to add one:
+      //   1. put the file in assets/movies/
+      //   2. add its exact filename to this list, with the extension
+      //
+      // The name has to match the file exactly, capitals and all. The bit
+      // before the extension is what shows on screen while it plays.
+      // ---------------------------------------------------------------
+      const MOVIES = [
+        'A Most Beautiful Performance.mp4',
+        'Action Movie 1.mp4',
+        'Inglorious Bastards.mp4',
+        'Noobular Live!.mp4',
+        'The Machine.mov'
+      ];
 
       async function getMovies() {
-        // assets/movies.json is a Jekyll template. GitHub Pages rebuilds it on
-        // every push, so dropping a file into assets/movies/ is all it takes to
-        // add a movie - nothing here needs editing.
-        const fromManifest = await getMoviesFromManifest();
-        if (fromManifest.length) return fromManifest;
-
-        // Jekyll hasn't run (plain local server), so fall back to scraping the
-        // directory index. GitHub Pages never serves one, which is why the
-        // manifest exists at all.
-        return getMoviesFromDirectoryListing();
-      }
-
-      async function getMoviesFromManifest() {
-        try {
-          const response = await fetch('assets/movies.json', { cache: 'no-store' });
-          if (!response.ok) return [];
-          // unbuilt, this is raw Liquid rather than JSON, so parsing throws
-          const list = JSON.parse(await response.text());
-          return Array.isArray(list) ? list.filter(isMovie) : [];
-        } catch (error) {
-          return [];
-        }
-      }
-
-      async function getMoviesFromDirectoryListing() {
-        try {
-          const response = await fetch('assets/movies/');
-          const text = await response.text();
-          const parser = new DOMParser();
-          const doc = parser.parseFromString(text, 'text/html');
-          const links = Array.from(doc.querySelectorAll('a'));
-          const movies = links
-            .map(link => link.getAttribute('href'))
-            .filter(href => href && isMovie(href))
-            .map(href => decodeURIComponent(href.split('/').pop()));
-          return movies;
-        } catch (error) {
-          console.error('Error fetching movies:', error);
-          return [];
-        }
+        return MOVIES;
       }
 
       async function startWatching() {

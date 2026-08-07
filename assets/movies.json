@@ -1,6 +1,0 @@
----
-layout: null
----
-{%- assign in_folder = site.static_files | where_exp: "f", "f.path contains '/assets/movies/'" -%}
-{%- assign vids = in_folder | where_exp: "f", "f.extname == '.mp4' or f.extname == '.mov' or f.extname == '.avi' or f.extname == '.mkv' or f.extname == '.webm'" -%}
-{{ vids | map: "name" | jsonify }}
