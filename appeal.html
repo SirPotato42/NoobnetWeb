@@ -167,7 +167,8 @@
             border: none;
         }
 
-        #final-confirmation {
+        #final-confirmation,
+        #unban-fail {
             display: none;
             margin-top: 30px;
             background-color: rgba(0, 0, 255, 0.7);
@@ -177,12 +178,14 @@
             z-index: 1;
         }
 
-        #final-confirmation h1 {
+        #final-confirmation h1,
+        #unban-fail h1 {
             color: #FFFF00;
             text-shadow: 3px 3px #FF00FF;
         }
 
-        #final-confirmation p {
+        #final-confirmation p,
+        #unban-fail p {
             font-size: 1.2em;
             color: #FFFFFF;
             background-color: transparent;
@@ -190,13 +193,15 @@
             margin: 10px 0;
         }
 
-        #final-confirmation a {
+        #final-confirmation a,
+        #unban-fail a {
             color: #00FF00;
             font-weight: bold;
             font-size: 1.3em;
         }
 
-        #final-confirmation a:hover {
+        #final-confirmation a:hover,
+        #unban-fail a:hover {
             color: #FF00FF;
         }
 
@@ -536,7 +541,7 @@
             "Pinging Felipe..."
         ];
         purchaseButton.addEventListener('click', () => {
-            const duration = 45 * 10000;
+            const duration = 45 * 5000;
             const intervalTime = 200;
             const totalSteps = duration / intervalTime;
             let currentStep = 0;
