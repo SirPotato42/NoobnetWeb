@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-N6576WFHXF"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-N6576WFHXF');
+  </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>noobGPT</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      background-size: 400% 400%;
+      animation: bgShift 18s ease infinite;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      color: #eaeaea;
+    }
+
+    @keyframes bgShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .home-link {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      text-decoration: none;
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-weight: 600;
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: background 0.2s;
+    }
+
+    .home-link:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .chat-window {
+      width: 100%;
+      max-width: 640px;
+      height: 80vh;
+      max-height: 760px;
+      background: rgba(20, 24, 33, 0.85);
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .chat-header {
+      padding: 18px 22px;
+      background: linear-gradient(135deg, #10a37f, #6e48aa);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .chat-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      box-shadow: 0 0 14px rgba(255, 255, 255, 0.5);
+    }
+
+    .chat-header h1 {
+      margin: 0;
+      font-size: 20px;
+      color: #fff;
+    }
+
+    .chat-header .status {
+      margin: 2px 0 0;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.85);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #6cf76c;
+      box-shadow: 0 0 8px #6cf76c;
+    }
+
+    .messages {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .msg {
+      max-width: 78%;
+      padding: 12px 16px;
+      border-radius: 16px;
+      font-size: 15px;
+      line-height: 1.4;
+      animation: pop 0.25s ease;
+      word-wrap: break-word;
+    }
+
+    @keyframes pop {
+      from { transform: translateY(8px) scale(0.98); opacity: 0; }
+      to { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    .msg.bot {
+      align-self: flex-start;
+      background: rgba(255, 255, 255, 0.1);
+      border-bottom-left-radius: 4px;
+    }
+
+    .msg.user {
+      align-self: flex-end;
+      background: linear-gradient(135deg, #10a37f, #0d8c6d);
+      color: #fff;
+      border-bottom-right-radius: 4px;
+    }
+
+    .typing {
+      align-self: flex-start;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 14px 18px;
+      border-radius: 16px;
+      border-bottom-left-radius: 4px;
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .typing span {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #bbb;
+      animation: bounce 1.2s infinite ease-in-out;
+    }
+
+    .typing span:nth-child(2) { animation-delay: 0.2s; }
+    .typing span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes bounce {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+      30% { transform: translateY(-8px); opacity: 1; }
+    }
+
+    .composer {
+      display: flex;
+      gap: 10px;
+      padding: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .composer input {
+      flex: 1;
+      padding: 13px 16px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      font-size: 15px;
+      outline: none;
+    }
+
+    .composer input::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .composer input:focus {
+      border-color: #10a37f;
+      box-shadow: 0 0 0 2px rgba(16, 163, 127, 0.35);
+    }
+
+    .composer button {
+      padding: 0 22px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #10a37f, #6e48aa);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.15s, opacity 0.15s;
+    }
+
+    .composer button:hover {
+      transform: translateY(-1px);
+    }
+
+    .composer button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    #video-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      background: #000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #video-overlay.active {
+      display: flex;
+    }
+
+    #video-overlay video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+  </style>
+</head>
+
+<body>
+  <a href="/index.html" class="home-link">← back to noobular</a>
+
+  <div id="video-overlay">
+    <video id="internet-video" src="assets/internet.mp4" playsinline></video>
+  </div>
+
+  <div class="chat-window">
+    <div class="chat-header">
+      <div class="chat-avatar">🤖</div>
+      <div>
+        <h1>noobGPT</h1>
+        <p class="status"><span class="status-dot"></span>online &amp; totally helpful</p>
+      </div>
+    </div>
+
+    <div class="messages" id="messages"></div>
+
+    <form class="composer" id="composer" autocomplete="off">
+      <input type="text" id="input" placeholder="Message noobGPT..." aria-label="Message noobGPT">
+      <button type="submit" id="send">Send</button>
+    </form>
+  </div>
+
+  <script>
+    (function () {
+      const messages = document.getElementById('messages');
+      const form = document.getElementById('composer');
+      const input = document.getElementById('input');
+      const sendBtn = document.getElementById('send');
+      const overlay = document.getElementById('video-overlay');
+      const video = document.getElementById('internet-video');
+
+      function scrollDown() {
+        messages.scrollTop = messages.scrollHeight;
+      }
+
+      function addMessage(text, who) {
+        const el = document.createElement('div');
+        el.className = 'msg ' + who;
+        el.textContent = text;
+        messages.appendChild(el);
+        scrollDown();
+        return el;
+      }
+
+      function showTyping() {
+        const el = document.createElement('div');
+        el.className = 'typing';
+        el.innerHTML = '<span></span><span></span><span></span>';
+        messages.appendChild(el);
+        scrollDown();
+        return el;
+      }
+
+      function finishResponse() {
+        overlay.classList.remove('active');
+        addMessage('idk', 'bot');
+        input.disabled = false;
+        sendBtn.disabled = false;
+        input.focus();
+      }
+
+      // greeting
+      setTimeout(function () {
+        addMessage("Hey, I'm noobGPT! how can i help you today? :)", 'bot');
+      }, 400);
+
+      video.addEventListener('ended', finishResponse);
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const text = input.value.trim();
+        if (!text) return;
+
+        addMessage(text, 'user');
+        input.value = '';
+        input.disabled = true;
+        sendBtn.disabled = true;
+
+        // play the internet fullscreen while noobGPT "thinks"
+        overlay.classList.add('active');
+        video.currentTime = 0;
+        const playPromise = video.play();
+        if (playPromise && typeof playPromise.catch === 'function') {
+          playPromise.catch(function () {
+            // if playback is blocked, just skip to the answer
+            finishResponse();
+          });
+        }
+      });
+    })();
+  </script>
+</body>
+
+</html>

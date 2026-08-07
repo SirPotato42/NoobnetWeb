@@ -188,7 +188,7 @@
          <button onclick="window.location.href='https://www.dolekemp96.org/main.htm'" style="background-color: red; width: 75%; height: 100px; font-size: 60px;">
           Make sure to vote Dole for Mayor of the Survival Multiplayer Minecraft Server!
         </button>
-        <button onclick="window.location.href='/iloveanime.html'" style="background-color: pink; width: 100%; height: 100px; font-size: 60px;">
+        <button id="carney-button" onclick="dodgeCarney(this)" style="background-color: pink; width: 100%; height: 100px; font-size: 60px;">
           carney hospital invitation
         </button>
         <button onclick="window.location.href='/donate.html'" style="background-color: green; width: 75%; height: 100px; font-size: 60px;">
@@ -196,6 +196,9 @@
         </button>
         <button onclick="window.location.href='/finn.html'" style="background-color: yellow; width: 112%; height: 100px; font-size: 60px;">
           Finns old website (:
+        </button>
+        <button onclick="window.location.href='/noobgpt.html'" style="background: linear-gradient(135deg, #10a37f, #6e48aa); color: white; width: 100%; height: 100px; font-size: 60px;">
+          ✨ ask noobGPT ✨
         </button>
     </div>
     <img src="assets/images/bush.png" style="height: 40vh;" alt="christmastree"><img src="assets/images/bob_dole.png" style="height: 40vh;" alt="christmastree"><img src="assets/images/dole2.png" style="height: 40vh;" alt="bob dole"><img src="assets/images/romney.png" style="height: 40vh;" alt="christmastree">
@@ -277,6 +280,53 @@
         if (popup) {
           popup.style.display = 'flex';
         }
+      }
+
+      function dodgeCarney(btn) {
+        const grid = btn.parentElement;
+        if (!grid) return;
+        if (btn.dataset.dodging === '1') return;
+        const buttons = Array.prototype.slice.call(grid.children);
+        if (buttons.length < 2) return;
+        const others = buttons.filter(function (el) { return el !== btn; });
+
+        // FLIP: record where it starts
+        const first = btn.getBoundingClientRect();
+
+        // reorder to a random spot in the DOM
+        const target = others[Math.floor(Math.random() * (others.length + 1))];
+        if (target) {
+          grid.insertBefore(btn, target);
+        } else {
+          grid.appendChild(btn);
+        }
+
+        // record where it ends up, compute the delta to animate from
+        const last = btn.getBoundingClientRect();
+        const dx = first.left - last.left;
+        const dy = first.top - last.top;
+
+        // build keyframes that lerp into place while shaking
+        const steps = 28;
+        const frames = [];
+        for (let i = 0; i <= steps; i++) {
+          const t = i / steps;
+          const ease = 1 - Math.pow(1 - t, 3); // easeOutCubic
+          const lx = dx * (1 - ease);
+          const ly = dy * (1 - ease);
+          const decay = 1 - t;
+          const shakeX = (Math.random() * 2 - 1) * 22 * decay;
+          const shakeY = (Math.random() * 2 - 1) * 22 * decay;
+          const rot = (Math.random() * 2 - 1) * 16 * decay;
+          frames.push({ transform: `translate(${lx + shakeX}px, ${ly + shakeY}px) rotate(${rot}deg)` });
+        }
+
+        btn.dataset.dodging = '1';
+        const anim = btn.animate(frames, { duration: 420, easing: 'linear' });
+        anim.onfinish = function () {
+          btn.style.transform = '';
+          btn.dataset.dodging = '0';
+        };
       }
 
       function hideJollyWarning() {
