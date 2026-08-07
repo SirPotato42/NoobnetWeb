@@ -165,6 +165,10 @@
       <img src="assets/gifs/christmas/newyear2010.gif" style="height: 40vh;" alt="christmastree">
       <img src="assets/gifs/yoda ballin.gif" style="height: 40vh;" alt="christmastree">
       <img src="assets/gifs/microcenter.gif" style="height: 40vh;" alt="christmastree">
+      <div style="display: inline-block; text-align: center; vertical-align: top;">
+        <img id="the-chair" src="assets/images/chairthatbreaksintoamillionpieces.jpg" style="height: 40vh; cursor: pointer;" alt="the chair that breaks into a million pieces" title="yesss yesssssss">
+        <div style="background-color: black; color: yellow; font-size: 22px; font-weight: bold; font-family: 'Comic Sans MS', cursive;">PLEASEEEEEEEE CLICK ME! -the chiar that breaks into a miullion peices</div>
+      </div>
         <br>
         <br>
         <button onclick="window.location.href=href='http://www.websitegoodies.com/guestbook.php?a=view&id=1741018'" style="background-color:mediumpurple; width: 100%; height: 100px; font-size: 60px;">
@@ -560,6 +564,86 @@
         
         theSimpsons();
         setInterval(theSimpsons, 1000 *3600);
+      })();
+    </script>
+    <script>
+      // the chair that breaks into a million pieces (400, but who's counting)
+      (function () {
+        const chair = document.getElementById('the-chair');
+        if (!chair) return;
+
+        const COLS = 20;
+        const ROWS = 20;
+        const FUSE = 1000;
+        const MAX_LIFE = 2600;
+        let busy = false;
+
+        chair.addEventListener('click', function () {
+          if (busy) return;
+          busy = true;
+          // a full second of the chair just sitting there, then it goes
+          setTimeout(shatter, FUSE);
+        });
+
+        function shatter() {
+          // measured now, not at click time, in case the page scrolled
+          // during the fuse. rect is viewport-relative so the shard layer
+          // is position:fixed to match.
+          const rect = chair.getBoundingClientRect();
+          const pieceW = rect.width / COLS;
+          const pieceH = rect.height / ROWS;
+
+          const shards = document.createElement('div');
+          shards.id = 'chair-shards';
+          shards.style.cssText = 'position:fixed;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:9997;';
+          document.body.appendChild(shards);
+
+          try {
+            new Audio('assets/audio/splat.mp3').play();
+          } catch (e) {
+          }
+
+          chair.style.visibility = 'hidden';
+
+          for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS; c++) {
+              const piece = document.createElement('div');
+              // each shard is the whole image, shifted so only its tile shows
+              piece.style.cssText =
+                'position:absolute;' +
+                'left:' + (rect.left + c * pieceW) + 'px;' +
+                'top:' + (rect.top + r * pieceH) + 'px;' +
+                'width:' + pieceW + 'px;height:' + pieceH + 'px;' +
+                'background-image:url("' + chair.src + '");' +
+                'background-size:' + rect.width + 'px ' + rect.height + 'px;' +
+                'background-position:' + (-c * pieceW) + 'px ' + (-r * pieceH) + 'px;';
+              shards.appendChild(piece);
+
+              // blast outward from the middle, then let gravity have it
+              const outX = ((c + 0.5) / COLS - 0.5) * (260 + Math.random() * 340);
+              const outY = ((r + 0.5) / ROWS - 0.5) * 160 - 120 - Math.random() * 120;
+              const spin = Math.random() * 1440 - 720;
+
+              piece.animate([
+                { transform: 'translate(0px, 0px) rotate(0deg)', opacity: 1 },
+                { transform: 'translate(' + outX + 'px, ' + outY + 'px) rotate(' + (spin / 3) + 'deg)', opacity: 1, offset: 0.28 },
+                { transform: 'translate(' + (outX * 1.5) + 'px, ' + (window.innerHeight + 200) + 'px) rotate(' + spin + 'deg)', opacity: 0 }
+              ], {
+                duration: 1500 + Math.random() * 900,
+                easing: 'cubic-bezier(0.15, 0.55, 0.45, 1)',
+                fill: 'forwards'
+              });
+            }
+          }
+
+          // one timer rather than counting 400 onfinish callbacks, which
+          // never all arrive if the tab gets backgrounded mid-shatter
+          setTimeout(function () {
+            shards.remove();
+            chair.style.visibility = '';
+            busy = false;
+          }, MAX_LIFE);
+        }
       })();
     </script>
   <script src="assets/cookie-banner.js"></script>
