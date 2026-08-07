@@ -83,37 +83,37 @@
     <table cellpadding="2" cellspacing="2">
       <tbody><tr>
         <td>
-          <img src="https://code.divshot.com/geo-bootstrap/img/test/ie_logo.gif">
+          <img src="assets/gifs/banners/ie_logo.gif">
         </td>
         <td>
-          <img src="https://code.divshot.com/geo-bootstrap/img/test/ns_logo.gif">
+          <img src="assets/gifs/banners/ns_logo.gif">
         </td>
         <td>
-          <img src="https://code.divshot.com/geo-bootstrap/img/test/noframes.gif">
+          <img src="assets/gifs/banners/noframes.gif">
         </td>
         <td>
-          <img src="https://code.divshot.com/geo-bootstrap/img/test/notepad.gif">
+          <img src="assets/gifs/banners/notepad.gif">
         </td>
         <td>
-          <img src="https://www.webdesignmuseum.org/uploaded/exhibitions/web-banners-in-the-90s/winzip-8-0-2000.gif">
+          <img src="assets/gifs/banners/winzip-8-0-2000.gif">
         </td>
         <td>
-          <img src="https://www.webdesignmuseum.org/uploaded/exhibitions/web-banners-in-the-90s/macromedia-flash-3-1998.gif">
+          <img src="assets/gifs/banners/macromedia-flash-3-1998.gif">
         </td>
         <td>
-          <img src="https://www.webdesignmuseum.org/uploaded/exhibitions/web-banners-in-the-90s/netscape-netcenter-personal-finance-1999.gif">
+          <img src="assets/gifs/banners/netscape-netcenter-personal-finance-1999.gif">
         </td>
         <td>
-          <img src="https://www.webdesignmuseum.org/uploaded/exhibitions/web-banners-in-the-90s/get-flash-player-1996.gif">
+          <img src="assets/gifs/banners/get-flash-player-1996.gif">
         </td>
         <td>
-          <img src="https://www.webdesignmuseum.org/uploaded/exhibitions/web-banners-in-the-90s/macromedia-2000.gif">
+          <img src="assets/gifs/banners/macromedia-2000.gif">
         </td>
         <td>
-          <img src="https://www.webdesignmuseum.org/uploaded/exhibitions/web-banners-in-the-90s/real-player-g2-2000.gif">
+          <img src="assets/gifs/banners/real-player-g2-2000.gif">
         </td>
         <td>
-          <img src="https://www.webdesignmuseum.org/uploaded/exhibitions/web-banners-in-the-90s/netscape-2000.gif">
+          <img src="assets/gifs/banners/netscape-2000.gif">
         </td>
       </tr>
     </tbody></table>
@@ -639,9 +639,9 @@
           // one timer rather than counting 400 onfinish callbacks, which
           // never all arrive if the tab gets backgrounded mid-shatter
           setTimeout(function () {
+            // shards go, chair stays broken. busy is never cleared, so it's
+            // gone for good until the page reloads.
             shards.remove();
-            chair.style.visibility = '';
-            busy = false;
           }, MAX_LIFE);
         }
       })();
