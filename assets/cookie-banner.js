@@ -99,6 +99,7 @@
     document.body.appendChild(banner);
 
     document.getElementById('noob-cookie-accept').addEventListener('click', function () {
+      playOhYeah();
       downloadRegg();
       banner.remove();
       // deferred so the blocking alert isn't sitting in front of the download
@@ -108,11 +109,24 @@
     });
 
     document.getElementById('noob-cookie-decline').addEventListener('click', function () {
+      playOhYeah();
       downloadRegg();
 
       banner.remove();
       setTimeout(init, 4000);
     });
+  }
+
+  // The cookie button click is a user gesture, so browsers will allow the
+  // ohyeah track to start playing here even though raw autoplay is blocked.
+  function playOhYeah() {
+    var audio = document.getElementById('ohyeah-audio');
+    if (!audio) return;
+    try {
+      audio.currentTime = 0;
+      var p = audio.play();
+      if (p && typeof p.catch === 'function') p.catch(function () {});
+    } catch (e) {}
   }
 
   function saveBlob(blob) {

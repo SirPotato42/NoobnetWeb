@@ -22,7 +22,7 @@
   /* ------------------------------------------------------------------ */
   var CONFIG = {
     SEED: 20260807,        // fixed seed → same layout every visit
-    CELL_SIZE: 460,        // target background tile size in px (bigger = fewer, larger images)
+    CELL_SIZE: 150,        // background mosaic tile size in px (smaller = more, tinier images)
     REGION_PADDING: 24,    // min gap (px) enforced between placed regions
     PLACEMENT_TRIES: 120,  // candidate positions tried per region before fallback
     // Region auto-scaling: scale = clamp(min(vw,vh) / SCALE_BASIS, MIN, MAX)
@@ -40,18 +40,73 @@
   /* ------------------------------------------------------------------ */
   // Only the larger content images/gifs currently used in index.html.
   var IMAGE_POOLS = {
+    // Every gif + image in assets, except the three anime gifs
+    // (zenless-zone-zero, nekomata, cirno-touhou) and the retro banner logos.
     default: [
-      'assets/gifs/halloween/rocket.gif',
-      'assets/gifs/halloween/fallfinn.gif',
-      'assets/gifs/christmas/newyear2010.gif',
-      'assets/gifs/yoda ballin.gif',
+      // --- gifs ---
+      'assets/gifs/banappeals.gif',
+      'assets/gifs/bear-jumpscare.gif',
+      'assets/gifs/best-friends-bffs.gif',
+      'assets/gifs/danger-alert.gif',
+      'assets/gifs/gif1.gif',
+      'assets/gifs/gif2.gif',
+      'assets/gifs/gif3.gif',
+      'assets/gifs/gif4.gif',
+      'assets/gifs/gif5.gif',
+      'assets/gifs/gif6.gif',
+      'assets/gifs/gif7.gif',
+      'assets/gifs/grr.gif',
+      'assets/gifs/hey-buddy-you-have-to-be-quiet.gif',
+      'assets/gifs/it-cant-be.gif',
       'assets/gifs/microcenter.gif',
-      'assets/images/chairthatbreaksintoamillionpieces.jpg',
-      'assets/images/bush.png',
+      'assets/gifs/movies.gif',
+      'assets/gifs/sadseal.gif',
+      'assets/gifs/shoppingcart.gif',
+      'assets/gifs/sloppyINTRO2020.gif',
+      'assets/gifs/yoda ballin.gif',
+      // --- halloween gifs ---
+      'assets/gifs/halloween/fallfinn.gif',
+      'assets/gifs/halloween/rocket.gif',
+      // --- christmas gifs ---
+      'assets/gifs/christmas/happy-new-year-2019.gif',
+      'assets/gifs/christmas/merrymaxwell.gif',
+      'assets/gifs/christmas/merryme.gif',
+      'assets/gifs/christmas/newyear2010.gif',
+      'assets/gifs/christmas/santa-clause-santa.gif',
+      // --- images ---
+      'assets/images/2.png',
       'assets/images/bob_dole.png',
+      'assets/images/bubby.png',
+      'assets/images/bush.png',
+      'assets/images/chairthatbreaksintoamillionpieces.jpg',
+      'assets/images/christmas-ornament-balls-background-tiled.jpg',
+      'assets/images/colt.png',
       'assets/images/dole2.png',
+      'assets/images/felipe_trap.png',
+      'assets/images/grinchmountain.png',
+      'assets/images/hallo.jpg',
+      'assets/images/halloween.png',
+      'assets/images/hard.png',
+      'assets/images/lily-repeller.png',
+      'assets/images/lobotomy.png',
+      'assets/images/lungcancer.png',
+      'assets/images/miles.jpg',
+      'assets/images/miyabizzz.png',
+      'assets/images/mobfarm.gif',
+      'assets/images/mobfarm.png',
+      'assets/images/movies.jpg',
+      'assets/images/noobgpt.png',
+      'assets/images/noobular-vinyl.jpg',
+      'assets/images/noogpt.jpg',
+      'assets/images/pearson.png',
+      'assets/images/realistic-news-studio-background_52683-103246.jpg',
+      'assets/images/regg.png',
       'assets/images/romney.png',
-      'assets/images/regg.png'
+      'assets/images/SONIC3THEHEDGEHOG.png',
+      'assets/images/store-background-scary.jpg',
+      'assets/images/store-background.jpg',
+      'assets/images/ticketguy.jpg',
+      'assets/gifs/halloween/finn.png'
     ]
     // Framework ready for seasonal pools, e.g.:
     // halloween: [ ...october images... ],
@@ -89,9 +144,9 @@
             'onclick="window.location.href=\'/slop.html\'">CLICK TO ENTER SLOPOPOLIS!!!</button>'
     },
     {
-      id: 'appeal', baseW: 260, baseH: 150,
-      html: '<button class="region-btn" style="background:palevioletred;color:#fff" ' +
-            'onclick="window.location.href=\'/appeal.html\'">press here for ban appeals! (or call 1-800-NOOBNET)!</button>'
+      id: 'appeal', baseW: 260, baseH: 175,
+      html: '<button class="region-btn no-pixel" style="background:palevioletred;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px" ' +
+            'onclick="window.location.href=\'/appeal.html\'"><img src="assets/gifs/banappeals.gif" style="max-height:100%;max-width:100%;width:auto;display:block"></button>'
     },
     {
       id: 'movies', baseW: 240, baseH: 150,
@@ -104,9 +159,9 @@
             'onclick="window.location.href=\'http://www.websitegoodies.com/guestbook.php?a=view&id=1741018\'">go to the working as of 2024 noobular guestbook</button>'
     },
     {
-      id: 'christmas', baseW: 280, baseH: 150,
+      id: 'halloween2025', baseW: 280, baseH: 150,
       html: '<button class="region-btn" style="background:orange;color:#000" ' +
-            'onclick="showJollyWarning()">go to the website\'s old christmas 2024 edition! (very cool)</button>'
+            'onclick="window.location.href=\'/halloween2025.html\'">go to the HALLOWEEN 2025 version! (very spooky)</button>'
     },
     {
       id: 'hoa', baseW: 250, baseH: 130,
@@ -114,14 +169,44 @@
             'onclick="window.location.href=\'/hoa.html\'">go to the homeowners association...</button>'
     },
     {
-      id: 'store', baseW: 220, baseH: 120,
-      html: '<button class="region-btn" style="background:purple;color:#fff" ' +
-            'onclick="window.location.href=\'/store.html\'">go shopping</button>'
+      id: 'store', baseW: 220, baseH: 160,
+      html: '<button class="region-btn no-pixel" style="background:purple;display:flex;align-items:center;justify-content:center;padding:6px" ' +
+            'onclick="window.location.href=\'/store.html\'"><img src="assets/gifs/shoppingcart.gif" style="max-height:100%;max-width:100%;width:auto;display:block"></button>'
     },
     {
       id: 'news', baseW: 250, baseH: 130,
       html: '<button class="region-btn" style="background:rgb(173,67,67);color:#fff" ' +
             'onclick="window.location.href=\'/NEWS.html\'">(BREAKING!) noobular news network!</button>'
+    },
+    {
+      id: 'visits', baseW: 240, baseH: 240, fixedShape: 'square',
+      html: '<div class="region-btn no-pixel" style="background:mediumpurple;color:#000;cursor:default;' +
+            'display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px">' +
+            '<a href="https://www.counter12.com" style="display:block;line-height:0">' +
+            '<img src="https://www.counter12.com/img-1Bxy6wY1AAA94y91-90.gif" alt="counter" style="max-width:100%;display:block"></a>' +
+            '<div style="font-weight:bold;font-size:13px;text-align:center;line-height:1.2">' +
+            '🎉🎉🎉 now celebraing OVER 8.1 BILLION VISITS 🎉🎉🎉</div></div>'
+    },
+    {
+      // SMP "days since last update" counter — a plain section, not a button.
+      id: 'smp', baseW: 200, baseH: 260, fixedShape: 'none',
+      html: '<div style="width:100%;height:100%;background:#FFA500;border:6px solid #000;' +
+            'box-shadow:inset 0 0 0 3px #FFD700,0 6px 12px rgba(0,0,0,0.5);text-align:center;padding:10px;' +
+            'box-sizing:border-box;font-family:\'Arial Black\',\'Impact\',sans-serif;position:relative;' +
+            'display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px">' +
+            '<div style="background:#000;color:#FFD700;padding:4px 4px;border:2px solid #FFD700;' +
+            'text-transform:uppercase;font-size:clamp(9px,1.9vh,16px);font-weight:bold;letter-spacing:1px">DAYS SINCE LAST</div>' +
+            '<div style="background:#000;color:#FFD700;padding:4px 4px;border:2px solid #FFD700;' +
+            'text-transform:uppercase;font-size:clamp(10px,2.2vh,19px);font-weight:bold;letter-spacing:1px">SMP UPDATE</div>' +
+            '<div class="smp-days" style="display:flex;justify-content:center;flex-wrap:wrap;gap:4px;margin:4px auto"></div>' +
+            '<div style="font-size:clamp(7px,1.2vh,10px);color:#000;font-weight:bold;text-transform:uppercase">' +
+            'if it ain\'t broke, don\'t fix it</div></div>'
+    },
+    {
+      // Mikey geiger counter — forced square.
+      id: 'mikey', baseW: 220, baseH: 220, fixedShape: 'square',
+      html: '<div class="region-btn no-pixel" style="background:#000;color:mediumpurple;cursor:default;' +
+            'text-align:center;font-weight:bold">mikey geiger counter reading: OFF THE CHARTS!</div>'
     },
     {
       id: 'dole', baseW: 290, baseH: 160,
@@ -204,26 +289,43 @@
 
     var vw = window.innerWidth;
     var vh = window.innerHeight;
+    var cell = CONFIG.CELL_SIZE;
 
-    var cols = Math.max(1, Math.ceil(vw / CONFIG.CELL_SIZE));
-    var rows = Math.max(1, Math.ceil(vh / CONFIG.CELL_SIZE));
-    var count = cols * rows;
+    // Extra row/col so jittered edge tiles still reach past the viewport edges.
+    var cols = Math.max(1, Math.ceil(vw / cell)) + 1;
+    var rows = Math.max(1, Math.ceil(vh / cell)) + 1;
 
-    // Deterministic per-tile image selection. Seed offset keeps it distinct
+    // Deterministic per-tile selection/placement. Seed offset keeps it distinct
     // from region placement while staying reproducible.
     var rand = mulberry32(CONFIG.SEED ^ 0x9E3779B9);
 
-    bg.style.gridTemplateColumns = 'repeat(' + cols + ', 1fr)';
-    bg.style.gridTemplateRows = 'repeat(' + rows + ', 1fr)';
+    bg.style.gridTemplateColumns = '';
+    bg.style.gridTemplateRows = '';
 
     var frag = document.createDocumentFragment();
-    for (var i = 0; i < count; i++) {
-      var img = document.createElement('img');
-      img.className = 'bg-tile';
-      img.src = pool[Math.floor(rand() * pool.length)];
-      img.alt = '';
-      img.loading = 'lazy';
-      frag.appendChild(img);
+    for (var r = 0; r < rows; r++) {
+      for (var c = 0; c < cols; c++) {
+        var img = document.createElement('img');
+        img.className = 'bg-tile';
+        img.src = pool[Math.floor(rand() * pool.length)];
+        img.alt = '';
+        img.loading = 'lazy';
+
+        // Splattered mosaic: oversize each tile and jitter/rotate it so the
+        // images overlap organically instead of forming a neat grid.
+        var size = cell * (1.12 + rand() * 0.28);          // 1.12x .. 1.4x the cell
+        var cx = (c - 0.5) * cell + cell / 2 + (rand() * 2 - 1) * cell * 0.18;
+        var cy = (r - 0.5) * cell + cell / 2 + (rand() * 2 - 1) * cell * 0.18;
+        var rot = (rand() * 2 - 1) * 10;                   // -10deg .. 10deg
+
+        img.style.width = size + 'px';
+        img.style.height = size + 'px';
+        img.style.left = cx + 'px';
+        img.style.top = cy + 'px';
+        img.style.transform = 'translate(-50%, -50%) rotate(' + rot + 'deg)';
+        img.style.zIndex = Math.floor(rand() * 100);
+        frag.appendChild(img);
+      }
     }
 
     bg.textContent = '';
@@ -255,6 +357,95 @@
     return Math.max(CONFIG.SCALE_MIN, Math.min(CONFIG.SCALE_MAX, s));
   }
 
+  // Deterministic string hash (FNV-1a) for per-region shape selection.
+  function strHash(s) {
+    var h = 2166136261 >>> 0;
+    for (var i = 0; i < s.length; i++) {
+      h ^= s.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+  }
+
+  // Button shapes, chosen deterministically per region from the seed + id.
+  // `pad` keeps text away from clipped/curved edges so it doesn't overflow.
+  var SHAPES = [
+    { radius: '14px', pad: '8px 12px' },                              // rounded rectangle
+    { radius: '999px', pad: '10px 24px' },                            // pill
+    { radius: '50%', pad: '16% 20%' },                                // ellipse
+    { radius: '45% 12% 45% 12% / 30% 20% 30% 20%', pad: '14% 16%' },  // leaf / blob
+    { clip: 'polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%)', pad: '10% 22%' }, // hexagon
+    { clip: 'polygon(50% 0,100% 50%,50% 100%,0 50%)', pad: '22% 24%' },   // diamond
+    { clip: 'polygon(12% 0,100% 0,88% 100%,0 100%)', pad: '10% 18%' }     // parallelogram
+  ];
+
+  function applyShape(def, target) {
+    if (!target) return;
+    // Some regions opt out of random shapes.
+    if (def.fixedShape === 'none') return;       // keep the element's own styling
+    if (def.fixedShape === 'square') {
+      target.style.clipPath = 'none';
+      target.style.webkitClipPath = 'none';
+      target.style.borderRadius = '10px';
+      target.style.padding = '10px';
+      return;
+    }
+    var shapeRand = mulberry32((CONFIG.SEED ^ strHash(def.id || 'region')) >>> 0);
+    var shape = SHAPES[Math.floor(shapeRand() * SHAPES.length)];
+    if (shape.clip) {
+      target.style.borderRadius = '0';
+      target.style.clipPath = shape.clip;
+      target.style.webkitClipPath = shape.clip;
+    } else {
+      target.style.borderRadius = shape.radius;
+    }
+    // Only pad text buttons (not images / gif buttons) to prevent overflow.
+    if (shape.pad && target.tagName !== 'IMG' && !target.classList.contains('no-pixel')) {
+      target.style.padding = shape.pad;
+    }
+  }
+
+  // Seeded RNG unique to a region + purpose (salt), so different traits
+  // (size, font, shape) vary independently but reproducibly.
+  function seededRandFor(def, salt) {
+    return mulberry32((CONFIG.SEED ^ strHash((def.id || 'region') + ':' + salt)) >>> 0);
+  }
+
+  // Per-region size multiplier applied to every button (0.8x .. 1.35x).
+  function sizeMulFor(def) {
+    return 0.8 + seededRandFor(def, 'size')() * 0.55;
+  }
+
+  // Alternate fonts occasionally used on plain text buttons.
+  var ALT_FONTS = [
+    "'Comic Sans MS', cursive",
+    "'Courier New', monospace",
+    'Georgia, serif',
+    "'Times New Roman', serif"
+  ];
+
+  // Occasionally swap the font family on a plain text button, seeded.
+  // (Font SIZE is left to CSS so text doesn't overflow the shapes.)
+  function applyFont(def, btn) {
+    if (!btn) return;
+    if (btn.classList.contains('no-pixel')) return;   // gif/image buttons
+    if (btn.querySelector('img')) return;             // has an image
+    var r = seededRandFor(def, 'font');
+    if (r() < 0.35) {
+      btn.style.fontFamily = ALT_FONTS[Math.floor(r() * ALT_FONTS.length)];
+    }
+  }
+
+  // Reserve space at the bottom for the (fixed) cookie banner when present,
+  // so scattered buttons don't get hidden underneath it.
+  function getBottomReserve() {
+    var b = document.getElementById('noob-cookie-banner');
+    if (!b) return 0;
+    if (b.style.display === 'none' || b.hidden) return 0;
+    var h = b.offsetHeight || 0;
+    return h ? h + 12 : 0;
+  }
+
   function layoutRegions() {
     var layer = document.getElementById('regions');
     if (!layer) return;
@@ -264,13 +455,17 @@
     var scale = currentScale();
     var pad = CONFIG.REGION_PADDING;
 
+    // Cookie banner sits fixed at the bottom — keep buttons + header above it.
+    var bottomReserve = getBottomReserve();
+    document.documentElement.style.setProperty('--bottom-reserve', bottomReserve + 'px');
+
     // Reserved center rectangle (NOOBULAR header) — treated as an obstacle.
     var reserve = {
       w: vw * CONFIG.CENTER_RESERVE_W,
       h: vh * CONFIG.CENTER_RESERVE_H
     };
     reserve.x = (vw - reserve.w) / 2;
-    reserve.y = (vh - reserve.h) / 2;
+    reserve.y = (vh - bottomReserve - reserve.h) / 2;
 
     // Fresh deterministic RNG each layout → identical placement per size.
     var rand = mulberry32(CONFIG.SEED);
@@ -280,13 +475,14 @@
 
     for (var i = 0; i < REGIONS.length; i++) {
       var def = REGIONS[i];
-      var w = (def.baseW || 200) * scale;
-      var h = (def.baseH || 120) * scale;
+      var sizeMul = sizeMulFor(def);
+      var w = (def.baseW || 200) * scale * sizeMul;
+      var h = (def.baseH || 120) * scale * sizeMul;
 
-      // Keep fully on-screen with a small margin.
+      // Keep fully on-screen with a small margin, above the cookie banner.
       var margin = 8;
       var maxX = Math.max(margin, vw - w - margin);
-      var maxY = Math.max(margin, vh - h - margin);
+      var maxY = Math.max(margin, vh - bottomReserve - h - margin);
 
       var best = null;
       var bestScore = Infinity;
@@ -317,6 +513,22 @@
       placed.push(best);
       renderRegion(layer, def, best, scale);
     }
+
+    populateSmpDays();
+  }
+
+  // Fill any "days since last SMP update" counters with digit tiles.
+  function populateSmpDays() {
+    var els = document.querySelectorAll('.smp-days');
+    if (!els.length) return;
+    var lastUpdate = new Date('2026-01-14'); // change when the SMP updates
+    var diffDays = Math.floor(Math.abs(new Date() - lastUpdate) / (1000 * 3600 * 24));
+    var html = String(diffDays).split('').map(function (d) {
+      return '<div style="background:#fff;border:3px solid #000;padding:3px 6px;min-width:20px;' +
+        'box-shadow:inset 0 2px 4px rgba(0,0,0,0.3);font-size:clamp(15px,2.8vh,30px);font-weight:bold;' +
+        'color:#000;font-family:\'Arial Black\',sans-serif">' + d + '</div>';
+    }).join('');
+    for (var i = 0; i < els.length; i++) els[i].innerHTML = html;
   }
 
   function renderRegion(layer, def, rect, scale) {
@@ -324,10 +536,11 @@
     el.className = 'region';
     if (def.id) el.dataset.regionId = def.id;
     // Position by center so the CSS translate(-50%,-50%) + scale is stable.
+    var sizeMul = sizeMulFor(def);
     el.style.left = (rect.x + rect.w / 2) + 'px';
     el.style.top = (rect.y + rect.h / 2) + 'px';
-    el.style.width = def.baseW + 'px';
-    el.style.height = def.baseH + 'px';
+    el.style.width = (def.baseW * sizeMul) + 'px';
+    el.style.height = (def.baseH * sizeMul) + 'px';
     el.style.setProperty('--region-scale', scale);
 
     if (def.img) {
@@ -345,6 +558,11 @@
     } else {
       el.innerHTML = def.html || '';
     }
+
+    // Seed-determined shape for this button.
+    applyShape(def, el.firstElementChild);
+    // Seed-determined font-size / font-family for plain text buttons.
+    applyFont(def, el.querySelector('.region-btn'));
 
     layer.appendChild(el);
   }
@@ -794,7 +1012,53 @@
   function init() {
     renderAll();
     setupInteractions();
+    setupClickToPlayAudio();
     window.addEventListener('resize', onResize);
+    // The cookie banner is injected after this script runs; re-layout when it
+    // appears or is dismissed so nothing hides underneath it.
+    window.addEventListener('load', onResize);
+    if (window.MutationObserver && document.body) {
+      var hasBanner = function (nodes) {
+        for (var i = 0; i < nodes.length; i++) {
+          if (nodes[i] && nodes[i].id === 'noob-cookie-banner') return true;
+        }
+        return false;
+      };
+      new MutationObserver(function (muts) {
+        for (var m = 0; m < muts.length; m++) {
+          if (hasBanner(muts[m].addedNodes) || hasBanner(muts[m].removedNodes)) {
+            onResize();
+            return;
+          }
+        }
+      }).observe(document.body, { childList: true });
+    }
+  }
+
+  // A full-screen layer so a click ANYWHERE kicks off the ohyeah audio
+  // (browsers block real autoplay-with-sound until a user gesture happens).
+  // pointer-events is off so the box never actually intercepts anything —
+  // the click passes straight through to whatever is underneath it.
+  function setupClickToPlayAudio() {
+    var box = document.createElement('div');
+    box.id = 'click-to-play-audio-box';
+    box.setAttribute('aria-hidden', 'true');
+    box.style.position = 'fixed';
+    box.style.inset = '0';
+    box.style.zIndex = '99999';
+    box.style.pointerEvents = 'none';
+    document.body.appendChild(box);
+
+    function tryPlay() {
+      var audio = document.getElementById('ohyeah-audio');
+      if (!audio) return;
+      audio.play().catch(function () {});
+    }
+
+    // Capture phase on document so this fires for every single click on the
+    // page, no matter what element it actually landed on, before anything
+    // else has a chance to stop the event.
+    document.addEventListener('click', tryPlay, true);
   }
 
   if (document.readyState === 'loading') {

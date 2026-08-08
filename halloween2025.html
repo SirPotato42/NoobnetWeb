@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-N6576WFHXF"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-N6576WFHXF');
+    </script>
+
+    <title>OFFICIAL christmas Noobular!</title>
+    <link rel="stylesheet" href="css/mainstyle.css">
+    <style>
+      html.REMOVE-EVERYTHING body > *, body.REMOVE-EVERYTHING > * { display: none !important; }
+    </style>
+    <script>
+      try {
+        if (localStorage.getItem('REMOVE-EVERYTHING') === '1') {
+          document.documentElement.classList.add('REMOVE-EVERYTHING');
+        }
+      } catch (e) {
+      }
+    </script>
+  </head>
+  <body>
+    //the jolly alert:
+    <div id="warning-popup" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8); z-index: 10000; justify-content: center; align-items: center;">
+      <div style="background-color: orange; border: 3px solid black; padding: 20px; text-align: center; max-width: 500px; margin: 20px;">
+        <h2 style="color: black; font-size: 40px; margin: 0 0 15px 0;">⚠️ WARNING! ⚠️</h2>
+        <p style="color: black; font-size: 28px; margin: 0 0 20px 0; font-weight: bold;">JOLLY OVERLOAD</p>
+        <p style="color: black; font-size: 20px; margin: 0 0 20px 0;">conginue?</p>
+        <div style="display: flex; gap: 15px; justify-content: center;">
+          <button onclick="proceedToChristmas()" style="background-color: green; color: white; border: 2px solid black; padding: 10px 20px; font-size: 20px; cursor: pointer; font-weight: bold;">Proceed</button>
+          <button onclick="regg()" style="background-color: red; color: white; border: 2px solid black; padding: 10px 20px; font-size: 20px; cursor: pointer; font-weight: bold;">grinch button</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="signin-popup" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8); z-index: 10000; justify-content: center; align-items: center;">
+      <div style="background-color: mediumpurple; border: 3px solid black; padding: 20px; text-align: center; max-width: 400px; margin: 20px;">
+        <h2 id="signin-title" style="color: black; font-size: 30px; margin: 0 0 15px 0;">SIGN IN</h2>
+        <div id="signin-form">
+          <input type="text" id="username-input" placeholder="Username" style="width: 100%; padding: 8px; margin: 5px 0; font-size: 16px; border: 2px solid black;">
+          <input type="password" id="password-input" placeholder="Password" style="width: 100%; padding: 8px; margin: 5px 0; font-size: 16px; border: 2px solid black;">
+          <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px;">
+            <button onclick="signIn()" style="background-color: green; color: white; border: 2px solid black; padding: 8px 15px; font-size: 16px; cursor: pointer; font-weight: bold;">SIGN IN</button>
+            <button onclick="createAccount()" style="background-color: blue; color: white; border: 2px solid black; padding: 8px 15px; font-size: 16px; cursor: pointer; font-weight: bold;">CREATE</button>
+            <button onclick="hideSignIn()" style="background-color: red; color: white; border: 2px solid black; padding: 8px 15px; font-size: 16px; cursor: pointer; font-weight: bold;">CLOSE</button>
+          </div>
+        </div>
+        <div id="signout-form" style="display: none;">
+          <p style="color: black; font-size: 18px; margin: 10px 0;">Signed in as: <span id="current-username-display"></span></p>
+          <button onclick="signOut()" style="background-color: red; color: white; border: 2px solid black; padding: 8px 15px; font-size: 16px; cursor: pointer; font-weight: bold;">SIGN OUT</button>
+        </div>
+        <div id="signin-status" style="margin-top: 10px; font-size: 14px; color: black;"></div>
+      </div>
+    </div>
+
+    <div style="position: fixed; top: 10px; left: 10px; z-index: 9999;">
+      <button id="signin-button" onclick="showSignIn()" style="background-color: mediumslateblue; color: white; border: 2px solid black; padding: 6px 12px; font-size: 14px; cursor: pointer; font-weight: bold;">SIGN IN</button>
+    </div>
+    <div id="noob-input-container" style="position: fixed; top: 10px; right: 10px; z-index: 9999;">
+      <input type="text" aria-label="noob input" placeholder="The Official Noobular Text Box!" style="padding: 6px 8px; font-size: 14px;">
+    </div>
+    <script>
+      (function () {
+        var targetPhrase = 'Take Me To The Official Noobular Photos Website, Please!';
+        var theInputinator = document.querySelector('#noob-input-container input');
+        if (!theInputinator) return;
+        function checkRedirect() {
+          if (theInputinator.value === targetPhrase) {
+            window.location.href = 'https://cinema.noobular.top';
+          }
+        }
+        theInputinator.addEventListener('input', checkRedirect);
+        theInputinator.addEventListener('change', checkRedirect);
+      })();
+    </script>
+    <table cellpadding="2" cellspacing="2">
+      <tbody><tr>
+        <td>
+          <img src="assets/gifs/banners/ie_logo.gif">
+        </td>
+        <td>
+          <img src="assets/gifs/banners/ns_logo.gif">
+        </td>
+        <td>
+          <img src="assets/gifs/banners/noframes.gif">
+        </td>
+        <td>
+          <img src="assets/gifs/banners/notepad.gif">
+        </td>
+        <td>
+          <img src="assets/gifs/banners/winzip-8-0-2000.gif">
+        </td>
+        <td>
+          <img src="assets/gifs/banners/macromedia-flash-3-1998.gif">
+        </td>
+        <td>
+          <img src="assets/gifs/banners/netscape-netcenter-personal-finance-1999.gif">
+        </td>
+        <td>
+          <img src="assets/gifs/banners/get-flash-player-1996.gif">
+        </td>
+        <td>
+          <img src="assets/gifs/banners/macromedia-2000.gif">
+        </td>
+        <td>
+          <img src="assets/gifs/banners/real-player-g2-2000.gif">
+        </td>
+        <td>
+          <img src="assets/gifs/banners/netscape-2000.gif">
+        </td>
+      </tr>
+    </tbody></table>
+    <audio controls autoplay loop>
+      <source src="assets/audio/ohyeah/ohhhhyeaahhh.wav" type="audio/mpeg">
+      no ding for you :/
+    </audio>
+    <div>
+        <h1 style="background-color:brown;color: darkgoldenrod;"><b>Welcome to the OFFICAL spooooky NOOBULAR WEBSITE!!!</b></h1>
+        <p style="background-color:mediumpurple;">This is the halloween noobular website</p>
+        <p style="background-color:mediumslateblue;">we did it!</p>
+        <div><a href='https://www.counter12.com'><img src='https://www.counter12.com/img-1Bxy6wY1AAA94y91-90.gif' alt='counter'></a></div>
+        <h3 style="background-color:mediumpurple;">🎉🎉🎉 now celebraing OVER 8.1 BILLION VISITS 🎉🎉🎉</h3>
+        <h2 style="background-color:black;color: mediumpurple;">mikey geiger counter reading: OFF THE CHARTS!</h2>
+        <button onclick="window.location.href='/slop.html'" style="background-color:peru; width: 95%; height: 111x; font-size: 65px;">
+          CLICK TO ENTER <br>
+          SLOPOPOLIS!!!
+        </button>
+        <button onclick="window.location.href='/appeal.html'" style="background-color:palevioletred; width: 95%; height: 111x; font-size: 65px;">
+          press here for ban appeals!<br>
+          (or call 1-800-NOOBNET)!
+        </button>
+        <button onclick="window.location.href='/themovies.html'" style="background-color:teal; width: 95%; height: 111x; font-size: 65px;">
+          GO TO:THE MOVIES
+        </button>
+        <img src="assets/gifs/halloween/rocket.gif" style="height: 40vh;" alt="rock">
+      <img src="assets/gifs/halloween/fallfinn.gif" style="height: 40vh;" alt="fallfinn">
+      <div id="smp-counter" style="display: inline-block; height: 40vh; min-width: 300px; background: #FFA500; border: 8px solid #000; box-shadow: inset 0 0 0 4px #FFD700, 0 8px 16px rgba(0,0,0,0.5); text-align: center; vertical-align: middle; padding: 20px; box-sizing: border-box; font-family: 'Arial Black', 'Impact', sans-serif; position: relative;">
+        <div style="background-color: #000; color: #FFD700; padding: 10px 5px; margin-bottom: 15px; border: 3px solid #FFD700; text-transform: uppercase; font-size: clamp(14px, 2.5vh, 24px); font-weight: bold; letter-spacing: 1px;">
+          DAYS SINCE LAST
+        </div>
+        <div style="background-color: #000; color: #FFD700; padding: 10px 5px; margin-bottom: 20px; border: 3px solid #FFD700; text-transform: uppercase; font-size: clamp(16px, 3vh, 28px); font-weight: bold; letter-spacing: 1px;">
+          SMP UPDATE
+        </div>
+        <div id="days-count" style="display: flex; justify-content: center; gap: 8px; margin: 10px auto; width: 90%;"></div>
+        <div style="position: absolute; bottom: 10px; left: 0; right: 0; text-align: center; font-size: clamp(10px, 1.5vh, 14px); color: #000; font-weight: bold; text-transform: uppercase;">
+          if it ain't broke, don't fix it
+        </div>
+      </div>
+      <img src="assets/gifs/christmas/newyear2010.gif" style="height: 40vh;" alt="christmastree">
+      <img src="assets/gifs/yoda ballin.gif" style="height: 40vh;" alt="christmastree">
+      <img src="assets/gifs/microcenter.gif" style="height: 40vh;" alt="christmastree">
+      <div style="display: inline-block; text-align: center; vertical-align: top;">
+        <img id="the-chair" src="assets/images/chairthatbreaksintoamillionpieces.jpg" style="height: 40vh; cursor: pointer;" alt="the chair that breaks into a million pieces" title="yesss yesssssss">
+        <div style="background-color: black; color: yellow; font-size: 22px; font-weight: bold; font-family: 'Comic Sans MS', cursive;">PLEASEEEEEEEE CLICK ME! -the chiar that breaks into a miullion peices</div>
+      </div>
+        <br>
+        <br>
+        <button onclick="window.location.href=href='http://www.websitegoodies.com/guestbook.php?a=view&id=1741018'" style="background-color:mediumpurple; width: 100%; height: 100px; font-size: 60px;">
+          go to the working as of 2024 noobular guestbook
+        </button>
+        <button onclick="showJollyWarning()" style="background-color:orange; width: 100%; height: 100px; font-size: 60px;">
+          go to the website's old christmas 2024 edition! (very cool)
+        </button>
+        <button onclick="window.location.href='/hoa.html'" style="background-color:tomato; width: 100%; height: 100px; font-size: 60px;">
+          go to the homeowners association...
+        </button>
+        <button onclick="window.location.href='/store.html'" style="background-color:purple; width: 100%; height: 100px; font-size: 60px;">
+          go shopping
+        </button>
+        <button onclick="window.location.href='/NEWS.html'" style="background-color:rgb(173, 67, 67); width: 100%; height: 100px; font-size: 60px;">
+          (BREAKING!) noobular news network!
+        </button>
+         <button onclick="window.location.href='https://www.dolekemp96.org/main.htm'" style="background-color: red; width: 75%; height: 100px; font-size: 60px;">
+          Make sure to vote Dole for Mayor of the Survival Multiplayer Minecraft Server!
+        </button>
+        <button id="carney-button" onclick="dodgeCarney(this)" style="background-color: pink; width: 100%; height: 100px; font-size: 60px;">
+          carney hospital invitation
+        </button>
+        <button onclick="window.location.href='/donate.html'" style="background-color: green; width: 75%; height: 100px; font-size: 60px;">
+          DONATE UR JOLLARS
+        </button>
+        <button onclick="window.location.href='/finn.html'" style="background-color: yellow; width: 112%; height: 100px; font-size: 60px;">
+          Finns old website (:
+        </button>
+        <button onclick="window.location.href='/noobgpt.html'" style="background: linear-gradient(135deg, #10a37f, #6e48aa); color: white; width: 100%; height: 100px; font-size: 60px;">
+          ✨ ask noobGPT ✨
+        </button>
+        <button onclick="window.location.href='/wiki.html'" style="background-color: lightskyblue;color: darkorange; width: 91%; height: 100px; font-size: 60px;">
+          the wiki info page with all the information
+        </button>
+        <button onclick="window.location.href='/report.html'" style="background-color: lime;color: beige; width: 91%; height: 100px; font-size: 60px;">
+          reports page (BAN USERS HERE)
+        </button>
+        <button onclick="window.location.href='https://modrinth.com/organization/swamptown'" style="background-color: magenta;color: beige; width: 91%; height: 100px; font-size: 60px;">
+          Noobular Monkey business (modpacks)
+        </button>
+        <button onclick="window.location.href='/guestbook.html'" style="background-color:mediumslateblue; width: 100%; height: 100px; font-size: 60px;">
+          go to the broken guestbook
+        </button>
+    </div>
+    <img src="assets/images/bush.png" style="height: 40vh;" alt="christmastree"><img src="assets/images/bob_dole.png" style="height: 40vh;" alt="christmastree"><img src="assets/images/dole2.png" style="height: 40vh;" alt="bob dole"><img src="assets/images/romney.png" style="height: 40vh;" alt="christmastree">
+    <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> 
+    <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> 
+    <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> 
+    <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> 
+    <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> 
+    <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> 
+    <p>congrats you found the bottom of the barrel</p>
+    <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> 
+    <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> 
+    <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> 
+    <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br>
+    <p>.</p>
+    <audio id="splat-audio" src="assets/audio/splat.mp3" preload="auto" style="display:none"></audio>
+    <audio id="green-audio" src="assets/audio/greenline.mp3" preload="auto" style="display:none"></audio>
+    <script>
+      let typedBuffer = '';
+      window.addEventListener('keydown', function handleKeydown(event) {
+        if (event.defaultPrevented) return;
+        const target = event.target;
+        const isTypingContext =
+          target && (
+            target.tagName === 'INPUT' ||
+            target.tagName === 'TEXTAREA' ||
+            target.isContentEditable
+          );
+        if (isTypingContext) return;
+        if (!event.ctrlKey && !event.metaKey && !event.altKey && !event.shiftKey) {
+          const key = String(event.key || '').toLowerCase();
+          if (key === 'p') {
+            window.location.href = 'https://cinema.noobular.top'; //kino
+          }
+          if (key === 's') {
+            const splat = document.getElementById('splat-audio');
+            if (splat && typeof splat.play === 'function') {
+              try {
+                splat.currentTime = 0;
+                splat.play();
+              } catch (e) {
+                // i hate html <- lol so true king
+              }
+            }
+          }
+          if (key === 'g') {
+            const green = document.getElementById('green-audio');
+            if (green && typeof green.play === 'function') {
+              try {
+                green.currentTime = 0;
+                green.play();
+              } catch (e) {
+                // i hate html <- lol so true king
+              }
+            }
+          }
+          if (key.length === 1 && key >= 'a' && key <= 'z') { //WHATEVER YOU DO DO NOT TYPE RICKY
+            typedBuffer += key;
+            if (typedBuffer.length > 16) typedBuffer = typedBuffer.slice(-16);
+            if (typedBuffer.endsWith('ricky')) {
+              try {
+                localStorage.setItem('REMOVE-EVERYTHING', '1');
+              } catch (e) {}
+              document.documentElement.classList.add('REMOVE-EVERYTHING');
+              if (document.body) document.body.classList.add('REMOVE-EVERYTHING');
+            } else if (typedBuffer.endsWith('sorry')) {
+              try {
+                localStorage.removeItem('REMOVE-EVERYTHING');
+              } catch (e) {}
+              document.documentElement.classList.remove('REMOVE-EVERYTHING');
+              if (document.body) document.body.classList.remove('REMOVE-EVERYTHING');
+            }
+          }
+        }
+      });
+
+      function showJollyWarning() {
+        const popup = document.getElementById('warning-popup');
+        if (popup) {
+          popup.style.display = 'flex';
+        }
+      }
+
+      function dodgeCarney(btn) {
+        const grid = btn.parentElement;
+        if (!grid) return;
+        if (btn.dataset.dodging === '1') return;
+        const buttons = Array.prototype.slice.call(grid.children);
+        if (buttons.length < 2) return;
+        const others = buttons.filter(function (el) { return el !== btn; });
+
+        // FLIP: record where it starts
+        const first = btn.getBoundingClientRect();
+
+        // reorder to a random spot in the DOM
+        const target = others[Math.floor(Math.random() * (others.length + 1))];
+        if (target) {
+          grid.insertBefore(btn, target);
+        } else {
+          grid.appendChild(btn);
+        }
+
+        // record where it ends up, compute the delta to animate from
+        const last = btn.getBoundingClientRect();
+        const dx = first.left - last.left;
+        const dy = first.top - last.top;
+
+        // build keyframes that lerp into place while shaking
+        const steps = 28;
+        const frames = [];
+        for (let i = 0; i <= steps; i++) {
+          const t = i / steps;
+          const ease = 1 - Math.pow(1 - t, 3); // easeOutCubic
+          const lx = dx * (1 - ease);
+          const ly = dy * (1 - ease);
+          const decay = 1 - t;
+          const shakeX = (Math.random() * 2 - 1) * 22 * decay;
+          const shakeY = (Math.random() * 2 - 1) * 22 * decay;
+          const rot = (Math.random() * 2 - 1) * 16 * decay;
+          frames.push({ transform: `translate(${lx + shakeX}px, ${ly + shakeY}px) rotate(${rot}deg)` });
+        }
+
+        btn.dataset.dodging = '1';
+        const anim = btn.animate(frames, { duration: 420, easing: 'linear' });
+        anim.onfinish = function () {
+          btn.style.transform = '';
+          btn.dataset.dodging = '0';
+        };
+      }
+
+      function hideJollyWarning() {
+        const popup = document.getElementById('warning-popup');
+        if (popup) {
+          popup.style.display = 'none';
+        }
+      }
+
+      function regg() {
+        if (window.noobDownloadRegg) {
+          window.noobDownloadRegg();
+        } else {
+          const link = document.createElement('a');
+          link.href = 'assets/images/regg.png';
+          link.download = 'regg.png';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }
+        hideJollyWarning();
+      }
+
+      function proceedToChristmas() {
+        window.location.href = '/oldchristmasmainpage.html';
+      }
+
+      function showSignIn() {
+        const popup = document.getElementById('signin-popup');
+        const currentUser = localStorage.getItem('current-user');
+        const signinForm = document.getElementById('signin-form');
+        const signoutForm = document.getElementById('signout-form');
+        const title = document.getElementById('signin-title');
+        const usernameDisplay = document.getElementById('current-username-display');
+        
+        if (currentUser) {
+          signinForm.style.display = 'none';
+          signoutForm.style.display = 'block';
+          title.textContent = 'ACCOUNT';
+          usernameDisplay.textContent = currentUser;
+        } else {
+          signinForm.style.display = 'block';
+          signoutForm.style.display = 'none';
+          title.textContent = 'SIGN IN';
+        }
+        
+        if (popup) {
+          popup.style.display = 'flex';
+        }
+      }
+
+      function updateSignInButton() {
+        const currentUser = localStorage.getItem('current-user');
+        const button = document.getElementById('signin-button');
+        if (button && currentUser) {
+          button.textContent = currentUser;
+        }
+      }
+
+      function signOut() {
+        localStorage.removeItem('current-user');
+        const button = document.getElementById('signin-button');
+        if (button) {
+          button.textContent = 'SIGN IN';
+        }
+        hideSignIn();
+      }
+
+      window.addEventListener('load', updateSignInButton);
+
+      setInterval(function() {
+        const currentUser = localStorage.getItem('current-user');
+        if (!currentUser) {
+          alert('FREE TRIAL EXPIRED! Sign in to continue.');
+        }
+      }, 10000);
+
+
+      function hideSignIn() {
+        const popup = document.getElementById('signin-popup');
+        if (popup) {
+          popup.style.display = 'none';
+        }
+      }
+
+      function signIn() {
+        const username = document.getElementById('username-input').value;
+        const password = document.getElementById('password-input').value;
+        const status = document.getElementById('signin-status');
+        
+        if (!username || !password) {
+          status.textContent = 'Please enter username and password!';
+          return;
+        }
+        
+        const accounts = JSON.parse(localStorage.getItem('noobular-accounts') || '{}');
+        if (!accounts['ricky']) {
+          accounts['ricky'] = 'ricky';
+          localStorage.setItem('noobular-accounts', JSON.stringify(accounts));
+        }
+        
+        if (accounts[username] && accounts[username] === password) {
+          status.textContent = 'Welcome back, ' + username + '!';
+          localStorage.setItem('current-user', username);
+          updateSignInButton();
+          setTimeout(() => {
+            hideSignIn();
+            status.textContent = '';
+            document.getElementById('username-input').value = '';
+            document.getElementById('password-input').value = '';
+          }, 1500);
+        } else {
+          status.textContent = 'Invalid username or password!';
+        }
+      }
+
+      function createAccount() {
+        const username = document.getElementById('username-input').value;
+        const password = document.getElementById('password-input').value;
+        const status = document.getElementById('signin-status');
+        
+        if (!username || !password) {
+          status.textContent = 'Please enter username and password!';
+          return;
+        }
+        
+        if (!window.usernameAttempts) {
+          window.usernameAttempts = 0;
+        }
+        
+        const hasMinLength = username.length >= 12;
+        const hasMaxLength = username.length < 13;
+        const hasNumber = /\d/.test(username);
+        const hasCapital = /[A-Z]/.test(username);
+        const hasSpecial = /[!@#$%^&*()q,.?":{}|<>]/.test(username);
+        const hasNoobular = username.includes('I<3NOOBULAR');
+        
+        const allValid = hasMinLength && hasNumber && hasCapital && hasSpecial && hasNoobular && hasMaxLength;
+        
+        if (!allValid) {
+          if (!hasMinLength) {
+            if (window.usernameAttempts >= 0) {
+              status.textContent = 'Username must be at least 12 character(s)';
+            }
+            window.usernameAttempts++;
+            return;
+          }
+          
+          if (!hasNumber) {
+            if (window.usernameAttempts >= 1) {
+              status.textContent = 'Username must contain a(n) number(s)';
+            }
+            window.usernameAttempts++;
+            return;
+          }
+          
+          if (!hasCapital) {
+            if (window.usernameAttempts >= 2) {
+              status.textContent = 'Usernames must contain a(n) capital letter(s)';
+            }
+            window.usernameAttempts++;
+            return;
+          }
+          
+          if (!hasSpecial) {
+            if (window.usernameAttempts >= 3) {
+              status.textContent = 'Username must contain a(n) special character(s)';
+            }
+            window.usernameAttempts++;
+            return;
+          }
+          
+          if (!hasNoobular) {
+            if (window.usernameAttempts >= 4) {
+              status.textContent = 'Username must contain(s) I<3NOOBULAR';
+            }
+            window.usernameAttempts++;
+            return;
+          }
+          
+          if (!hasMaxLength) {
+            if (window.usernameAttempts >= 5) {
+              status.textContent = 'Username must be less than 13 character(s)';
+            }
+            window.usernameAttempts++;
+            return;
+          }
+        }
+        
+        window.usernameAttempts++;
+        
+        const accounts = JSON.parse(localStorage.getItem('noobular-accounts') || '{}');
+        
+        if (accounts[username]) {
+          status.textContent = 'Username already exists!';
+          return;
+        }
+        
+        accounts[username] = password;
+        localStorage.setItem('noobular-accounts', JSON.stringify(accounts));
+        localStorage.setItem('current-user', username);
+        window.usernameAttempts = 0;
+        updateSignInButton();
+        
+        status.textContent = 'Account created! Welcome, ' + username + '!';
+        setTimeout(() => {
+          hideSignIn();
+          status.textContent = '';
+          document.getElementById('username-input').value = '';
+          document.getElementById('password-input').value = '';
+        }, 1500);
+      }
+
+      // days since last update
+      (function() {
+        const lastUpdateDate = new Date('2026-01-14'); //chage this when he updates it //aka ALWAYS
+        
+        function theSimpsons() {
+          const now = new Date();
+          const diffTime = Math.abs(now - lastUpdateDate);
+          const diffDays = Math.floor(diffTime / (1000*3600*24));
+          
+          const counterElement = document.getElementById('days-count');
+          if (counterElement) {
+            const digits = String(diffDays).split('');
+            counterElement.innerHTML = digits.map(digit => 
+              `<div style="background-color: #fff; border: 4px solid #000; padding: 10px 15px; min-width: 50px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); font-size: clamp(40px, 7vh, 80px); font-weight: bold; color: #000; font-family: 'Arial Black', sans-serif;">${digit}</div>`
+            ).join('');
+          }
+        }
+        
+        theSimpsons();
+        setInterval(theSimpsons, 1000 *3600);
+      })();
+    </script>
+    <script>
+      // the chair that breaks into a million pieces (400, but who's counting)
+      (function () {
+        const chair = document.getElementById('the-chair');
+        if (!chair) return;
+
+        const COLS = 20;
+        const ROWS = 20;
+        const FUSE = 1000;
+        const MAX_LIFE = 2600;
+        let busy = false;
+
+        const crash = new Audio('assets/sounds/glass breaking.m4a');
+        crash.preload = 'auto';
+
+        chair.addEventListener('click', function () {
+          if (busy) return;
+          busy = true;
+          // the fuse doubles as buffering time for the crash
+          crash.load();
+          setTimeout(shatter, FUSE);
+        });
+
+        function shatter() {
+          // measured now, not at click time, in case the page scrolled
+          // during the fuse. rect is viewport-relative so the shard layer
+          // is position:fixed to match.
+          const rect = chair.getBoundingClientRect();
+          const pieceW = rect.width / COLS;
+          const pieceH = rect.height / ROWS;
+
+          const shards = document.createElement('div');
+          shards.id = 'chair-shards';
+          shards.style.cssText = 'position:fixed;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:9997;';
+          document.body.appendChild(shards);
+
+          try {
+            crash.currentTime = 0;
+            crash.play();
+          } catch (e) {
+          }
+
+          chair.style.visibility = 'hidden';
+
+          for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS; c++) {
+              const piece = document.createElement('div');
+              // each shard is the whole image, shifted so only its tile shows
+              piece.style.cssText =
+                'position:absolute;' +
+                'left:' + (rect.left + c * pieceW) + 'px;' +
+                'top:' + (rect.top + r * pieceH) + 'px;' +
+                'width:' + pieceW + 'px;height:' + pieceH + 'px;' +
+                'background-image:url("' + chair.src + '");' +
+                'background-size:' + rect.width + 'px ' + rect.height + 'px;' +
+                'background-position:' + (-c * pieceW) + 'px ' + (-r * pieceH) + 'px;';
+              shards.appendChild(piece);
+
+              // blast outward from the middle, then let gravity have it
+              const outX = ((c + 0.5) / COLS - 0.5) * (260 + Math.random() * 340);
+              const outY = ((r + 0.5) / ROWS - 0.5) * 160 - 120 - Math.random() * 120;
+              const spin = Math.random() * 1440 - 720;
+
+              piece.animate([
+                { transform: 'translate(0px, 0px) rotate(0deg)', opacity: 1 },
+                { transform: 'translate(' + outX + 'px, ' + outY + 'px) rotate(' + (spin / 3) + 'deg)', opacity: 1, offset: 0.28 },
+                { transform: 'translate(' + (outX * 1.5) + 'px, ' + (window.innerHeight + 200) + 'px) rotate(' + spin + 'deg)', opacity: 0 }
+              ], {
+                duration: 1500 + Math.random() * 900,
+                easing: 'cubic-bezier(0.15, 0.55, 0.45, 1)',
+                fill: 'forwards'
+              });
+            }
+          }
+
+          // one timer rather than counting 400 onfinish callbacks, which
+          // never all arrive if the tab gets backgrounded mid-shatter
+          setTimeout(function () {
+            // shards go, chair stays broken. busy is never cleared, so it's
+            // gone for good until the page reloads.
+            shards.remove();
+          }, MAX_LIFE);
+        }
+      })();
+    </script>
+  <script src="assets/cookie-banner.js"></script>
+  </body>
+</html>
+
+
+
