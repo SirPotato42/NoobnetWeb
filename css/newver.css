@@ -16,7 +16,7 @@ body {
   margin: 0;
   padding: 0;
   overflow: hidden;           /* no scrolling — everything fits the window */
-  background: #000;
+  background: #fff;
   font-family: 'Arial Black', 'Impact', sans-serif;
 }
 
@@ -46,10 +46,39 @@ body {
   inset: 0;
 }
 
-/* --- Background image mosaic ----------------------------------------------- */
+/* --- Background: pixelated looping sky -------------------------------------
+   The tile is a hard-downscaled, colour-quantised, 4-way-mirrored copy of
+   cloud.jpg. The downscale IS the pixelation; image-rendering:pixelated stops
+   the browser smoothing the blocks back out when it scales the tile up.
+   Mirroring makes it seamless on both axes, so it can drift forever.
+   --------------------------------------------------------------------------- */
 #bg {
   z-index: 0;
   overflow: hidden;          /* absolutely-positioned tiles set by JS */
+  background-image: url('../assets/images/cloud-pixel-tile.png');
+  background-repeat: repeat;
+  background-size: 512px auto;    /* 4x blow-up of the 128px tile */
+  image-rendering: pixelated;
+  -ms-interpolation-mode: nearest-neighbor;
+  animation: cloud-drift 40s linear infinite;
+}
+
+/* one full tile width per cycle, so the wrap point is invisible */
+@keyframes cloud-drift {
+  to {
+    background-position: 512px 0;
+  }
+}
+
+/* Mosaic mode ("c"): JS fills #bg with image tiles, so the cloud tile has to
+   go — otherwise it shows through every gap between them. */
+html.bg-mosaic #bg {
+  background-image: none;
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #bg { animation: none; }
 }
 
 #bg .bg-tile {
@@ -75,6 +104,28 @@ body {
   padding: 5px 8px;
   pointer-events: none;      /* purely decorative */
   background: rgba(0, 0, 0, 0.3);
+}
+
+/* Visit counter, sat in the banner strip. The celebration text that used to
+   live beside it is now a free-floating .free-text region instead. */
+#visit-counter {
+  display: flex;
+  align-items: center;
+  padding: 3px 6px;
+  background: mediumpurple;
+  border: 3px outset #fff;
+  pointer-events: auto;    /* #banners is pointer-events:none; the link isn't */
+}
+
+#visit-counter a {
+  display: block;
+  line-height: 0;
+}
+
+#visit-counter img {
+  display: block;
+  max-height: 30px;
+  width: auto;
 }
 
 #banners img {
@@ -103,7 +154,7 @@ body {
   z-index: 0;
   width: 100%;
   height: 100%;
-  border: 3px solid rgba(0, 0, 0, 0.55);
+  border: 0;
   border-radius: 14px;
   font-family: Arial, Helvetica, sans-serif;     /* same as index.html buttons */
   font-weight: bold;
@@ -121,7 +172,6 @@ body {
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.45);
   /* Low-res "shader" — pixelates the whole button (gloss, text, bevel). */
   filter: url(#pixelate);
   /* Emboss: bright inner top-left highlight + dark inner bottom-right shadow + drop shadow. */
@@ -129,6 +179,47 @@ body {
     inset 2px 2px 5px rgba(255, 255, 255, 0.25),
     inset -4px -4px 9px rgba(0, 0, 0, 0.45),
     0 6px 14px rgba(0, 0, 0, 0.5);
+}
+
+/* --- Birds flyby -----------------------------------------------------------
+   Sits above everything, including the cookie banner (9998) and the sign-in /
+   warning popups (10000). Purely decorative, so it never eats a click.
+   --------------------------------------------------------------------------- */
+.birds-flyby {
+  position: fixed;
+  left: 0;
+  z-index: 10001;
+  pointer-events: none;
+  display: block;
+  will-change: transform;
+}
+
+/* --- Free-floating text ----------------------------------------------------
+   Bare text with no button chrome, sitting straight on the background. Still a
+   placed region, so the layout engine keeps it clear of the buttons — the heavy
+   outline is what makes it readable over the clouds without a box behind it.
+   --------------------------------------------------------------------------- */
+.region .free-text {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-family: 'Arial Black', 'Impact', sans-serif;
+  font-weight: 900;
+  line-height: 1.1;
+  cursor: default;
+  pointer-events: none;      /* decorative — never intercept a click */
+}
+
+/* Auto-sized label. JS binary-searches its font-size to fill the button; the
+   22px on .region-btn above is just the fallback before that runs. */
+.region .region-btn .btn-label,
+.region .free-text .btn-label {
+  display: block;
+  width: 100%;
+  line-height: 1.1;
 }
 
 /* Glossy gradient sheen layered over each button's own color (sits under the text). */
@@ -156,6 +247,59 @@ body {
 .region .region-btn.no-pixel,
 .region .region-btn.no-pixel:hover {
   filter: none;
+}
+
+/* --- Picture frames --------------------------------------------------------
+   An ornate border png with a hollow middle, laid over a gif. The frame wraps
+   the gif rather than the reverse: JS sizes each region so the hole in the
+   middle lands at exactly half the gif's natural size, and the border image
+   stretches around it.
+   --------------------------------------------------------------------------- */
+.region .framed {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;        /* decorative — don't swallow clicks */
+}
+
+.region .framed-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* The hole in the middle of the frame, as a plain block box.
+   This MUST be a div, not the <img> itself: an absolutely-positioned replaced
+   element with width:auto resolves to its intrinsic size and discards the
+   right/bottom offsets, so the gif would paint at full size and overflow. */
+.region .framed-opening {
+  position: absolute;
+  left: var(--in-l, 10%);
+  right: var(--in-r, 10%);
+  top: var(--in-t, 10%);
+  bottom: var(--in-b, 10%);
+  overflow: hidden;
+}
+
+/* The picture fills that hole. Its aspect already matches, since the frame was
+   sized from this gif — so `fill` neither crops nor stretches. */
+.region .framed-gif {
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  display: block;
+}
+
+/* The border sits on top, stretched to the whole box. */
+.region .framed-border {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
 }
 
 /* Opt individual text back into the pixelation (e.g. on a no-pixel button). */
@@ -209,6 +353,7 @@ body {
   height: auto;
   margin: 0 auto;
   filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.5));
+  cursor: pointer;           /* it's the play/stop button for the ohyeah track */
 }
 
 .rainbow {

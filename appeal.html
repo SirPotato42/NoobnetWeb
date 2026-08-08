@@ -388,6 +388,7 @@
         const progressBar = document.getElementById('progress-bar');
         const progressMessage = document.getElementById('progress-message');
         const finalConfirmation = document.getElementById('final-confirmation');
+        const unbanFail = document.getElementById('unban-fail');
         const chaChingSound = document.getElementById('cha-ching-sound');
         const bubbyDropSound = document.getElementById('bubby-drop-sound');
         const waitingMusic = document.getElementById('waiting-music');
@@ -571,9 +572,15 @@
                         waitingMusic.pause();
                         waitingMusic.currentTime = 0;
                     }
+                    // coin flip: half of all unbans get rejected
+                    const rejected = Math.random() < 0.5;
                     setTimeout(() => {
                         progressSection.style.display = 'none';
-                        finalConfirmation.style.display = 'block';
+                        if (rejected) {
+                            unbanFail.style.display = 'block';
+                        } else {
+                            finalConfirmation.style.display = 'block';
+                        }
                     }, 500);
                 }
             }, intervalTime);
