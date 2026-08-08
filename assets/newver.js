@@ -22,17 +22,27 @@
   /* ------------------------------------------------------------------ */
   var CONFIG = {
     SEED: 20260807,        // fixed seed → same layout every visit
+    BG_MOSAIC: false,      // false = plain background, true = random image mosaic
     CELL_SIZE: 150,        // background mosaic tile size in px (smaller = more, tinier images)
     REGION_PADDING: 24,    // min gap (px) enforced between placed regions
     PLACEMENT_TRIES: 250,  // candidate positions tried per region before fallback
+    SETTLE_STEP: 3,        // px per nudge when pulling regions in toward the center
+    SETTLE_PASSES: 8,      // repeat sweeps, so freed-up space lets neighbours close in
     SHRINK_STEPS: 6,       // extra shrink-and-retry passes if nothing fits cleanly
     SHRINK_FACTOR: 0.88,   // size multiplier applied per shrink step
     // Region auto-scaling: scale = clamp(min(vw,vh) / SCALE_BASIS, MIN, MAX)
     SCALE_BASIS: 900,
     SCALE_MIN: 0.55,
     SCALE_MAX: 1.15,
-    // Fraction of the viewport (centered) reserved for the NOOBULAR header,
-    // so regions don't land on top of it.
+    // Breathing room (px) left around the NOOBULAR logo. The reserved area is
+    // measured from the logo itself, so this is literally the gap between the
+    // logo edge and the nearest button — turn it down to tighten the cluster.
+    CENTER_GAP: 18,
+    // Button labels are auto-sized to fill their button without overflowing.
+    BTN_FONT_MIN: 9,
+    BTN_FONT_MAX: 42,
+    // Fallback only, used if the logo hasn't loaded and can't be measured yet.
+    // Fraction of the viewport (centered) reserved for the NOOBULAR header.
     CENTER_RESERVE_W: 0.55,
     CENTER_RESERVE_H: 0.32
   };
@@ -138,8 +148,65 @@
   // For a CUSTOM UPLOADED BUTTON IMAGE, skip `html` and use instead:
   //   { id, baseW, baseH, img:'assets/images/your.png', href:'/target.html', label:'alt text' }
   //
+  /* ------------------------------------------------------------------ */
+  /* PICTURE FRAMES — the five gifs that used to sit in the homepage row  */
+  /* ------------------------------------------------------------------ */
+  // Inner opening of each frame png, measured from its alpha channel and
+  // pulled in ~10% so the gif tucks under the ornate border instead of
+  // risking a hairline gap at the edge.
+  var FRAME_STYLES = {
+    1: { src: 'assets/images/frame1.png', insets: [12.6, 12.6, 12.4, 12.4] },
+    2: { src: 'assets/images/frame2.png', insets: [11.2, 10.8, 10.2, 10.2] },
+    3: { src: 'assets/images/frame3.png', insets: [19.8, 27.0, 9.6, 6.6] }
+  };
+
+  // Tuned by eye against the button sizes rather than to any particular
+  // fraction of the gif.
+  var GIF_SCALE = 0.35;
+
+  // The frame WRAPS the gif rather than the gif being fitted into a fixed
+  // frame: the gif is drawn at GIF_SCALE and the outer box is grown so that
+  // its opening comes out exactly that size. Since the border eats a known
+  // fraction of each axis, that's just a division:
+  //
+  //   openW = W(1 - l - r) = gifW   =>   W = gifW / (1 - l - r)
+  //
+  // Natural sizes are passed in so this stays a plain static computation and
+  // the placer knows every region's real footprint before anything loads.
+  function framedRegion(id, style, gif, natW, natH) {
+    var f = FRAME_STYLES[style];
+    var openW = 1 - (f.insets[0] + f.insets[1]) / 100;
+    var openH = 1 - (f.insets[2] + f.insets[3]) / 100;
+
+    return {
+      id: id,
+      baseW: Math.round(natW * GIF_SCALE / openW),
+      baseH: Math.round(natH * GIF_SCALE / openH),
+      fixedShape: 'none',
+      html: '<div class="framed" ' +
+            'style="--in-l:' + f.insets[0] + '%;--in-r:' + f.insets[1] + '%;' +
+            '--in-t:' + f.insets[2] + '%;--in-b:' + f.insets[3] + '%">' +
+            '<div class="framed-inner">' +
+            // the gif lives in a plain div, not positioned directly: an
+            // absolutely-positioned <img> with width:auto uses its INTRINSIC
+            // size and throws away the right/bottom offsets, so it would
+            // render full-size and burst out of the frame
+            '<div class="framed-opening">' +
+            '<img class="framed-gif" src="' + gif + '" alt="">' +
+            '</div>' +
+            '<img class="framed-border" src="' + f.src + '" alt="">' +
+            '</div></div>'
+    };
+  }
+
   // Buttons ported from index.html. Add/remove freely — they auto-scatter.
   var REGIONS = [
+    // Portrait gif goes in frame3, whose opening is the tall one.
+    framedRegion('frame-rocket',      3, 'assets/gifs/halloween/rocket.gif',        333, 500),
+    framedRegion('frame-fallfinn',    2, 'assets/gifs/halloween/fallfinn.gif',      351, 388),
+    framedRegion('frame-newyear',     1, 'assets/gifs/christmas/newyear2010.gif',   640, 480),
+    framedRegion('frame-yoda',        1, 'assets/gifs/yoda ballin.gif',             500, 487),
+    framedRegion('frame-microcenter', 2, 'assets/gifs/microcenter.gif',             500, 375),
     {
       id: 'slop', baseW: 260, baseH: 150,
       html: '<button class="region-btn" style="background:peru;color:#fff" ' +
@@ -166,28 +233,33 @@
             'onclick="window.location.href=\'/halloween2025.html\'">go to the HALLOWEEN 2025 version! (very spooky)</button>'
     },
     {
-      id: 'hoa', baseW: 250, baseH: 130,
-      html: '<button class="region-btn" style="background:tomato;color:#000" ' +
-            'onclick="window.location.href=\'/hoa.html\'">go to the homeowners association...</button>'
+      // "go to the [hoa gif]"
+      id: 'hoa', baseW: 220, baseH: 180,
+      html: '<button class="region-btn no-pixel" style="background:tomato;color:#000;' +
+            'display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:20px" ' +
+            'onclick="window.location.href=\'/hoa.html\'">' +
+            '<span class="pixel-text">go to the</span>' +
+            '<img src="assets/gifs/hoa.gif" style="max-height:72%;max-width:100%;width:auto;display:block">' +
+            '</button>'
     },
     {
-      id: 'store', baseW: 220, baseH: 160,
-      html: '<button class="region-btn no-pixel" style="background:purple;display:flex;align-items:center;justify-content:center;padding:6px" ' +
+      // Square region + fixedShape:'circle' — 50% radius on a non-square box
+      // would give an ellipse. 15% padding keeps the cart inside the circle's
+      // inscribed square (~70.7% of the diameter) instead of clipping corners.
+      id: 'store', baseW: 200, baseH: 200, fixedShape: 'circle',
+      html: '<button class="region-btn no-pixel" style="background:purple;display:flex;align-items:center;justify-content:center;padding:15%" ' +
             'onclick="window.location.href=\'/store.html\'"><img src="assets/gifs/shoppingcart.gif" style="max-height:100%;max-width:100%;width:auto;display:block"></button>'
     },
     {
-      id: 'news', baseW: 250, baseH: 130,
-      html: '<button class="region-btn" style="background:rgb(173,67,67);color:#fff" ' +
-            'onclick="window.location.href=\'/NEWS.html\'">(BREAKING!) noobular news network!</button>'
-    },
-    {
-      id: 'visits', baseW: 240, baseH: 240, fixedShape: 'square',
-      html: '<div class="region-btn no-pixel" style="background:mediumpurple;color:#000;cursor:default;' +
-            'display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px">' +
-            '<a href="https://www.counter12.com" style="display:block;line-height:0">' +
-            '<img src="https://www.counter12.com/img-1Bxy6wY1AAA94y91-90.gif" alt="counter" style="max-width:100%;display:block"></a>' +
-            '<div style="font-weight:bold;font-size:13px;text-align:center;line-height:1.2">' +
-            '🎉🎉🎉 now celebraing OVER 8.1 BILLION VISITS 🎉🎉🎉</div></div>'
+      // "(BREAKING!) [news gif] NETWORK!"
+      id: 'news', baseW: 240, baseH: 210,
+      html: '<button class="region-btn no-pixel" style="background:rgb(173,67,67);color:#fff;' +
+            'display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:20px" ' +
+            'onclick="window.location.href=\'/NEWS.html\'">' +
+            '<span class="pixel-text">(BREAKING!)</span>' +
+            '<img src="assets/gifs/news.gif" style="max-height:58%;max-width:100%;width:auto;display:block">' +
+            '<span class="pixel-text">NETWORK!</span>' +
+            '</button>'
     },
     {
       // SMP "days since last update" counter — a plain section, not a button.
@@ -205,10 +277,16 @@
             'if it ain\'t broke, don\'t fix it</div></div>'
     },
     {
-      // Mikey geiger counter — forced square.
-      id: 'mikey', baseW: 220, baseH: 220, fixedShape: 'square',
-      html: '<div class="region-btn no-pixel" style="background:#000;color:mediumpurple;cursor:default;' +
-            'text-align:center;font-weight:bold">mikey geiger counter reading: OFF THE CHARTS!</div>'
+      // Free-floating text, no box — still placed, so it stays off the buttons.
+      id: 'mikey', baseW: 250, baseH: 130, fixedShape: 'none',
+      html: '<div class="free-text" style="color:mediumpurple">' +
+            'mikey geiger counter reading: OFF THE CHARTS!</div>'
+    },
+    {
+      // The celebration line that used to sit beside the counter in the header.
+      id: 'visits-text', baseW: 260, baseH: 120, fixedShape: 'none',
+      html: '<div class="free-text" style="color:#FFE400">' +
+            '🎉🎉🎉 now celebraing OVER 8.1 BILLION VISITS 🎉🎉🎉</div>'
     },
     {
       id: 'dole', baseW: 290, baseH: 160,
@@ -231,12 +309,15 @@
             'onclick="window.location.href=\'/finn.html\'">Finns old website (:</button>'
     },
     {
-      id: 'chair', baseW: 210, baseH: 210,
+      // 260x212 matches the source image's 735x598, and fixedShape:'none' keeps
+      // it out of the random clip-path/border-radius pool — so it stays a plain
+      // rectangle and object-fit:contain never crops it.
+      id: 'chair', baseW: 260, baseH: 212, fixedShape: 'none',
       html: '<img class="chair-img" src="assets/images/chairthatbreaksintoamillionpieces.jpg" ' +
             'title="yesss yesssssss" alt="the chair that breaks into a million pieces" ' +
             'onclick="shatterChair(this)" ' +
-            'style="width:100%;height:100%;object-fit:cover;cursor:pointer;display:block;' +
-            'border:3px solid #000;box-shadow:0 6px 14px rgba(0,0,0,0.5)">'
+            'style="width:100%;height:100%;object-fit:contain;cursor:pointer;display:block;' +
+            'box-shadow:0 6px 14px rgba(0,0,0,0.5)">'
     },
     {
       id: 'noobgpt', baseW: 240, baseH: 120,
@@ -285,6 +366,13 @@
   function buildBackground() {
     var bg = document.getElementById('bg');
     if (!bg) return;
+
+    // Mosaic off: leave #bg empty so the plain page background shows through.
+    // Clearing rather than bailing early matters on resize, which re-renders.
+    if (!CONFIG.BG_MOSAIC) {
+      bg.textContent = '';
+      return;
+    }
 
     var pool = getPoolForDate(new Date());
     if (!pool || !pool.length) return;
@@ -371,14 +459,17 @@
 
   // Button shapes, chosen deterministically per region from the seed + id.
   // `pad` keeps text away from clipped/curved edges so it doesn't overflow.
+  // Padding keeps labels clear of the clipped corners. Trimmed ~25% from the
+  // original values — they were conservative enough that the auto-fitted text
+  // was coming out smaller than the buttons had room for.
   var SHAPES = [
-    { radius: '14px', pad: '8px 12px' },                              // rounded rectangle
-    { radius: '999px', pad: '10px 24px' },                            // pill
-    { radius: '50%', pad: '16% 20%' },                                // ellipse
-    { radius: '45% 12% 45% 12% / 30% 20% 30% 20%', pad: '14% 16%' },  // leaf / blob
-    { clip: 'polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%)', pad: '10% 22%' }, // hexagon
-    { clip: 'polygon(50% 0,100% 50%,50% 100%,0 50%)', pad: '22% 24%' },   // diamond
-    { clip: 'polygon(12% 0,100% 0,88% 100%,0 100%)', pad: '10% 18%' }     // parallelogram
+    { radius: '14px', pad: '6px 10px' },                              // rounded rectangle
+    { radius: '999px', pad: '8px 18px' },                             // pill
+    { radius: '50%', pad: '12% 15%' },                                // ellipse
+    { radius: '45% 12% 45% 12% / 30% 20% 30% 20%', pad: '11% 12%' },  // leaf / blob
+    { clip: 'polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%)', pad: '8% 17%' }, // hexagon
+    { clip: 'polygon(50% 0,100% 50%,50% 100%,0 50%)', pad: '17% 18%' },   // diamond
+    { clip: 'polygon(12% 0,100% 0,88% 100%,0 100%)', pad: '8% 14%' }      // parallelogram
   ];
 
   function applyShape(def, target) {
@@ -389,7 +480,15 @@
       target.style.clipPath = 'none';
       target.style.webkitClipPath = 'none';
       target.style.borderRadius = '10px';
-      target.style.padding = '10px';
+      target.style.padding = '8px';
+      return;
+    }
+    // A true circle only if the region is square — otherwise 50% is an ellipse,
+    // so give these regions matching baseW/baseH.
+    if (def.fixedShape === 'circle') {
+      target.style.clipPath = 'none';
+      target.style.webkitClipPath = 'none';
+      target.style.borderRadius = '50%';
       return;
     }
     var shapeRand = mulberry32((CONFIG.SEED ^ strHash(def.id || 'region')) >>> 0);
@@ -475,6 +574,74 @@
     return h ? h + 12 : 0;
   }
 
+  // The retro banner strip is fixed to the top — keep buttons clear of it.
+  function getTopReserve() {
+    var b = document.getElementById('banners');
+    if (!b) return 0;
+    if (b.style.display === 'none' || b.hidden) return 0;
+    var h = b.offsetHeight || 0;
+    return h ? h + 8 : 0;
+  }
+
+  // Does rect sit inside bounds and clear of every obstacle except its own?
+  function rectIsFree(rect, obstacles, skipIndex, bounds, pad) {
+    if (rect.x < bounds.minX || rect.y < bounds.minY) return false;
+    if (rect.x + rect.w > bounds.maxX || rect.y + rect.h > bounds.maxY) return false;
+    for (var i = 0; i < obstacles.length; i++) {
+      if (i === skipIndex || !obstacles[i]) continue;
+      if (rectsOverlap(rect, obstacles[i], pad)) return false;
+    }
+    return true;
+  }
+
+  // Walk every region toward the center until something blocks it. If the
+  // straight-in step is blocked we retry each axis alone, which lets a region
+  // slide around the NOOBULAR reserve instead of stalling against its corner.
+  // Repeated passes matter: once one region closes in, the gap it left behind
+  // may open a path for another.
+  function settleTowardCenter(placed, firstRegion, cx, cy, bounds, pad) {
+    var step = CONFIG.SETTLE_STEP;
+
+    for (var pass = 0; pass < CONFIG.SETTLE_PASSES; pass++) {
+      var movedAny = false;
+
+      for (var k = firstRegion; k < placed.length; k++) {
+        var r = placed[k];
+        if (!r) continue;
+
+        for (var guard = 0; guard < 1000; guard++) {
+          var dx = cx - (r.x + r.w / 2);
+          var dy = cy - (r.y + r.h / 2);
+          var dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist <= step) break;               // already on top of the center
+
+          var sx = dx / dist * step;
+          var sy = dy / dist * step;
+          var attempts = [[sx, sy], [sx, 0], [0, sy]];
+
+          var advanced = false;
+          for (var a = 0; a < attempts.length; a++) {
+            var cand = {
+              x: r.x + attempts[a][0],
+              y: r.y + attempts[a][1],
+              w: r.w, h: r.h
+            };
+            if (rectIsFree(cand, placed, k, bounds, pad)) {
+              r.x = cand.x;
+              r.y = cand.y;
+              advanced = true;
+              movedAny = true;
+              break;
+            }
+          }
+          if (!advanced) break;                  // wedged in; leave it here
+        }
+      }
+
+      if (!movedAny) break;                      // nothing shifted, we're settled
+    }
+  }
+
   function layoutRegions() {
     var layer = document.getElementById('regions');
     if (!layer) return;
@@ -484,22 +651,54 @@
     var scale = currentScale();
     var pad = CONFIG.REGION_PADDING;
 
-    // Cookie banner sits fixed at the bottom — keep buttons + header above it.
+    // Cookie banner sits fixed at the bottom, banner strip at the top —
+    // keep buttons + header clear of both.
     var bottomReserve = getBottomReserve();
+    var topReserve = getTopReserve();
     document.documentElement.style.setProperty('--bottom-reserve', bottomReserve + 'px');
 
-    // Reserved center rectangle (NOOBULAR header) — treated as an obstacle.
-    var reserve = {
-      w: vw * CONFIG.CENTER_RESERVE_W,
-      h: vh * CONFIG.CENTER_RESERVE_H
-    };
+    // Reserved center rectangle (NOOBULAR logo) — treated as an obstacle.
+    // Measure the logo rather than guessing a viewport fraction: a fraction is
+    // both too roomy on wide screens (the logo caps at 640px) and too tight on
+    // narrow ones (where the logo grows to 60vw and would poke out of it).
+    // Only the SIZE is measured — the position is derived, because #center
+    // animates its padding-bottom and a mid-transition read would be wrong.
+    var reserve;
+    var logo = document.querySelector('.noob-logo');
+    var logoRect = logo ? logo.getBoundingClientRect() : null;
+    var gap = CONFIG.CENTER_GAP;
+
+    if (logoRect && logoRect.width > 0 && logoRect.height > 0) {
+      reserve = { w: logoRect.width + gap * 2, h: logoRect.height + gap * 2 };
+    } else {
+      reserve = { w: vw * CONFIG.CENTER_RESERVE_W, h: vh * CONFIG.CENTER_RESERVE_H };
+    }
     reserve.x = (vw - reserve.w) / 2;
     reserve.y = (vh - bottomReserve - reserve.h) / 2;
+
+    // Everything is pulled toward the middle of the NOOBULAR logo, which
+    // #center positions at the midpoint of the space above the cookie banner.
+    var cx = vw / 2;
+    var cy = (vh - bottomReserve) / 2;
+    function centerDist(r) {
+      var dx = r.x + r.w / 2 - cx;
+      var dy = r.y + r.h / 2 - cy;
+      return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    var margin = 8;
+    var bounds = {
+      minX: margin,
+      minY: topReserve + margin,
+      maxX: vw - margin,
+      maxY: vh - bottomReserve - margin
+    };
 
     // Fresh deterministic RNG each layout → identical placement per size.
     var rand = mulberry32(CONFIG.SEED);
 
     var placed = [reserve];   // obstacles to avoid (center counts)
+    var pending = [];         // render after settling, not during placement
     layer.textContent = '';
 
     // Place the biggest regions first — they're the hardest to fit, so
@@ -526,18 +725,22 @@
         var curW = w * Math.pow(CONFIG.SHRINK_FACTOR, shrink);
         var curH = h * Math.pow(CONFIG.SHRINK_FACTOR, shrink);
 
-        // Keep fully on-screen with a small margin, above the cookie banner.
-        var margin = 8;
-        var maxX = Math.max(margin, vw - curW - margin);
-        var maxY = Math.max(margin, vh - bottomReserve - curH - margin);
+        // Keep fully on-screen with a small margin, below the banner strip
+        // and above the cookie banner.
+        var minX = bounds.minX;
+        var minY = bounds.minY;
+        var maxX = Math.max(minX, bounds.maxX - curW);
+        var maxY = Math.max(minY, bounds.maxY - curH);
 
         var roundBest = null;
         var roundScore = Infinity;
+        var cleanBest = null;
+        var cleanDist = Infinity;
 
         for (var t = 0; t < CONFIG.PLACEMENT_TRIES; t++) {
           var cand = {
-            x: margin + rand() * (maxX - margin),
-            y: margin + rand() * (maxY - margin),
+            x: minX + rand() * (maxX - minX),
+            y: minY + rand() * (maxY - minY),
             w: curW, h: curH
           };
 
@@ -550,12 +753,18 @@
             }
           }
 
-          if (clean) { roundBest = cand; roundScore = 0; break; }  // perfect spot found
-          if (score < roundScore) {                                 // remember least-bad
+          if (clean) {
+            // Don't stop at the first opening — keep the one nearest the
+            // center, so the settle pass starts from a tight layout.
+            var d = centerDist(cand);
+            if (d < cleanDist) { cleanDist = d; cleanBest = cand; }
+          } else if (score < roundScore) {   // remember least-bad
             roundScore = score;
             roundBest = cand;
           }
         }
+
+        if (cleanBest) { roundBest = cleanBest; roundScore = 0; }
 
         if (roundScore < bestScore) {
           bestScore = roundScore;
@@ -566,11 +775,76 @@
       }
 
       placed.push(best);
-      var finalSizeMul = sizeMul * Math.pow(CONFIG.SHRINK_FACTOR, bestShrink);
-      renderRegion(layer, def, best, scale, finalSizeMul);
+      pending.push({
+        def: def,
+        rect: best,   // same object as in `placed`, so settling updates both
+        sizeMul: sizeMul * Math.pow(CONFIG.SHRINK_FACTOR, bestShrink)
+      });
     }
 
+    // Pull everything in toward the logo, then draw the settled positions.
+    settleTowardCenter(placed, 1, cx, cy, bounds, pad);
+
+    for (var j = 0; j < pending.length; j++) {
+      renderRegion(layer, pending[j].def, pending[j].rect, scale, pending[j].sizeMul);
+    }
+
+    // After render: the buttons need to be in the DOM at their final size
+    // before their labels can be measured and fitted.
+    fitAllButtonText(layer);
+
     populateSmpDays();
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Auto-size button labels to their button                             */
+  /* ------------------------------------------------------------------ */
+  // Binary-searches the largest font size whose wrapped label still fits the
+  // button's content box, so short labels grow and long ones shrink instead of
+  // being clipped by the button's overflow:hidden.
+  function fitButtonText(btn) {
+    if (!btn || btn.querySelector('img')) return;   // image buttons have no label
+
+    // Measure a span, not the button: the button is a centering flex container,
+    // so content taller than it overflows in both directions and its own
+    // scrollHeight under-reports the overflow.
+    var label = btn.querySelector('.btn-label');
+    if (!label) {
+      if (btn.children.length) return;              // custom markup — leave alone
+      var text = (btn.textContent || '').trim();
+      if (!text) return;
+      btn.textContent = '';
+      label = document.createElement('span');
+      label.className = 'btn-label';
+      label.textContent = text;
+      btn.appendChild(label);
+    }
+
+    var cs = getComputedStyle(btn);
+    var availW = btn.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    var availH = btn.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+    if (!(availW > 0) || !(availH > 0)) return;
+
+    var lo = CONFIG.BTN_FONT_MIN;
+    var hi = CONFIG.BTN_FONT_MAX;
+    var best = lo;
+    while (lo <= hi) {
+      var mid = (lo + hi) >> 1;
+      label.style.fontSize = mid + 'px';
+      if (label.scrollWidth <= availW + 1 && label.scrollHeight <= availH + 1) {
+        best = mid;
+        lo = mid + 1;
+      } else {
+        hi = mid - 1;
+      }
+    }
+    label.style.fontSize = best + 'px';
+  }
+
+  // Free-floating text gets the same treatment as button labels.
+  function fitAllButtonText(layer) {
+    var els = layer.querySelectorAll('.region-btn, .free-text');
+    for (var i = 0; i < els.length; i++) fitButtonText(els[i]);
   }
 
   // Fill any "days since last SMP update" counters with digit tiles.
@@ -580,7 +854,7 @@
     var lastUpdate = new Date('2026-01-14'); // change when the SMP updates
     var diffDays = Math.floor(Math.abs(new Date() - lastUpdate) / (1000 * 3600 * 24));
     var html = String(diffDays).split('').map(function (d) {
-      return '<div style="background:#fff;border:3px solid #000;padding:3px 6px;min-width:20px;' +
+      return '<div style="background:#fff;padding:3px 6px;min-width:20px;' +
         'box-shadow:inset 0 2px 4px rgba(0,0,0,0.3);font-size:clamp(15px,2.8vh,30px);font-weight:bold;' +
         'color:#000;font-family:\'Arial Black\',sans-serif">' + d + '</div>';
     }).join('');
@@ -1070,7 +1344,7 @@
   function init() {
     renderAll();
     setupInteractions();
-    setupClickToPlayAudio();
+    setupLogoAudio();
     window.addEventListener('resize', onResize);
     // The cookie banner is injected after this script runs; re-layout when it
     // appears or is dismissed so nothing hides underneath it.
@@ -1093,30 +1367,31 @@
     }
   }
 
-  // A full-screen layer so a click ANYWHERE kicks off the ohyeah audio
-  // (browsers block real autoplay-with-sound until a user gesture happens).
-  // pointer-events is off so the box never actually intercepts anything —
-  // the click passes straight through to whatever is underneath it.
-  function setupClickToPlayAudio() {
-    var box = document.createElement('div');
-    box.id = 'click-to-play-audio-box';
-    box.setAttribute('aria-hidden', 'true');
-    box.style.position = 'fixed';
-    box.style.inset = '0';
-    box.style.zIndex = '99999';
-    box.style.pointerEvents = 'none';
-    document.body.appendChild(box);
+  // The NOOBULAR logo is the only thing that starts the ohyeah track — there
+  // is no controls bar any more. Clicking it again stops it, since hiding the
+  // controls would otherwise leave no way to shut it off. The click is a user
+  // gesture, so browsers allow playback with sound.
+  function setupLogoAudio() {
+    var logo = document.querySelector('.noob-logo');
+    var audio = document.getElementById('ohyeah-audio');
+    if (!logo || !audio) return;
 
-    function tryPlay() {
-      var audio = document.getElementById('ohyeah-audio');
-      if (!audio) return;
-      audio.play().catch(function () {});
+    function toggle() {
+      if (audio.paused) {
+        audio.play().catch(function () {});
+      } else {
+        audio.pause();
+        audio.currentTime = 0;
+      }
     }
 
-    // Capture phase on document so this fires for every single click on the
-    // page, no matter what element it actually landed on, before anything
-    // else has a chance to stop the event.
-    document.addEventListener('click', tryPlay, true);
+    logo.addEventListener('click', toggle);
+    logo.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggle();
+      }
+    });
   }
 
   if (document.readyState === 'loading') {
