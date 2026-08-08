@@ -24,7 +24,9 @@
     SEED: 20260807,        // fixed seed → same layout every visit
     CELL_SIZE: 150,        // background mosaic tile size in px (smaller = more, tinier images)
     REGION_PADDING: 24,    // min gap (px) enforced between placed regions
-    PLACEMENT_TRIES: 120,  // candidate positions tried per region before fallback
+    PLACEMENT_TRIES: 250,  // candidate positions tried per region before fallback
+    SHRINK_STEPS: 6,       // extra shrink-and-retry passes if nothing fits cleanly
+    SHRINK_FACTOR: 0.88,   // size multiplier applied per shrink step
     // Region auto-scaling: scale = clamp(min(vw,vh) / SCALE_BASIS, MIN, MAX)
     SCALE_BASIS: 900,
     SCALE_MIN: 0.55,
@@ -436,6 +438,33 @@
     }
   }
 
+  // Highly saturated background/text pairs — no muted/pastel tones, so the
+  // randomly picked button colors stay loud and punchy instead of dim.
+  var VIVID_COLORS = [
+    { bg: '#FF1E1E', fg: '#fff' }, // vivid red
+    { bg: '#FF7A00', fg: '#000' }, // vivid orange
+    { bg: '#FFE400', fg: '#000' }, // vivid yellow
+    { bg: '#39FF14', fg: '#000' }, // vivid green
+    { bg: '#00E5FF', fg: '#000' }, // vivid cyan
+    { bg: '#1E6BFF', fg: '#fff' }, // vivid blue
+    { bg: '#7B2BFF', fg: '#fff' }, // vivid purple
+    { bg: '#FF00D6', fg: '#fff' }, // vivid magenta
+    { bg: '#FF2E7E', fg: '#fff' }, // vivid pink/red
+    { bg: '#00FFA3', fg: '#000' }  // vivid spring green
+  ];
+
+  // Seed-determined, highly saturated background color for plain text
+  // buttons (skips gif/image buttons, which keep their own art/background).
+  function applyColor(def, btn) {
+    if (!btn) return;
+    if (btn.classList.contains('no-pixel')) return;   // gif/image buttons
+    if (btn.querySelector('img')) return;             // has an image
+    var r = seededRandFor(def, 'color');
+    var pick = VIVID_COLORS[Math.floor(r() * VIVID_COLORS.length)];
+    btn.style.backgroundColor = pick.bg;
+    btn.style.color = pick.fg;
+  }
+
   // Reserve space at the bottom for the (fixed) cookie banner when present,
   // so scattered buttons don't get hidden underneath it.
   function getBottomReserve() {
@@ -473,45 +502,72 @@
     var placed = [reserve];   // obstacles to avoid (center counts)
     layer.textContent = '';
 
-    for (var i = 0; i < REGIONS.length; i++) {
-      var def = REGIONS[i];
+    // Place the biggest regions first — they're the hardest to fit, so
+    // giving them first pick of open space leaves smaller ones more room
+    // to slot into the gaps without overlapping.
+    var order = REGIONS.slice().sort(function (a, b) {
+      return (b.baseW || 200) * (b.baseH || 120) - (a.baseW || 200) * (a.baseH || 120);
+    });
+
+    for (var i = 0; i < order.length; i++) {
+      var def = order[i];
       var sizeMul = sizeMulFor(def);
       var w = (def.baseW || 200) * scale * sizeMul;
       var h = (def.baseH || 120) * scale * sizeMul;
 
-      // Keep fully on-screen with a small margin, above the cookie banner.
-      var margin = 8;
-      var maxX = Math.max(margin, vw - w - margin);
-      var maxY = Math.max(margin, vh - bottomReserve - h - margin);
-
       var best = null;
       var bestScore = Infinity;
+      var bestShrink = 0;
 
-      for (var t = 0; t < CONFIG.PLACEMENT_TRIES; t++) {
-        var cand = {
-          x: margin + rand() * (maxX - margin),
-          y: margin + rand() * (maxY - margin),
-          w: w, h: h
-        };
+      // Try placing at full size, then progressively shrink (a handful of
+      // times) if no clean spot was found — a slightly smaller button that
+      // doesn't overlap beats a full-size one stacked on top of another.
+      for (var shrink = 0; shrink <= CONFIG.SHRINK_STEPS; shrink++) {
+        var curW = w * Math.pow(CONFIG.SHRINK_FACTOR, shrink);
+        var curH = h * Math.pow(CONFIG.SHRINK_FACTOR, shrink);
 
-        var clean = true;
-        var score = 0;
-        for (var p = 0; p < placed.length; p++) {
-          if (rectsOverlap(cand, placed[p], pad)) {
-            clean = false;
-            score += overlapArea(cand, placed[p]);
+        // Keep fully on-screen with a small margin, above the cookie banner.
+        var margin = 8;
+        var maxX = Math.max(margin, vw - curW - margin);
+        var maxY = Math.max(margin, vh - bottomReserve - curH - margin);
+
+        var roundBest = null;
+        var roundScore = Infinity;
+
+        for (var t = 0; t < CONFIG.PLACEMENT_TRIES; t++) {
+          var cand = {
+            x: margin + rand() * (maxX - margin),
+            y: margin + rand() * (maxY - margin),
+            w: curW, h: curH
+          };
+
+          var clean = true;
+          var score = 0;
+          for (var p = 0; p < placed.length; p++) {
+            if (rectsOverlap(cand, placed[p], pad)) {
+              clean = false;
+              score += overlapArea(cand, placed[p]);
+            }
+          }
+
+          if (clean) { roundBest = cand; roundScore = 0; break; }  // perfect spot found
+          if (score < roundScore) {                                 // remember least-bad
+            roundScore = score;
+            roundBest = cand;
           }
         }
 
-        if (clean) { best = cand; break; }        // perfect spot found
-        if (score < bestScore) {                   // remember least-bad
-          bestScore = score;
-          best = cand;
+        if (roundScore < bestScore) {
+          bestScore = roundScore;
+          best = roundBest;
+          bestShrink = shrink;
         }
+        if (bestScore === 0) break;   // clean spot found, no need to shrink further
       }
 
       placed.push(best);
-      renderRegion(layer, def, best, scale);
+      var finalSizeMul = sizeMul * Math.pow(CONFIG.SHRINK_FACTOR, bestShrink);
+      renderRegion(layer, def, best, scale, finalSizeMul);
     }
 
     populateSmpDays();
@@ -531,12 +587,12 @@
     for (var i = 0; i < els.length; i++) els[i].innerHTML = html;
   }
 
-  function renderRegion(layer, def, rect, scale) {
+  function renderRegion(layer, def, rect, scale, sizeMul) {
     var el = document.createElement('div');
     el.className = 'region';
     if (def.id) el.dataset.regionId = def.id;
     // Position by center so the CSS translate(-50%,-50%) + scale is stable.
-    var sizeMul = sizeMulFor(def);
+    if (typeof sizeMul !== 'number') sizeMul = sizeMulFor(def);
     el.style.left = (rect.x + rect.w / 2) + 'px';
     el.style.top = (rect.y + rect.h / 2) + 'px';
     el.style.width = (def.baseW * sizeMul) + 'px';
@@ -563,6 +619,8 @@
     applyShape(def, el.firstElementChild);
     // Seed-determined font-size / font-family for plain text buttons.
     applyFont(def, el.querySelector('.region-btn'));
+    // Seed-determined highly saturated color for plain text buttons.
+    applyColor(def, el.querySelector('.region-btn'));
 
     layer.appendChild(el);
   }
