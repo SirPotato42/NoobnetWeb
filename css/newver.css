@@ -70,6 +70,13 @@ body {
   }
 }
 
+/* Mosaic mode ("c"): JS fills #bg with image tiles, so the cloud tile has to
+   go — otherwise it shows through every gap between them. */
+html.bg-mosaic #bg {
+  background-image: none;
+  animation: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   #bg { animation: none; }
 }

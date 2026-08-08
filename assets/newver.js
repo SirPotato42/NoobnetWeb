@@ -364,6 +364,39 @@
   }
 
   /* ------------------------------------------------------------------ */
+  /* Background mode — plain sky vs the mosaic of gifs ("c" toggles)      */
+  /* ------------------------------------------------------------------ */
+  var BG_MOSAIC_KEY = 'noobular-bg-mosaic';
+
+  // The cloud tile is a CSS background on #bg, so it has to be switched off
+  // or it shows through the gaps between mosaic tiles.
+  function applyBgMode() {
+    var on = !!CONFIG.BG_MOSAIC;
+    var root = document.documentElement;
+    if (root.classList.toggle) root.classList.toggle('bg-mosaic', on);
+    else if (on) root.className += ' bg-mosaic';
+  }
+
+  function loadBgPreference() {
+    try {
+      var saved = localStorage.getItem(BG_MOSAIC_KEY);
+      if (saved !== null) CONFIG.BG_MOSAIC = saved === '1';
+    } catch (e) {
+    }
+    applyBgMode();
+  }
+
+  function toggleBgMosaic() {
+    CONFIG.BG_MOSAIC = !CONFIG.BG_MOSAIC;
+    try {
+      localStorage.setItem(BG_MOSAIC_KEY, CONFIG.BG_MOSAIC ? '1' : '0');
+    } catch (e) {
+    }
+    applyBgMode();
+    buildBackground();
+  }
+
+  /* ------------------------------------------------------------------ */
   /* Background tiler                                                     */
   /* ------------------------------------------------------------------ */
   function buildBackground() {
@@ -1315,7 +1348,7 @@
     })();
 
     // Keyboard shortcuts: p → cinema, s → splat, g → green, b → birds,
-    // ricky/sorry easter eggs.
+    // c → background mode, ricky/sorry easter eggs.
     var typedBuffer = '';
     window.addEventListener('keydown', function (event) {
       if (event.defaultPrevented) return;
@@ -1345,6 +1378,9 @@
         }
         if (key === 'b') {
           flyBirds();
+        }
+        if (key === 'c') {
+          toggleBgMosaic();
         }
         if (key.length === 1 && key >= 'a' && key <= 'z') {
           typedBuffer += key;
@@ -1430,6 +1466,9 @@
   }
 
   function init() {
+    // Before renderAll: the very first buildBackground() has to already know
+    // which mode we're in, or the saved choice flashes the wrong background.
+    loadBgPreference();
     renderAll();
     setupInteractions();
     setupLogoAudio();
