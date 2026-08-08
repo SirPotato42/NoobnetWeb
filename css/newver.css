@@ -174,6 +174,19 @@ body {
     0 6px 14px rgba(0, 0, 0, 0.5);
 }
 
+/* --- Birds flyby -----------------------------------------------------------
+   Sits above everything, including the cookie banner (9998) and the sign-in /
+   warning popups (10000). Purely decorative, so it never eats a click.
+   --------------------------------------------------------------------------- */
+.birds-flyby {
+  position: fixed;
+  left: 0;
+  z-index: 10001;
+  pointer-events: none;
+  display: block;
+  will-change: transform;
+}
+
 /* --- Free-floating text ----------------------------------------------------
    Bare text with no button chrome, sitting straight on the background. Still a
    placed region, so the layout engine keeps it clear of the buttons — the heavy

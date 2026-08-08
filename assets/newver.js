@@ -41,6 +41,9 @@
     // Button labels are auto-sized to fill their button without overflowing.
     BTN_FONT_MIN: 9,
     BTN_FONT_MAX: 42,
+    // Birds fly across the screen on their own this often (also bound to "b").
+    BIRDS_MIN_MS: 60000,
+    BIRDS_MAX_MS: 120000,
     // Fallback only, used if the logo hasn't loaded and can't be measured yet.
     // Fraction of the viewport (centered) reserved for the NOOBULAR header.
     CENTER_RESERVE_W: 0.55,
@@ -246,7 +249,7 @@
       // Square region + fixedShape:'circle' — 50% radius on a non-square box
       // would give an ellipse. 15% padding keeps the cart inside the circle's
       // inscribed square (~70.7% of the diameter) instead of clipping corners.
-      id: 'store', baseW: 200, baseH: 200, fixedShape: 'circle',
+      id: 'store', baseW: 160, baseH: 160, fixedShape: 'circle',
       html: '<button class="region-btn no-pixel" style="background:purple;display:flex;align-items:center;justify-content:center;padding:15%" ' +
             'onclick="window.location.href=\'/store.html\'"><img src="assets/gifs/shoppingcart.gif" style="max-height:100%;max-width:100%;width:auto;display:block"></button>'
     },
@@ -797,6 +800,87 @@
   }
 
   /* ------------------------------------------------------------------ */
+  /* Birds flyby                                                         */
+  /* ------------------------------------------------------------------ */
+  var BIRDS_W = 112, BIRDS_H = 77;   // natural size of birds.gif
+  // The birds in the gif face LEFT, so a right-bound flight is mirrored.
+  // Flip this if they ever end up flying backwards.
+  var BIRDS_FACE_LEFT = true;
+  var birdsTimer = null;
+
+  // Preloaded once and cloned per flight, so overlapping flocks each get their
+  // own playback without refetching the file.
+  var birdsAudio = new Audio('assets/sounds/seagulls.mp3');
+  birdsAudio.preload = 'auto';
+
+  function screech() {
+    try {
+      var a = birdsAudio.cloneNode();
+      a.volume = 0.7;
+      // Rejects when the flight was fired by the timer rather than a keypress
+      // and the user hasn't interacted with the page yet — nothing to do.
+      var p = a.play();
+      if (p && typeof p.catch === 'function') p.catch(function () {});
+    } catch (e) {}
+  }
+
+  // dir: 'left' | 'right' | undefined (random)
+  function flyBirds(dir) {
+    var vw = window.innerWidth;
+    var vh = window.innerHeight;
+    var w = Math.max(110, Math.min(230, vw * 0.12));
+    var h = w * BIRDS_H / BIRDS_W;
+
+    var toRight = dir === 'right' || (dir !== 'left' && Math.random() < 0.5);
+    var flip = (toRight === BIRDS_FACE_LEFT) ? ' scaleX(-1)' : '';
+
+    screech();
+
+    var img = document.createElement('img');
+    img.className = 'birds-flyby';
+    img.src = 'assets/gifs/birds.gif';
+    img.alt = '';
+    img.style.width = w + 'px';
+    img.style.height = h + 'px';
+    // Keep them out of the very top and bottom of the window.
+    img.style.top = (vh * (0.06 + Math.random() * 0.5)) + 'px';
+    img.style.left = '0';
+    document.body.appendChild(img);
+
+    var startX = toRight ? -(w + 40) : vw + 40;
+    var endX = toRight ? vw + 40 : -(w + 40);
+    var drift = (Math.random() * 2 - 1) * vh * 0.08;   // gentle rise or fall
+
+    var anim = img.animate([
+      { transform: 'translate(' + startX + 'px, 0)' + flip },
+      { transform: 'translate(' + endX + 'px, ' + drift + 'px)' + flip }
+    ], {
+      duration: 6000 + Math.random() * 5000,
+      easing: 'linear',
+      fill: 'forwards'
+    });
+
+    anim.onfinish = function () { img.remove(); };
+    // Backstop: onfinish never lands if the tab is backgrounded mid-flight.
+    setTimeout(function () { img.remove(); }, 20000);
+  }
+
+  function birdsDelay() {
+    var lo = CONFIG.BIRDS_MIN_MS;
+    var hi = CONFIG.BIRDS_MAX_MS;
+    return lo + Math.random() * Math.max(0, hi - lo);
+  }
+
+  // Chained timeouts, not an interval, so the gap is re-rolled every time.
+  function scheduleBirds() {
+    if (birdsTimer) return;
+    birdsTimer = setTimeout(function tick() {
+      flyBirds();
+      birdsTimer = setTimeout(tick, birdsDelay());
+    }, birdsDelay());
+  }
+
+  /* ------------------------------------------------------------------ */
   /* Auto-size button labels to their button                             */
   /* ------------------------------------------------------------------ */
   // Binary-searches the largest font size whose wrapped label still fits the
@@ -1230,7 +1314,8 @@
       theInputinator.addEventListener('change', checkRedirect);
     })();
 
-    // Keyboard shortcuts: p → cinema, s → splat, g → green, ricky/sorry easter eggs.
+    // Keyboard shortcuts: p → cinema, s → splat, g → green, b → birds,
+    // ricky/sorry easter eggs.
     var typedBuffer = '';
     window.addEventListener('keydown', function (event) {
       if (event.defaultPrevented) return;
@@ -1257,6 +1342,9 @@
           if (green && typeof green.play === 'function') {
             try { green.currentTime = 0; green.play(); } catch (e) {}
           }
+        }
+        if (key === 'b') {
+          flyBirds();
         }
         if (key.length === 1 && key >= 'a' && key <= 'z') {
           typedBuffer += key;
@@ -1345,6 +1433,7 @@
     renderAll();
     setupInteractions();
     setupLogoAudio();
+    scheduleBirds();
     window.addEventListener('resize', onResize);
     // The cookie banner is injected after this script runs; re-layout when it
     // appears or is dismissed so nothing hides underneath it.

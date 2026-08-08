@@ -11,7 +11,7 @@
     'this banner is legally binding in all 8.1 billion noobular jurisdictions | cookies may contain eggs | ',
     'Noobular is not responsible for your dog | best viewed in Netscape Navigator 4.0 | side effects may include: hair loss, 24 hour blindness | ok cookies DEFINITELY contain eggs | ',
     'clicking accept will automatically order 1000 worms from Uncle Jim | clicking decline will automatically order 1000 worms from uncle jim | follow my blog at https://noobular.com | ',
-    'cookies are kosher and halal ' + THUMBSUP
+    'cookies are kosher and halal' + THUMBSUP
   ].join('');
 
   function injectStyles() {
