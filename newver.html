@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-N6576WFHXF"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-N6576WFHXF');
+    </script>
+
+    <title>NOOBULAR</title>
+    <!-- Pixel font for that awful retro look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/newver.css">
+    <style>
+      html.REMOVE-EVERYTHING body > *, body.REMOVE-EVERYTHING > * { display: none !important; }
+    </style>
+    <script>
+      try {
+        if (localStorage.getItem('REMOVE-EVERYTHING') === '1') {
+          document.documentElement.classList.add('REMOVE-EVERYTHING');
+        }
+      } catch (e) {
+      }
+    </script>
+  </head>
+  <body>
+    <!-- Low-res pixelation filter, applied ONLY to the custom scattered buttons -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+      <defs>
+        <filter id="pixelate" x="0" y="0" width="100%" height="100%">
+          <feFlood x="1" y="1" width="1" height="1"></feFlood>
+          <feComposite width="2" height="2"></feComposite>
+          <feTile result="a"></feTile>
+          <feComposite in="SourceGraphic" in2="a" operator="in"></feComposite>
+          <feMorphology operator="dilate" radius="1"></feMorphology>
+        </filter>
+      </defs>
+    </svg>
+
+    <!-- Jolly overload warning / grinch button popup -->
+    <div id="warning-popup" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8); z-index: 10000; justify-content: center; align-items: center;">
+      <div style="background-color: orange; border: 3px solid black; padding: 20px; text-align: center; max-width: 500px; margin: 20px;">
+        <h2 style="color: black; font-size: 40px; margin: 0 0 15px 0;">⚠️ WARNING! ⚠️</h2>
+        <p style="color: black; font-size: 28px; margin: 0 0 20px 0; font-weight: bold;">JOLLY OVERLOAD</p>
+        <p style="color: black; font-size: 20px; margin: 0 0 20px 0;">conginue?</p>
+        <div style="display: flex; gap: 15px; justify-content: center;">
+          <button onclick="proceedToChristmas()" style="background-color: green; color: white; border: 2px solid black; padding: 10px 20px; font-size: 20px; cursor: pointer; font-weight: bold;">Proceed</button>
+          <button onclick="regg()" style="background-color: red; color: white; border: 2px solid black; padding: 10px 20px; font-size: 20px; cursor: pointer; font-weight: bold;">grinch button</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sign in / account popup -->
+    <div id="signin-popup" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8); z-index: 10000; justify-content: center; align-items: center;">
+      <div style="background-color: mediumpurple; border: 3px solid black; padding: 20px; text-align: center; max-width: 400px; margin: 20px;">
+        <h2 id="signin-title" style="color: black; font-size: 30px; margin: 0 0 15px 0;">SIGN IN</h2>
+        <div id="signin-form">
+          <input type="text" id="username-input" placeholder="Username" style="width: 100%; padding: 8px; margin: 5px 0; font-size: 16px; border: 2px solid black;">
+          <input type="password" id="password-input" placeholder="Password" style="width: 100%; padding: 8px; margin: 5px 0; font-size: 16px; border: 2px solid black;">
+          <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px;">
+            <button onclick="signIn()" style="background-color: green; color: white; border: 2px solid black; padding: 8px 15px; font-size: 16px; cursor: pointer; font-weight: bold;">SIGN IN</button>
+            <button onclick="createAccount()" style="background-color: blue; color: white; border: 2px solid black; padding: 8px 15px; font-size: 16px; cursor: pointer; font-weight: bold;">CREATE</button>
+            <button onclick="hideSignIn()" style="background-color: red; color: white; border: 2px solid black; padding: 8px 15px; font-size: 16px; cursor: pointer; font-weight: bold;">CLOSE</button>
+          </div>
+        </div>
+        <div id="signout-form" style="display: none;">
+          <p style="color: black; font-size: 18px; margin: 10px 0;">Signed in as: <span id="current-username-display"></span></p>
+          <button onclick="signOut()" style="background-color: red; color: white; border: 2px solid black; padding: 8px 15px; font-size: 16px; cursor: pointer; font-weight: bold;">SIGN OUT</button>
+        </div>
+        <div id="signin-status" style="margin-top: 10px; font-size: 14px; color: black;"></div>
+      </div>
+    </div>
+
+    <!-- Top-left sign in button -->
+    <div style="position: fixed; top: 10px; left: 10px; z-index: 9999;">
+      <button id="signin-button" onclick="showSignIn()" style="background-color: mediumslateblue; color: white; border: 2px solid black; padding: 6px 12px; font-size: 14px; cursor: pointer; font-weight: bold;">SIGN IN</button>
+    </div>
+
+    <!-- Top-right official noobular text box -->
+    <div id="noob-input-container" style="position: fixed; top: 10px; right: 10px; z-index: 9999;">
+      <input type="text" aria-label="noob input" placeholder="The Official Noobular Text Box!" style="padding: 6px 8px; font-size: 14px;">
+    </div>
+
+    <!-- Hidden sound effects (keyboard shortcuts s / g) -->
+    <audio id="splat-audio" src="assets/audio/splat.mp3" preload="auto" style="display:none"></audio>
+    <audio id="green-audio" src="assets/audio/greenline.mp3" preload="auto" style="display:none"></audio>
+
+    <!-- Layer 0: deterministic random background image tiler (filled by JS) -->
+    <div id="bg" aria-hidden="true"></div>
+
+    <!-- Layer 1: scattered custom regions / buttons (placed by JS) -->
+    <div id="regions"></div>
+
+    <!-- Layer 2: centered content — put anything you want here -->
+    <div id="center">
+      <div id="center-content">
+        <img class="noob-logo" src="assets/noobularlogo.gif" alt="NOOBULAR">
+      </div>
+    </div>
+
+    <script src="assets/newver.js"></script>
+    <script src="assets/cookie-banner.js"></script>
+  </body>
+</html>
