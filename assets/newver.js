@@ -1111,11 +1111,13 @@
       var audio = document.getElementById('ohyeah-audio');
       if (!audio) return;
       audio.play().catch(function () {});
+      document.removeEventListener('click', tryPlay, true);
+      box.remove();
     }
 
     // Capture phase on document so this fires for every single click on the
     // page, no matter what element it actually landed on, before anything
-    // else has a chance to stop the event.
+    // else has a chance to stop the event. Only needed once.
     document.addEventListener('click', tryPlay, true);
   }
 
