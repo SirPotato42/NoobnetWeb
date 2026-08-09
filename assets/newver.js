@@ -205,6 +205,25 @@
   // Buttons ported from index.html. Add/remove freely — they auto-scatter.
   var REGIONS = [
     // Portrait gif goes in frame3, whose opening is the tall one.
+    {
+      // Subway station guessing game. onerror hides the gif rather than
+      // leaving a broken-image icon, so the label still reads on its own.
+      id: 'subway', baseW: 275, baseH: 210,
+      html: '<button class="region-btn no-pixel" style="background:#1E6BFF;color:#fff;' +
+            'display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:19px" ' +
+            'onclick="window.location.href=\'/subwaygame.html\'">' +
+            '<span class="pixel-text">AUTISMO CENTRALE</span>' +
+            '<img src="assets/gifs/subway.gif" alt="" onerror="this.style.display=\'none\'" ' +
+            'style="max-height:68%;max-width:100%;width:auto;display:block">' +
+            '</button>'
+    },
+    {
+      // Plays/stops the ohyeah track, same as clicking the logo.
+      // 34x34 source blown up, so render it pixelated rather than blurry.
+      id: 'play', baseW: 90, baseH: 90, fixedShape: 'none',
+      html: '<img class="play-btn" src="assets/gifs/play.gif" ' +
+            'alt="play the oh yeah track" title="oh yeah" onclick="toggleOhYeah()">'
+    },
     framedRegion('frame-rocket',      3, 'assets/gifs/halloween/rocket.gif',        333, 500),
     framedRegion('frame-fallfinn',    2, 'assets/gifs/halloween/fallfinn.gif',      351, 388),
     framedRegion('frame-newyear',     1, 'assets/gifs/christmas/newyear2010.gif',   640, 480),
@@ -1412,6 +1431,7 @@
   window.dodgeCarney = dodgeCarney;
   window.shatterChair = shatterChair;
   window.showJollyWarning = showJollyWarning;
+  window.toggleOhYeah = toggleOhYeah;
   window.hideJollyWarning = hideJollyWarning;
   window.regg = regg;
   window.proceedToChristmas = proceedToChristmas;
@@ -1495,29 +1515,29 @@
     }
   }
 
-  // The NOOBULAR logo is the only thing that starts the ohyeah track — there
-  // is no controls bar any more. Clicking it again stops it, since hiding the
-  // controls would otherwise leave no way to shut it off. The click is a user
-  // gesture, so browsers allow playback with sound.
+  // Start/stop the ohyeah track. Shared by the NOOBULAR logo and the play.gif
+  // button — there's no controls bar, so clicking again is the only way to
+  // stop it. Both are real clicks, so browsers allow playback with sound.
+  function toggleOhYeah() {
+    var audio = document.getElementById('ohyeah-audio');
+    if (!audio) return;
+    if (audio.paused) {
+      audio.play().catch(function () {});
+    } else {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+  }
+
   function setupLogoAudio() {
     var logo = document.querySelector('.noob-logo');
-    var audio = document.getElementById('ohyeah-audio');
-    if (!logo || !audio) return;
+    if (!logo) return;
 
-    function toggle() {
-      if (audio.paused) {
-        audio.play().catch(function () {});
-      } else {
-        audio.pause();
-        audio.currentTime = 0;
-      }
-    }
-
-    logo.addEventListener('click', toggle);
+    logo.addEventListener('click', toggleOhYeah);
     logo.addEventListener('keydown', function (e) {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
-        toggle();
+        toggleOhYeah();
       }
     });
   }

@@ -1,0 +1,301 @@
+<html>
+
+<head>
+<title>Guess The Subway Station</title>
+<style>
+body {
+  background-color: #ffffff;
+  font-family: Arial;
+  font-size: 16px;
+}
+.bullet {
+  display: inline-block;
+  width: 46px;
+  height: 46px;
+  border-radius: 23px;
+  margin: 3px;
+  color: #ffffff;
+  font-family: Helvetica, Arial;
+  font-weight: bold;
+  font-size: 28px;
+  line-height: 46px;
+  text-align: center;
+}
+.red { background-color: #EE352E; }
+.green { background-color: #00933C; }
+.purple { background-color: #B933AD; }
+.blue { background-color: #0039A6; }
+.orange { background-color: #FF6319; }
+.lightgreen { background-color: #6CBE45; }
+.brown { background-color: #996633; }
+.grey { background-color: #A7A9AC; }
+.shuttle { background-color: #808183; }
+.yellow { background-color: #FCCC0A; color: #000000; }
+</style>
+</head>
+
+<body>
+<center>
+
+<h1>GUESS THE SUBWAY STATION</h1>
+
+<hr width="500">
+
+<div id="bullets"></div>
+
+<br>
+
+<div id="playarea">
+
+<input type="text" id="answer" size="34" onkeydown="if(event.keyCode==13){checkAnswer();}">
+<button onclick="checkAnswer()">GUESS</button>
+
+<br><br>
+
+<button onclick="showHint()">hint</button>
+<button id="skipbutton" onclick="giveUp()">give up</button>
+
+</div>
+
+<h3 id="result">&nbsp;</h3>
+
+<p id="score">score: 0 right out of 0</p>
+
+<hr width="500">
+
+<p><font size="2">
+Weekdays at NOON. David approved!
+</font></p>
+
+<p><a href="index.html">back to noobnet</a></p>
+
+</center>
+
+<script>
+
+// the 53 stations with a one of a kind set of trains
+var stations = [
+  {name:"14 St", boro:"Manhattan", routes:["1", "2", "3", "F", "M", "L"], alt:["14 St-6 Av", "6 Av", "14 St 6 Av"]},
+  {name:"14 St", boro:"Manhattan", routes:["A", "C", "E", "L"], alt:["14 St-8 Av", "8 Av"]},
+  {name:"14 St-Union Sq", boro:"Manhattan", routes:["4", "5", "6", "L", "N", "Q", "R", "W"], alt:["Union Sq", "Union Square", "14 St Union Square"]},
+  {name:"149 St-Hostos", boro:"The Bronx", routes:["2", "4", "5"], alt:["149 St-Grand Concourse", "149 St", "Grand Concourse"]},
+  {name:"161 St-Yankee Stadium", boro:"The Bronx", routes:["4", "B", "D"], alt:["161 St", "Yankee Stadium"]},
+  {name:"168 St-Washington Hts", boro:"Manhattan", routes:["1", "A", "C"], alt:["168 St"]},
+  {name:"23 St", boro:"Manhattan", routes:["F", "M"], alt:[]},
+  {name:"34 St-Herald Sq", boro:"Manhattan", routes:["B", "D", "F", "M", "N", "Q", "R", "W"], alt:["Herald Sq", "34 St"]},
+  {name:"36 St", boro:"Brooklyn", routes:["D", "N", "R"], alt:[]},
+  {name:"4 Av-9 St", boro:"Brooklyn", routes:["F", "G", "R"], alt:["4 Av", "9 St", "4 Av 9 St"]},
+  {name:"47-50 Sts-Rockefeller Ctr", boro:"Manhattan", routes:["B", "D", "F", "M"], alt:["Rockefeller Ctr", "47-50 Sts", "Rockefeller Center"]},
+  {name:"5 Av", boro:"Manhattan", routes:["7", "B", "D", "F", "M"], alt:["5 Av-Bryant Pk", "42 St-Bryant Pk", "Bryant Park", "5 Av Bryant Park"]},
+  {name:"57 St-7 Av", boro:"Manhattan", routes:["N", "Q", "R", "W"], alt:["57 St"]},
+  {name:"59 St", boro:"Manhattan", routes:["4", "5", "6", "N", "R", "W"], alt:["Lexington Av-59 St", "59 St-Lexington Av", "Lex 59"]},
+  {name:"59 St", boro:"Brooklyn", routes:["N", "R"], alt:[]},
+  {name:"59 St-Columbus Circle", boro:"Manhattan", routes:["1", "A", "C", "B", "D"], alt:["Columbus Circle"]},
+  {name:"7 Av", boro:"Manhattan", routes:["E", "B", "D"], alt:["7 Av-53 St"]},
+  {name:"74 St-Broadway", boro:"Queens", routes:["7", "E", "F", "M", "R"], alt:["Jackson Hts-Roosevelt Av", "Roosevelt Av", "Jackson Heights", "74 St-Broadway/Jackson Hts-Roosevelt Av"]},
+  {name:"Atlantic Av-Barclays Ctr", boro:"Brooklyn", routes:["2", "3", "4", "5", "B", "D", "N", "Q", "R"], alt:["Atlantic Av", "Barclays Ctr", "Atlantic Terminal"]},
+  {name:"Bleecker St", boro:"Manhattan", routes:["6", "B", "D", "F", "M"], alt:["Broadway-Lafayette St", "Broadway Lafayette"]},
+  {name:"Borough Hall", boro:"Brooklyn", routes:["2", "3", "4", "5", "R"], alt:["Court St", "Borough Hall-Court St"]},
+  {name:"Botanic Garden", boro:"Brooklyn", routes:["2", "3", "4", "5", "S"], alt:["Franklin Av", "Franklin Av-Botanic Garden", "Franklin Av-Medgar Evers College"]},
+  {name:"Broadway Junction", boro:"Brooklyn", routes:["A", "C", "J", "Z", "L"], alt:["Eastern Pkwy-Broadway Junction"]},
+  {name:"Canal St", boro:"Manhattan", routes:["6", "J", "Z", "N", "Q", "R", "W"], alt:[]},
+  {name:"Chambers St", boro:"Manhattan", routes:["2", "3", "A", "C", "E", "R", "W"], alt:["Park Pl", "World Trade Center", "WTC", "Cortlandt St", "Chambers St-World Trade Center"]},
+  {name:"Chambers St", boro:"Manhattan", routes:["4", "5", "6", "J", "Z"], alt:["Brooklyn Bridge", "Brooklyn Bridge-City Hall", "City Hall"]},
+  {name:"Coney Island-Stillwell Av", boro:"Brooklyn", routes:["D", "F", "N", "Q"], alt:["Coney Island", "Stillwell Av"]},
+  {name:"Court Sq", boro:"Queens", routes:["7", "E", "F", "G"], alt:["Court Sq-23 St", "Long Island City-Court Sq"]},
+  {name:"Crown Hts-Utica Av", boro:"Brooklyn", routes:["3", "4"], alt:["Utica Av", "Crown Heights"]},
+  {name:"DeKalb Av", boro:"Brooklyn", routes:["B", "Q", "R"], alt:[]},
+  {name:"Delancey St-Essex St", boro:"Manhattan", routes:["F", "M", "J", "Z"], alt:["Essex St", "Delancey St"]},
+  {name:"Forest Hills-71 Av", boro:"Queens", routes:["E", "F", "M", "R"], alt:["Forest Hills", "71 Av", "71 Continental Av"]},
+  {name:"Franklin Av", boro:"Brooklyn", routes:["C", "S"], alt:["Franklin Av-Fulton St"]},
+  {name:"Fulton St", boro:"Manhattan", routes:["2", "3", "4", "5", "A", "C", "J", "Z"], alt:[]},
+  {name:"Grand Central-42 St", boro:"Manhattan", routes:["4", "5", "6", "7", "S"], alt:["Grand Central", "42 St-Grand Central"]},
+  {name:"Hoyt-Schermerhorn Sts", boro:"Brooklyn", routes:["A", "C", "G"], alt:["Hoyt Schermerhorn"]},
+  {name:"Jamaica-Van Wyck", boro:"Queens", routes:["E"], alt:["Van Wyck Blvd", "Van Wyck"]},
+  {name:"Jay St-MetroTech", boro:"Brooklyn", routes:["A", "C", "F", "R"], alt:["Jay St"]},
+  {name:"Lexington Av/53 St", boro:"Manhattan", routes:["6", "E", "F"], alt:["51 St", "Lexington Av-53 St", "Lex 53"]},
+  {name:"Lexington Av/63 St", boro:"Manhattan", routes:["M", "Q"], alt:["Lexington Av-63 St", "Lex 63"]},
+  {name:"Lorimer St", boro:"Brooklyn", routes:["G", "L"], alt:[]},
+  {name:"Myrtle-Wyckoff Avs", boro:"Brooklyn", routes:["M", "L"], alt:["Myrtle Wyckoff", "Myrtle Av-Wyckoff Av"]},
+  {name:"Nevins St", boro:"Brooklyn", routes:["2", "3", "4", "5"], alt:[]},
+  {name:"New Utrecht Av", boro:"Brooklyn", routes:["D", "N"], alt:[]},
+  {name:"Park Pl", boro:"Brooklyn", routes:["S"], alt:["Park Place"]},
+  {name:"Prospect Park", boro:"Brooklyn", routes:["B", "Q", "S"], alt:[]},
+  {name:"Queens Plaza", boro:"Queens", routes:["E", "F", "R"], alt:[]},
+  {name:"Queensboro Plaza", boro:"Queens", routes:["7", "N", "W"], alt:[]},
+  {name:"Times Sq-42 St", boro:"Manhattan", routes:["1", "2", "3", "7", "A", "C", "E", "N", "Q", "R", "W", "S"], alt:["Times Sq", "Times Square", "42 St-Port Authority Bus Terminal", "42 St-Port Authority", "Port Authority Bus Terminal", "Port Authority", "42 St"]},
+  {name:"W 4 St-Wash Sq", boro:"Manhattan", routes:["A", "C", "E", "B", "D", "F", "M"], alt:["W 4 St", "West 4 St", "Washington Sq"]},
+  {name:"W 8 St-NY Aquarium", boro:"Brooklyn", routes:["F", "Q"], alt:["W 8 St", "Aquarium", "West 8 St"]},
+  {name:"Wakefield-241 St", boro:"The Bronx", routes:["2"], alt:["241 St", "Wakefield"]},
+  {name:"Whitehall St-South Ferry", boro:"Manhattan", routes:["1", "R", "W"], alt:["Whitehall St", "South Ferry"]},
+];
+
+// what color each train bullet is
+var colors = {
+  "1":"red", "2":"red", "3":"red",
+  "4":"green", "5":"green", "6":"green",
+  "7":"purple",
+  "A":"blue", "C":"blue", "E":"blue",
+  "B":"orange", "D":"orange", "F":"orange", "M":"orange",
+  "G":"lightgreen",
+  "J":"brown", "Z":"brown",
+  "L":"grey",
+  "N":"yellow", "Q":"yellow", "R":"yellow", "W":"yellow",
+  "S":"shuttle"
+};
+
+// words people shorten when they type a station name
+var shortWords = {
+  "st":"street", "sts":"street", "str":"street", "streets":"street",
+  "av":"avenue", "ave":"avenue", "avs":"avenue", "aves":"avenue", "avenues":"avenue",
+  "sq":"square", "ctr":"center", "cntr":"center", "centre":"center",
+  "hts":"heights", "pl":"place", "blvd":"boulevard", "pkwy":"parkway", "pky":"parkway",
+  "rd":"road", "dr":"drive", "ft":"fort", "jct":"junction",
+  "w":"west", "e":"east", "n":"north", "s":"south",
+  "wash":"washington", "bway":"broadway", "ny":"newyork", "nyc":"newyork",
+  "univ":"university", "wtc":"worldtradecenter", "lex":"lexington"
+};
+
+var order = [];      // the stations shuffled up
+var current = 0;     // which one we are on
+var right = 0;       // how many the player got
+var asked = 0;       // how many the player answered
+var answered = false; // did they already answer this one
+var timer = 0;       // countdown to the next station after a right answer
+
+// take what somebody typed and squash it down so it is easy to compare
+function clean(text) {
+  text = text.toLowerCase();
+  text = text.replace(/&/g, " and ");
+  text = text.replace(/[^a-z0-9]/g, " ");
+  var words = text.split(" ");
+  var result = "";
+  for (var i = 0; i < words.length; i++) {
+    var word = words[i];
+    if (word == "") {
+      continue;
+    }
+    word = word.replace(/^([0-9]+)(st|nd|rd|th)$/, "$1"); // 42nd turns into 42
+    if (shortWords[word]) {
+      word = shortWords[word];
+    }
+    result = result + word;
+  }
+  return result;
+}
+
+// mix up the order so the game is different every time
+function shuffle() {
+  order = [];
+  for (var i = 0; i < stations.length; i++) {
+    order[i] = i;
+  }
+  for (var i = order.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var temp = order[i];
+    order[i] = order[j];
+    order[j] = temp;
+  }
+}
+
+// draw the little train circles
+function showBullets() {
+  var station = stations[order[current]];
+  var html = "";
+  for (var i = 0; i < station.routes.length; i++) {
+    var route = station.routes[i];
+    html = html + '<span class="bullet ' + colors[route] + '">' + route + '</span>';
+  }
+  document.getElementById("bullets").innerHTML = html;
+}
+
+function updateScore() {
+  document.getElementById("score").innerHTML = "score: " + right + " right out of " + asked;
+}
+
+function checkAnswer() {
+  if (answered == true) {
+    return;
+  }
+  var typed = clean(document.getElementById("answer").value);
+  if (typed == "") {
+    return;
+  }
+  var station = stations[order[current]];
+  var ok = false;
+  if (typed == clean(station.name)) {
+    ok = true;
+  }
+  for (var i = 0; i < station.alt.length; i++) {
+    if (typed == clean(station.alt[i])) {
+      ok = true;
+    }
+  }
+  if (ok == true) {
+    answered = true;
+    asked = asked + 1;
+    right = right + 1;
+    document.getElementById("result").innerHTML =
+      '<font color="green">RIGHT! ' + station.name + ' (' + station.boro + ')</font>';
+    timer = setTimeout(nextStation, 900); // give them a second to see it then move on
+    updateScore();
+  } else {
+    // dont tell them what it was, let them keep trying
+    document.getElementById("result").innerHTML =
+      '<font color="red">FUCK YOU!</font>';
+    document.getElementById("answer").select();
+  }
+}
+
+function showHint() {
+  if (answered == true) {
+    return;
+  }
+  var station = stations[order[current]];
+  document.getElementById("result").innerHTML =
+    "hint: it is in " + station.boro + " and has " + station.name.length + " letters";
+}
+
+// the give up button. if the answer is already on screen this just
+// jumps to the next station instead of waiting for the timer
+function giveUp() {
+  if (answered == true) {
+    nextStation();
+    return;
+  }
+  var station = stations[order[current]];
+  answered = true;
+  asked = asked + 1;
+  document.getElementById("result").innerHTML =
+    '<font color="red">it was ' + station.name + ' (' + station.boro + ')</font>';
+  updateScore();
+  timer = setTimeout(nextStation, 1600); // show them the answer then move on
+}
+
+function nextStation() {
+  clearTimeout(timer); // stop the countdown if they already clicked something
+  current = current + 1;
+  if (current >= order.length) {
+    document.getElementById("bullets").innerHTML = "";
+    document.getElementById("result").innerHTML =
+      "THE END! you got " + right + " out of " + stations.length;
+    document.getElementById("playarea").style.display = "none";
+    return;
+  }
+  answered = false;
+  document.getElementById("answer").value = "";
+  document.getElementById("result").innerHTML = "&nbsp;";
+  showBullets();
+  document.getElementById("answer").focus();
+}
+
+// start the game
+shuffle();
+showBullets();
+document.getElementById("answer").focus();
+
+</script>
+
+</body>
+
+</html>

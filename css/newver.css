@@ -181,6 +181,21 @@ html.bg-mosaic #bg {
     0 6px 14px rgba(0, 0, 0, 0.5);
 }
 
+/* Play button for the ohyeah track. The source gif is only 34x34, so keep the
+   blow-up crisp and blocky instead of letting the browser smooth it. */
+.region .play-btn {
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: pointer;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
+}
+
+.region .play-btn:active {
+  transform: translateY(2px);
+}
+
 /* --- Birds flyby -----------------------------------------------------------
    Sits above everything, including the cookie banner (9998) and the sign-in /
    warning popups (10000). Purely decorative, so it never eats a click.
