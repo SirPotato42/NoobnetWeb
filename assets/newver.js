@@ -206,6 +206,16 @@
   var REGIONS = [
     // Portrait gif goes in frame3, whose opening is the tall one.
     {
+      // Webcam mirror. Nothing is recorded or sent anywhere — the stream is
+      // attached straight to a local <video> and dropped when switched off.
+      id: 'mirror', baseW: 185, baseH: 265, fixedShape: 'none',
+      html: '<div class="mirror" onclick="toggleMirror(this, event)" title="hi me!!!">' +
+            '<video class="mirror-video" playsinline muted></video>' +
+            '<div class="mirror-fog"></div>' +
+            '<div class="mirror-label"><br><small></small></div>' +
+            '</div>'
+    },
+    {
       // Subway station guessing game. onerror hides the gif rather than
       // leaving a broken-image icon, so the label still reads on its own.
       id: 'subway', baseW: 275, baseH: 210,
@@ -847,8 +857,197 @@
     // After render: the buttons need to be in the DOM at their final size
     // before their labels can be measured and fitted.
     fitAllButtonText(layer);
+    syncMirror();
 
     populateSmpDays();
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Mirror — local webcam preview, nothing recorded or uploaded          */
+  /* ------------------------------------------------------------------ */
+  var mirrorStream = null;
+  var mirrorCrackSvg = null;   // markup of the current crack, survives re-layout
+
+  function setMirrorLabel(el, html) {
+    var label = el.querySelector('.mirror-label');
+    if (label) label.innerHTML = html;
+  }
+
+  function stopMirrorStream() {
+    if (!mirrorStream) return;
+    var tracks = mirrorStream.getTracks();
+    for (var i = 0; i < tracks.length; i++) tracks[i].stop();
+    mirrorStream = null;
+  }
+
+  // Two clicks, one way:
+  //   fogged  -> ask for the camera, clear the condensation
+  //   live    -> crack the glass (camera keeps running behind it)
+  // Once cracked it stays cracked; further clicks do nothing.
+  function toggleMirror(el, evt) {
+    if (el.classList.contains('mirror-cracked')) return;
+    if (mirrorStream) {
+      crackMirror(el, evt);
+      return;
+    }
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      // Also what you get on plain http:// — getUserMedia needs a secure origin.
+      setMirrorLabel(el, 'NO CAMERA<br><small>(needs https)</small>');
+      return;
+    }
+
+    setMirrorLabel(el, '');
+    startMirror(el, function () {
+      setMirrorLabel(el, 'DENIED<br><small>(click to retry)</small>');
+    });
+  }
+
+  function startMirror(el, onFail) {
+    return navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+      .then(function (stream) {
+        mirrorStream = stream;
+        attachMirror(el);
+      })
+      .catch(function () {
+        if (onFail) onFail();
+      });
+  }
+
+  // If this origin already has camera permission from a previous visit, open
+  // the mirror without waiting for a click. Deliberately gated on the
+  // Permissions API reporting "granted" — calling getUserMedia speculatively
+  // would pop the browser's permission prompt at people unprompted.
+  // Firefox and Safari don't recognise the "camera" name and throw, which is
+  // fine: they just fall back to click-to-open.
+  function autoStartMirror() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return;
+    if (!navigator.permissions || !navigator.permissions.query) return;
+
+    var query;
+    try {
+      query = navigator.permissions.query({ name: 'camera' });
+    } catch (e) {
+      return;
+    }
+    if (!query || typeof query.then !== 'function') return;
+
+    query.then(function (status) {
+      if (status.state !== 'granted') return;
+      var el = document.querySelector('.mirror');
+      if (!el || mirrorStream) return;
+      startMirror(el);
+    }).catch(function () {});
+  }
+
+  var SVG_NS = 'http://www.w3.org/2000/svg';
+  var glassAudio = new Audio('assets/sounds/glass breaking.m4a');
+  glassAudio.preload = 'auto';
+
+  function crackLine(d, width) {
+    var p = document.createElementNS(SVG_NS, 'path');
+    p.setAttribute('d', d);
+    p.setAttribute('stroke-width', width.toFixed(2));
+    return p;
+  }
+
+  // Spiderweb radiating from wherever the glass was struck, drawn in a
+  // 0-100 viewBox that stretches to whatever size the oval happens to be.
+  function crackMirror(el, evt) {
+    if (el.querySelector('.mirror-cracks')) return;
+
+    var rect = el.getBoundingClientRect();
+    var cx = 50, cy = 50;
+    if (evt && rect.width && rect.height) {
+      cx = ((evt.clientX - rect.left) / rect.width) * 100;
+      cy = ((evt.clientY - rect.top) / rect.height) * 100;
+    }
+    // Keep the impact point off the rim, or the web has nowhere to spread.
+    cx = Math.max(22, Math.min(78, cx));
+    cy = Math.max(22, Math.min(78, cy));
+
+    var svg = document.createElementNS(SVG_NS, 'svg');
+    svg.setAttribute('class', 'mirror-cracks');
+    svg.setAttribute('viewBox', '0 0 100 100');
+    svg.setAttribute('preserveAspectRatio', 'none');
+
+    var spokeCount = 9 + Math.floor(Math.random() * 4);
+    var spokes = [];
+
+    for (var i = 0; i < spokeCount; i++) {
+      var ang = (i / spokeCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.4;
+      var pts = [[cx, cy]];
+      var r = 0;
+      var steps = 3 + Math.floor(Math.random() * 3);
+      for (var s = 0; s < steps; s++) {
+        r += (75 / steps) * (0.55 + Math.random() * 0.9);
+        var a = ang + (Math.random() - 0.5) * 0.45;
+        pts.push([cx + Math.cos(a) * r, cy + Math.sin(a) * r]);
+      }
+      spokes.push(pts);
+      svg.appendChild(crackLine(
+        'M' + pts.map(function (p) { return p[0].toFixed(1) + ' ' + p[1].toFixed(1); }).join(' L '),
+        0.8 + Math.random() * 0.9
+      ));
+    }
+
+    // Strands joining neighbouring spokes, which is what reads as "shattered"
+    // rather than just a starburst.
+    for (var j = 0; j < spokes.length; j++) {
+      var a1 = spokes[j];
+      var a2 = spokes[(j + 1) % spokes.length];
+      var ring = Math.min(a1.length, a2.length) - 1;
+      for (var k = 1; k <= ring; k++) {
+        if (Math.random() < 0.35) continue;   // leave gaps so it isn't a mesh
+        svg.appendChild(crackLine(
+          'M' + a1[k][0].toFixed(1) + ' ' + a1[k][1].toFixed(1) +
+          ' L' + a2[k][0].toFixed(1) + ' ' + a2[k][1].toFixed(1),
+          0.4 + Math.random() * 0.5
+        ));
+      }
+    }
+
+    el.appendChild(svg);
+    el.classList.add('mirror-cracked');
+    setMirrorLabel(el, '');
+    // Remember the exact pattern so a re-layout restores this crack rather
+    // than generating a different one (or silently losing it).
+    mirrorCrackSvg = svg.outerHTML;
+
+    try {
+      var a = glassAudio.cloneNode();
+      var p = a.play();
+      if (p && typeof p.catch === 'function') p.catch(function () {});
+    } catch (e) {}
+  }
+
+  function attachMirror(el) {
+    var video = el.querySelector('.mirror-video');
+    if (!video || !mirrorStream) return;
+    video.srcObject = mirrorStream;
+    var p = video.play();
+    if (p && typeof p.catch === 'function') p.catch(function () {});
+    el.classList.add('mirror-on');
+    setMirrorLabel(el, '');
+  }
+
+  // A re-layout rebuilds every region, destroying the <video> the stream was
+  // attached to. Reattach it to the new element, or shut the camera off
+  // entirely if the mirror is gone — never leave it running with no preview.
+  function syncMirror() {
+    if (!mirrorStream) return;
+    var el = document.querySelector('.mirror');
+    if (!el) {
+      stopMirrorStream();
+      mirrorCrackSvg = null;
+      return;
+    }
+    attachMirror(el);
+    // Put the crack back on the freshly-rebuilt element.
+    if (mirrorCrackSvg && !el.querySelector('.mirror-cracks')) {
+      el.insertAdjacentHTML('beforeend', mirrorCrackSvg);
+      el.classList.add('mirror-cracked');
+      setMirrorLabel(el, '');
+    }
   }
 
   /* ------------------------------------------------------------------ */
@@ -1432,6 +1631,7 @@
   window.shatterChair = shatterChair;
   window.showJollyWarning = showJollyWarning;
   window.toggleOhYeah = toggleOhYeah;
+  window.toggleMirror = toggleMirror;
   window.hideJollyWarning = hideJollyWarning;
   window.regg = regg;
   window.proceedToChristmas = proceedToChristmas;
@@ -1491,8 +1691,9 @@
     loadBgPreference();
     renderAll();
     setupInteractions();
-    setupLogoAudio();
+    setupLogoClick();
     scheduleBirds();
+    autoStartMirror();   // after renderAll, so the .mirror element exists
     window.addEventListener('resize', onResize);
     // The cookie banner is injected after this script runs; re-layout when it
     // appears or is dismissed so nothing hides underneath it.
@@ -1515,9 +1716,8 @@
     }
   }
 
-  // Start/stop the ohyeah track. Shared by the NOOBULAR logo and the play.gif
-  // button — there's no controls bar, so clicking again is the only way to
-  // stop it. Both are real clicks, so browsers allow playback with sound.
+  // Start/stop the ohyeah track — the play.gif button's job. There's no
+  // controls bar, so clicking it again is the only way to stop the music.
   function toggleOhYeah() {
     var audio = document.getElementById('ohyeah-audio');
     if (!audio) return;
@@ -1529,15 +1729,37 @@
     }
   }
 
-  function setupLogoAudio() {
+  // Start it without the stop half, so hammering the logo doesn't cut the
+  // music out on every other press. Already-playing audio just carries on.
+  function playOhYeah() {
+    var audio = document.getElementById('ohyeah-audio');
+    if (!audio) return;
+    var p = audio.play();
+    if (p && typeof p.catch === 'function') p.catch(function () {});
+  }
+
+  // Reseed and re-lay-out. Position, shape, font and colour are all derived
+  // from CONFIG.SEED, so a new seed reshuffles the whole look, not just where
+  // things sit.
+  function jumbleRegions() {
+    CONFIG.SEED = Math.floor(Math.random() * 0xFFFFFFFF) >>> 0;
+    layoutRegions();
+  }
+
+  function setupLogoClick() {
     var logo = document.querySelector('.noob-logo');
     if (!logo) return;
 
-    logo.addEventListener('click', toggleOhYeah);
+    function bang() {
+      jumbleRegions();
+      playOhYeah();
+    }
+
+    logo.addEventListener('click', bang);
     logo.addEventListener('keydown', function (e) {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
-        toggleOhYeah();
+        bang();
       }
     });
   }

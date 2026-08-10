@@ -21,7 +21,7 @@
             <img src="assets/gifs/sloppyINTRO2020.gif" alt="Logo" style="width:30vw;">
         </div>
         <div>
-            <audio controls autoplay loop style="width: 100%;">
+            <audio id="news-music" controls autoplay loop style="width: 100%;">
                 <source src="assets/audio/football1980.mp3" type="audio/mpeg">
             </audio>
             <h1 style="font-size: 700%;">THIS JUST IN.</h1>
@@ -42,5 +42,40 @@
             
         </div>
     </div>
+
+    <script>
+      // The <audio> above is marked autoplay, but browsers refuse to start
+      // audible playback until the user has interacted with the page, so on a
+      // fresh load it just sits there paused. Try immediately, and if that's
+      // blocked, retry on the first click/key/tap and then stop listening.
+      (function () {
+        var music = document.getElementById('news-music');
+        if (!music) return;
+
+        function start() {
+          var p = music.play();
+          if (p && typeof p.then === 'function') {
+            p.then(stopWaiting).catch(function () {});
+          }
+        }
+
+        function onGesture() {
+          start();
+        }
+
+        function stopWaiting() {
+          document.removeEventListener('click', onGesture, true);
+          document.removeEventListener('keydown', onGesture, true);
+          document.removeEventListener('touchstart', onGesture, true);
+        }
+
+        // Capture phase, so it fires no matter what the click landed on.
+        document.addEventListener('click', onGesture, true);
+        document.addEventListener('keydown', onGesture, true);
+        document.addEventListener('touchstart', onGesture, true);
+
+        start();
+      })();
+    </script>
 </body>
 </html>

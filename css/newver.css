@@ -181,6 +181,138 @@ html.bg-mosaic #bg {
     0 6px 14px rgba(0, 0, 0, 0.5);
 }
 
+/* --- Mirror ----------------------------------------------------------------
+   Vertical oval, silver-framed webcam preview. The feed is local only —
+   attached straight to this <video>, never captured or sent anywhere.
+   Starts fogged over; granting camera access clears the condensation.
+   --------------------------------------------------------------------------- */
+.region .mirror {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: pointer;
+  background: radial-gradient(circle at 35% 30%, #4a4a55, #16161c 70%);
+  border: 8px ridge silver;
+  border-radius: 50%;        /* true ellipse — the region is taller than wide */
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.55);
+  /* Same low-res shader the buttons use. Applied to the whole mirror, so the
+     frame, the feed, the fog, the cracks and the glare all share it. */
+  filter: url(#pixelate);
+}
+
+/* Glare on the glass — a soft diagonal streak sitting over everything else,
+   including the cracks, since it reads as light on the outer surface. */
+.region .mirror::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  border-radius: 50%;
+  clip-path: ellipse(50% 50% at 50% 50%);
+  background: linear-gradient(
+    115deg,
+    transparent 26%,
+    rgba(255, 255, 255, 0.16) 36%,
+    rgba(255, 255, 255, 0.26) 43%,
+    rgba(255, 255, 255, 0.08) 50%,
+    transparent 57%,
+    rgba(255, 255, 255, 0.10) 64%,
+    rgba(255, 255, 255, 0.14) 68%,
+    transparent 74%
+  );
+}
+
+/* Both the video (transformed) and the fog (backdrop-filter) become their own
+   compositing layers, which can slip out of the parent's overflow/border-radius
+   clip. Mask them to the same ellipse explicitly so nothing squares off at the
+   corners. object-fit:cover means the feed fills the oval without letterboxing. */
+.region .mirror-video,
+.region .mirror-fog {
+  border-radius: 50%;
+  clip-path: ellipse(50% 50% at 50% 50%);
+}
+
+.region .mirror-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);     /* an actual mirror, not a camera view */
+  display: none;
+}
+
+.region .mirror.mirror-on .mirror-video {
+  display: block;
+}
+
+/* Condensation over the glass. Blurs whatever is behind it, then fades out
+   once the camera is live so the reflection "wipes clear". */
+.region .mirror-fog {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 42% 30%, rgba(255, 255, 255, 0.42), transparent 55%),
+    radial-gradient(ellipse at 65% 72%, rgba(255, 255, 255, 0.30), transparent 60%),
+    linear-gradient(160deg, rgba(232, 240, 247, 0.88), rgba(198, 214, 226, 0.80));
+  backdrop-filter: blur(9px);
+  -webkit-backdrop-filter: blur(9px);
+  opacity: 1;
+  transition: opacity 2.4s ease 0.3s;
+}
+
+.region .mirror.mirror-on .mirror-fog {
+  opacity: 0;
+}
+
+/* Shattered glass, drawn as an SVG spiderweb from the impact point.
+   Sits above the fog and the video, below nothing — the camera keeps
+   running behind it until the next click resets the whole thing. */
+.region .mirror-cracks {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 4;
+  pointer-events: none;
+  border-radius: 50%;
+  clip-path: ellipse(50% 50% at 50% 50%);
+}
+
+.region .mirror-cracks path {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.9);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;   /* even width despite the stretched viewBox */
+  filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.85));
+}
+
+/* Dull the reflection once it's broken. */
+.region .mirror.mirror-cracked .mirror-video {
+  filter: brightness(0.82) contrast(1.1);
+}
+
+.region .mirror-label {
+  position: relative;
+  z-index: 3;                /* above the fog, so it stays readable */
+  color: #2b2b33;
+  font-family: 'Arial Black', 'Impact', sans-serif;
+  font-weight: 900;
+  font-size: 20px;
+  line-height: 1.2;
+  text-align: center;
+  pointer-events: none;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
 /* Play button for the ohyeah track. The source gif is only 34x34, so keep the
    blow-up crisp and blocky instead of letting the browser smooth it. */
 .region .play-btn {
