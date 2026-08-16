@@ -8,6 +8,13 @@ body {
   font-family: Arial;
   font-size: 16px;
 }
+body.night {
+  background-color: #000000;
+  color: #ffffff;
+}
+body.night a {
+  color: #00ffff;
+}
 .bullet {
   display: inline-block;
   width: 46px;
@@ -63,9 +70,9 @@ body {
 
 <hr width="500">
 
-<p><font size="2">
-Weekdays at NOON. David approved!
-</font></p>
+<p><font size="2"><span id="smallprint">
+Weekdays at <a href="javascript:toggleMode()">NOON</a>. David approved!
+</span></font></p>
 
 <p><a href="index.html">back to noobnet</a></p>
 
@@ -73,8 +80,8 @@ Weekdays at NOON. David approved!
 
 <script>
 
-// the 53 stations with a one of a kind set of trains
-var stations = [
+// the stations with a one of a kind set of trains at NOON
+var dayStations = [
   {name:"14 St", boro:"Manhattan", routes:["1", "2", "3", "F", "M", "L"], alt:["14 St-6 Av", "6 Av", "14 St 6 Av"]},
   {name:"14 St", boro:"Manhattan", routes:["A", "C", "E", "L"], alt:["14 St-8 Av", "8 Av"]},
   {name:"14 St-Union Sq", boro:"Manhattan", routes:["4", "5", "6", "L", "N", "Q", "R", "W"], alt:["Union Sq", "Union Square", "14 St Union Square"]},
@@ -129,6 +136,52 @@ var stations = [
   {name:"Wakefield-241 St", boro:"The Bronx", routes:["2"], alt:["241 St", "Wakefield"]},
   {name:"Whitehall St-South Ferry", boro:"Manhattan", routes:["1", "R", "W"], alt:["Whitehall St", "South Ferry"]},
 ];
+
+// same idea but for late nights, when half the trains stop running
+// so a totally different bunch of stations end up one of a kind
+var nightStations = [
+  {name:"14 St", boro:"Manhattan", routes:["1", "2", "F", "L"], alt:["14 St-6 Av", "6 Av", "14 St 6 Av"]},
+  {name:"14 St", boro:"Manhattan", routes:["A", "E", "L"], alt:["14 St-8 Av", "8 Av"]},
+  {name:"14 St-Union Sq", boro:"Manhattan", routes:["4", "6", "L", "N", "Q"], alt:["Union Sq", "Union Square", "14 St Union Square"]},
+  {name:"161 St-Yankee Stadium", boro:"The Bronx", routes:["4", "D"], alt:["161 St", "Yankee Stadium"]},
+  {name:"168 St-Washington Hts", boro:"Manhattan", routes:["1", "A"], alt:["168 St"]},
+  {name:"4 Av-9 St", boro:"Brooklyn", routes:["D", "F", "G", "N", "R"], alt:["4 Av", "9 St", "4 Av 9 St"]},
+  {name:"47-50 Sts-Rockefeller Ctr", boro:"Manhattan", routes:["D", "F"], alt:["Rockefeller Ctr", "47-50 Sts", "Rockefeller Center"]},
+  {name:"5 Av", boro:"Manhattan", routes:["7", "D", "F"], alt:["5 Av-Bryant Pk", "42 St-Bryant Pk", "Bryant Park", "5 Av Bryant Park"]},
+  {name:"59 St", boro:"Manhattan", routes:["4", "6", "N"], alt:["Lexington Av-59 St", "59 St-Lexington Av", "Lex 59"]},
+  {name:"59 St-Columbus Circle", boro:"Manhattan", routes:["1", "2", "A", "D"], alt:["Columbus Circle"]},
+  {name:"7 Av", boro:"Manhattan", routes:["E", "D"], alt:["7 Av-53 St"]},
+  {name:"74 St-Broadway", boro:"Queens", routes:["7", "E", "F"], alt:["Jackson Hts-Roosevelt Av", "Roosevelt Av", "Jackson Heights", "74 St-Broadway/Jackson Hts-Roosevelt Av"]},
+  {name:"Atlantic Av-Barclays Ctr", boro:"Brooklyn", routes:["2", "4", "D", "N", "Q", "R"], alt:["Atlantic Av", "Barclays Ctr", "Atlantic Terminal"]},
+  {name:"Bleecker St", boro:"Manhattan", routes:["4", "6", "D", "F"], alt:["Broadway-Lafayette St", "Broadway Lafayette"]},
+  {name:"Borough Hall", boro:"Brooklyn", routes:["2", "4", "N", "R"], alt:["Court St", "Borough Hall-Court St"]},
+  {name:"Botanic Garden", boro:"Brooklyn", routes:["2", "4", "S"], alt:["Franklin Av", "Franklin Av-Botanic Garden", "Franklin Av-Medgar Evers College"]},
+  {name:"Broadway Junction", boro:"Brooklyn", routes:["A", "J", "L"], alt:["Eastern Pkwy-Broadway Junction"]},
+  {name:"Canal St", boro:"Manhattan", routes:["4", "6", "J", "N", "Q"], alt:[]},
+  {name:"Chambers St", boro:"Manhattan", routes:["2", "A", "E", "N"], alt:["Park Pl", "World Trade Center", "WTC", "Cortlandt St", "Chambers St-World Trade Center"]},
+  {name:"Chambers St", boro:"Manhattan", routes:["4", "6", "J"], alt:["Brooklyn Bridge", "Brooklyn Bridge-City Hall", "City Hall"]},
+  {name:"Court Sq", boro:"Queens", routes:["7", "E", "G"], alt:["Court Sq-23 St", "Long Island City-Court Sq"]},
+  {name:"DeKalb Av", boro:"Brooklyn", routes:["D", "N", "Q", "R"], alt:[]},
+  {name:"Delancey St-Essex St", boro:"Manhattan", routes:["F", "J"], alt:["Essex St", "Delancey St"]},
+  {name:"E 180 St", boro:"The Bronx", routes:["2", "5"], alt:[]},
+  {name:"Fulton St", boro:"Manhattan", routes:["2", "4", "A", "J"], alt:[]},
+  {name:"Grand Central-42 St", boro:"Manhattan", routes:["4", "6", "7"], alt:["Grand Central", "42 St-Grand Central"]},
+  {name:"Hoyt-Schermerhorn Sts", boro:"Brooklyn", routes:["A", "G"], alt:["Hoyt Schermerhorn"]},
+  {name:"Jay St-MetroTech", boro:"Brooklyn", routes:["A", "F", "N", "R"], alt:["Jay St"]},
+  {name:"Lexington Av/53 St", boro:"Manhattan", routes:["4", "6", "E"], alt:["51 St", "Lexington Av-53 St", "Lex 53"]},
+  {name:"Lorimer St", boro:"Brooklyn", routes:["G", "L"], alt:[]},
+  {name:"Myrtle Av", boro:"Brooklyn", routes:["M", "J"], alt:[]},
+  {name:"Myrtle-Wyckoff Avs", boro:"Brooklyn", routes:["M", "L"], alt:["Myrtle Wyckoff", "Myrtle Av-Wyckoff Av"]},
+  {name:"New Utrecht Av", boro:"Brooklyn", routes:["D", "N"], alt:[]},
+  {name:"Prospect Park", boro:"Brooklyn", routes:["Q", "S"], alt:[]},
+  {name:"Queensboro Plaza", boro:"Queens", routes:["7", "N"], alt:[]},
+  {name:"Times Sq-42 St", boro:"Manhattan", routes:["1", "2", "3", "7", "A", "E", "N", "Q"], alt:["Times Sq", "Times Square", "42 St-Port Authority Bus Terminal", "42 St-Port Authority", "Port Authority Bus Terminal", "Port Authority", "42 St"]},
+  {name:"W 4 St-Wash Sq", boro:"Manhattan", routes:["A", "E", "D", "F"], alt:["W 4 St", "West 4 St", "Washington Sq"]},
+  {name:"Whitehall St-South Ferry", boro:"Manhattan", routes:["1", "N", "R"], alt:["Whitehall St", "South Ferry"]},
+];
+
+var stations = dayStations; // whichever list we are playing right now
+var night = false;
 
 // what color each train bullet is
 var colors = {
@@ -289,10 +342,45 @@ function nextStation() {
   document.getElementById("answer").focus();
 }
 
+// click NOON and the whole thing goes dark and switches to the
+// late night trains. click MOON and it goes back to normal.
+function toggleMode() {
+  if (night == false) {
+    night = true;
+    stations = nightStations;
+    document.body.className = "night";
+    document.getElementById("smallprint").innerHTML =
+      'Weekdays at <a href="javascript:toggleMode()">MOON</a>. David not approved!' +
+      '<br>Only E 180 St and Myrtle Av are new here. The other 36 are one of a kind' +
+      '<br>at NOON too, they just lose trains. 17 stations drop off the list.';
+  } else {
+    night = false;
+    stations = dayStations;
+    document.body.className = "";
+    document.getElementById("smallprint").innerHTML =
+      'Weekdays at <a href="javascript:toggleMode()">NOON</a>. David approved!';
+  }
+  startGame();
+}
+
+// wipe the score and deal out a fresh set
+function startGame() {
+  clearTimeout(timer);
+  right = 0;
+  asked = 0;
+  current = 0;
+  answered = false;
+  shuffle();
+  document.getElementById("playarea").style.display = "";
+  document.getElementById("answer").value = "";
+  document.getElementById("result").innerHTML = "&nbsp;";
+  updateScore();
+  showBullets();
+  document.getElementById("answer").focus();
+}
+
 // start the game
-shuffle();
-showBullets();
-document.getElementById("answer").focus();
+startGame();
 
 </script>
 
