@@ -134,6 +134,104 @@ html.bg-mosaic #bg {
   display: block;
 }
 
+/* Small screens: shrink the logos so the strip stops wrapping into a wall.
+   At 375px wide the 38px version stacked six rows deep and swallowed a third
+   of the viewport, which is a third the buttons never got.
+
+   The padding-top pushes the logos clear of the SIGN IN button and the text
+   box, which are fixed at the very top and used to sit on top of them. It also
+   feeds getTopReserve() in newver.js — that reads this element's height — so
+   the scattered buttons keep clear of that row too. */
+/* Eleven logos in a row are about 1700px wide at 38px tall, 1170px at 26px and
+   900px at 19px. Each breakpoint is set just below where the current size stops
+   fitting on one line, because every extra row is height taken straight out of
+   the buttons' area budget — and the strip is the one thing here whose height
+   is pure decoration. */
+@media (max-width: 1750px) {
+  #banners {
+    gap: 3px;
+    padding: 4px 6px;
+  }
+  #banners img { height: 26px; }
+  #visit-counter img { max-height: 22px; }
+}
+
+@media (max-width: 1200px) {
+  #banners img { height: 19px; }
+  #visit-counter img { max-height: 17px; }
+}
+
+/* Wide screens leave slack at both ends of the centered strip, which is where
+   the SIGN IN button and the text box sit. Once the logos start reaching the
+   edges they need a row of their own. */
+@media (max-width: 900px) {
+  #banners { padding-top: 42px; }
+}
+
+@media (max-width: 520px) {
+  #banners {
+    gap: 2px;
+    padding: 3px 4px;
+    padding-top: 40px;
+  }
+  #banners img { height: 17px; }
+  #visit-counter {
+    padding: 1px 3px;
+    border-width: 2px;
+  }
+  #visit-counter img { max-height: 15px; }
+}
+
+/* --- Fixed top chrome (sign in / text box) --------------------------------
+   Two independently fixed elements sharing one row: SIGN IN pinned top-left,
+   the text box top-right. Nothing lays them out against each other, so on a
+   narrow screen they will happily overlap — these rules are what keeps them
+   apart. The sign-in button is the variable one: it swaps its label for the
+   username once you're signed in, so it's capped and ellipsised rather than
+   left to grow into the text box.
+   -------------------------------------------------------------------------- */
+#noob-input-container input {
+  font-size: 14px;
+}
+
+@media (max-width: 620px) {
+  /* The cap is in px, not vw. Because the text box below is sized as
+     "viewport minus a constant", its LEFT edge lands on the same pixel at
+     every width in this range — so the room the button has is a constant too,
+     and a vw cap would simply re-collide at the top of the range. */
+  #signin-button {
+    max-width: 140px;
+    padding: 5px 9px;
+    font-size: 13px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  /* Whatever is left after the button, both 10px margins and a gap. 16px font
+     is deliberate — anything smaller makes iOS zoom the whole page in when the
+     field is focused, and it never zooms back out. */
+  #noob-input-container input {
+    width: calc(100vw - 175px);
+    font-size: 16px;
+    padding: 4px 6px;
+  }
+}
+
+/* Phone widths. The button gives up more room here so the text box is wide
+   enough to show its whole placeholder rather than clipping it mid-word —
+   the reserve below is measured against the button at its widest, which is
+   when it's showing a signed-in username instead of "SIGN IN". */
+@media (max-width: 430px) {
+  #signin-button {
+    max-width: 100px;
+    padding: 4px 7px;
+    font-size: 12px;
+  }
+  #noob-input-container input {
+    width: calc(100vw - 135px);
+  }
+}
+
 /* --- Regions layer (scattered buttons / custom divs) ---------------------- */
 #regions {
   z-index: 10;
@@ -325,6 +423,30 @@ html.bg-mosaic #bg {
 }
 
 .region .play-btn:active {
+  transform: translateY(2px);
+}
+
+/* Worddle logo button. The gif is transparent and carries its own wordmark,
+   so it gets no plate — it sits straight on the sky. The drop-shadow traces
+   the alpha rather than a box, which is also what lifts the black
+   "america's game" sub-line off the background. */
+   Unlike the play button this one is scaled DOWN from its natural 240x111,
+   so it keeps the browser's smooth resampling — image-rendering:pixelated
+   only helps a blow-up, and on a downscale it just aliases the sub-line into
+   mush. */
+.region .worddle-btn {
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: pointer;
+  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.55));
+}
+
+.region .worddle-btn:hover {
+  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.55)) brightness(1.08);
+}
+
+.region .worddle-btn:active {
   transform: translateY(2px);
 }
 

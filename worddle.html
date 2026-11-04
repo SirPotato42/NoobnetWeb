@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Worddle — america's game</title>
+<link rel="icon" type="image/gif" href="/assets/noobularlogo.gif">
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+:root{--bg:#fff;--fg:#000;--link:#00e;--L:36%}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#000;--fg:#fff;--link:#9cf;--L:58%;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#000;--fg:#fff;--link:#9cf;--L:58%;color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font:16px "Times New Roman",Times,serif;
+  padding-block:8px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+input{max-width:100%}
+</style>
+
+</head>
+<body>
+<h1>word dle</h1>
+<p>Type any word ever</p>
+
+<form id="f" autocomplete="off">
+  <input id="w" size="30" spellcheck="false" autocapitalize="none">
+  <button id="go" disabled>loading...</button>
+</form>
+
+<p id="out"></p>
+
+<h2>Your words</h2>
+<ol id="log"></ol>
+<p><button id="clear">clear list</button></p>
+
+<p><a href="index.html">back to noobnet</a></p>
+
+
+<script>
+const $=id=>document.getElementById(id);
+let DATA=null;
+const TOTAL=2474589909; // words in English Wikipedia sample
+const FLOOR=TOTAL/3;
+
+const PREFIXES="a ab acro ad aero after agro all allo ambi amphi an ana andro angio ante anthropo anti apo arch archaeo archi arterio arthro astro audio auto bacterio baro bi biblio bio blasto brachy brady broncho by cardio cata centi cephalo cerebro chemo chiro chloro chondro chromo chrono circum cis co contra counter cranio cryo crypto cyber cyclo cyto de deca demi dendro dermato dermo deutero di dia dis dodeca dorso down dys eco ecto electro en endo entero epi equi ethno eu ex exo extra fibro fore gastro geo giga glosso gluco glyco gyneco hagio hemato hemi hemo hepato hepta hetero hexa histo holo homeo homo hydro hyper hypo ideo idio immuno in infra inter intra intro iso kilo lacto laryngo latero lepto leuko litho macro mal mammo mega megalo melano meso meta micro mid milli mini mis mono morpho multi myco myelo myo nano naso necro neo nephro neuro non octa octo oculo odonto oligo omni onco onto oo ophthalmo ortho osteo oto out over paleo pan para patho penta peri petro pharmaco pheno philo phlebo phono photo phyco phylo physio phyto pneumo poly post pre preter pro proto pseudo psycho pulmo pyro quadri quasi radio re recto retro rhino sacro sarco schizo sclero self semi socio somato spectro spheno spleno steno stereo sub super supra sym syn tachy techno tele tetra thermo thoraco thrombo trans tri tricho ultra un under uni uro vaso vertebro xeno xero zoo".split(" ");
+const SUFFIXES="s es ed d ing er ers est ly ness less ful fully ish ism ist ists ize ized izing ization isation al ally ic ical ically ity ities able ably ible ment ments ology ologist ologists ological ous ously ship hood like wise ward wards y".split(" ");
+
+// The word table lives beside the page rather than inline: it is ~12MB of
+// gzip, and as base64 in the HTML it would be a third bigger and re-fetched
+// on every visit instead of being cached on its own.
+fetch('assets/worddle-words.bin')
+  .then(r=>{ if(!r.ok) throw new Error('HTTP '+r.status); return r.arrayBuffer(); })
+  .then(async buf=>{
+  const u=new Uint8Array(buf);
+  if(u[0]===0x1f&&u[1]===0x8b) buf=await new Response(new Blob([buf]).stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer();
+  DATA=new TextDecoder().decode(buf);
+  $('go').disabled=false; $('go').textContent='check';
+}).catch(()=>{ $('go').textContent='failed to load'; });
+
+// binary search the sorted "word<TAB>code" lines
+function look(w){
+  let lo=0, hi=DATA.length;
+  while(lo<hi){
+    let mid=(lo+hi)>>1;
+    let st=DATA.lastIndexOf('\n',mid-1)+1;
+    let tab=DATA.indexOf('\t',st), end=DATA.indexOf('\n',tab); if(end<0) end=DATA.length;
+    const k=DATA.slice(st,tab);
+    if(k===w) return DATA.slice(tab+1,end);
+    if(k<w) lo=end+1; else hi=st;
+  }
+  return null;
+}
+// 1 in N words, or Infinity if too rare to measure
+function rarity(code){
+  if(code[0]==='z') return 10**(9-(+code.slice(1))/100);
+  if(code==='d') return Infinity;
+  return TOTAL/(+code);
+}
+
+const known=w=>w.length>=3&&look(w)!==null;
+
+// try to explain an unknown word as prefix(es) + word, or word + suffix
+function parts(w,depth=0){
+  if(depth>2) return null;
+  for(const p of PREFIXES){
+    if(w.length-p.length<3||!w.startsWith(p)) continue;
+    let r=w.slice(p.length); if(r[0]==='-') r=r.slice(1);
+    if(known(r)) return [p+'-',r];
+    const deeper=parts(r,depth+1); if(deeper) return [p+'-',...deeper];
+  }
+  for(const s of SUFFIXES){
+    if(!w.endsWith(s)||w.length-s.length<3) continue;
+    const b=w.slice(0,-s.length);
+    for(const base of [b,b+'e',b.endsWith('i')?b.slice(0,-1)+'y':null,b.length>3&&b.at(-1)===b.at(-2)?b.slice(0,-1):null]){
+      if(base&&known(base)) return [base,'-'+s];
+    }
+  }
+  return null;
+}
+
+// red (common) to green (rare), on a log scale from 1 in 10 up to the measurement floor
+function color(oneIn){
+  let t=(oneIn==null||oneIn===Infinity)?1:(Math.log10(oneIn)-1)/(Math.log10(FLOOR)-1);
+  t=Math.min(1,Math.max(0,t));
+  return 'hsl('+Math.round(120*t)+' 85% var(--L))';
+}
+
+function fmt(n){const p=10**Math.max(0,Math.floor(Math.log10(n))-2);return (Math.round(n/p)*p).toLocaleString('en-US')}
+
+let list=[];
+try{ list=JSON.parse(localStorage.getItem('rw-list')||'[]'); }catch(e){}
+function save(){ try{ localStorage.setItem('rw-list',JSON.stringify(list)); }catch(e){} }
+
+function render(){
+  const ol=$('log'); ol.innerHTML='';
+  list.sort((a,b)=>(b.oneIn??Infinity)-(a.oneIn??Infinity)||0);
+  for(const x of list){
+    const li=document.createElement('li');
+    li.style.color=color(x.oneIn);
+    li.textContent=x.w+' — '+(x.oneIn==null||x.oneIn===Infinity?'less than 1 in '+fmt(FLOOR):'1 in '+fmt(x.oneIn));
+    ol.appendChild(li);
+  }
+}
+render();
+
+$('f').addEventListener('submit',e=>{
+  e.preventDefault(); if(!DATA) return;
+  const w=$('w').value.trim().toLowerCase().replace(/[‘’`]/g,"'").split(/\s+/)[0];
+  if(!w) return;
+  let oneIn, msg;
+  const code=look(w);
+  if(code){
+    oneIn=rarity(code);
+    msg=oneIn===Infinity?'is in the dictionary but too rare to measure: less than 1 in '+fmt(FLOOR)+' words. YOU WIN!'
+      :'appears 1 in '+fmt(oneIn)+' words.';
+  } else {
+    const p=parts(w);
+    if(p){ oneIn=Infinity; msg='is built from known parts ('+p.join(' + ')+'). Too rare to measure: less than 1 in '+fmt(FLOOR)+' words.'; }
+    else { $('out').innerHTML=''; const b=document.createElement('b'); b.textContent=w; $('out').append(b,' is not a word, check a dictionary bub'); $('out').style.color=''; $('w').select(); return; }
+  }
+  $('out').innerHTML=''; const b=document.createElement('b'); b.textContent=w; $('out').append(b,' '+msg);
+  $('out').style.color=color(oneIn);
+  if(!list.some(x=>x.w===w)){ list.push({w,oneIn}); save(); render(); }
+  $('w').select();
+});
+
+$('clear').onclick=()=>{ list=[]; save(); render(); };
+</script>
+
+<script src="/assets/noobular.js"></script>
+</body>
+</html>

@@ -350,9 +350,7 @@ function toggleMode() {
     stations = nightStations;
     document.body.className = "night";
     document.getElementById("smallprint").innerHTML =
-      'Weekdays at <a href="javascript:toggleMode()">MOON</a>. David not approved!' +
-      '<br>Only E 180 St and Myrtle Av are new here. The other 36 are one of a kind' +
-      '<br>at NOON too, they just lose trains. 17 stations drop off the list.';
+      'Weekdays at <a href="javascript:toggleMode()">MOON</a>. David not approved!';
   } else {
     night = false;
     stations = dayStations;
@@ -384,6 +382,7 @@ startGame();
 
 </script>
 
+<script src="/assets/noobular.js"></script>
 </body>
 
 </html>

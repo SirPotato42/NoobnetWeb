@@ -24,22 +24,33 @@
     SEED: 20260807,        // fixed seed → same layout every visit
     BG_MOSAIC: false,      // false = plain background, true = random image mosaic
     CELL_SIZE: 150,        // background mosaic tile size in px (smaller = more, tinier images)
-    REGION_PADDING: 24,    // min gap (px) enforced between placed regions
+    REGION_PADDING: 24,    // min gap between placed regions (px at scale 1)
     PLACEMENT_TRIES: 250,  // candidate positions tried per region before fallback
     SETTLE_STEP: 3,        // px per nudge when pulling regions in toward the center
     SETTLE_PASSES: 8,      // repeat sweeps, so freed-up space lets neighbours close in
     SHRINK_STEPS: 6,       // extra shrink-and-retry passes if nothing fits cleanly
     SHRINK_FACTOR: 0.88,   // size multiplier applied per shrink step
-    // Region auto-scaling: scale = clamp(min(vw,vh) / SCALE_BASIS, MIN, MAX)
-    SCALE_BASIS: 900,
-    SCALE_MIN: 0.55,
+    // Region auto-scaling is an AREA BUDGET, not a viewport ratio: the buttons
+    // are scaled so they take up TARGET_FILL of whatever room is actually free.
+    // See currentScale(). MIN is deliberately tiny — on a phone the whole set
+    // has to squeeze onto one non-scrolling screen, and the budget decides how
+    // far that goes; the clamp is only a backstop.
+    // Fraction of the free area the buttons should occupy. 0.5 is not
+    // arbitrary: it's both what the hand-tuned 1440p layout worked out to, and
+    // about as tight as the placer can pack a phone before it starts
+    // shrink-stepping regions into confetti. Raising it doesn't buy size —
+    // past ~0.55 the median button gets SMALLER, not bigger.
+    TARGET_FILL: 0.50,
+    SCALE_MIN: 0.10,
     SCALE_MAX: 1.15,
     // Breathing room (px) left around the NOOBULAR logo. The reserved area is
     // measured from the logo itself, so this is literally the gap between the
     // logo edge and the nearest button — turn it down to tighten the cluster.
     CENTER_GAP: 18,
     // Button labels are auto-sized to fill their button without overflowing.
-    BTN_FONT_MIN: 9,
+    // The floor has to be small enough for phone-sized buttons, or the fitter
+    // bottoms out and overflow:hidden starts chopping words off.
+    BTN_FONT_MIN: 6,
     BTN_FONT_MAX: 42,
     // Birds fly across the screen on their own this often (also bound to "b").
     BIRDS_MIN_MS: 60000,
@@ -226,6 +237,18 @@
             '<img src="assets/gifs/subway.gif" alt="" onerror="this.style.display=\'none\'" ' +
             'style="max-height:68%;max-width:100%;width:auto;display:block">' +
             '</button>'
+    },
+    {
+      // Worddle - the word-rarity game. No plate behind it: the logo gif is
+      // transparent and carries its own label, so it floats on the background
+      // the way the play button does. 265x123 keeps the gif's own 240x111
+      // ratio, so the placer reserves exactly the space the logo occupies.
+      // No point asking for more: TARGET_FILL is an area budget, so a bigger
+      // footprint here just lowers the global scale and renders the same.
+      id: 'worddle', baseW: 265, baseH: 123, fixedShape: 'none',
+      html: '<img class="worddle-btn" src="assets/gifs/worddle.gif" ' +
+            'alt="WORDDLE - america\'s game" title="america\'s game" ' +
+            'onclick="window.location.href=\'/worddle.html\'">'
     },
     {
       // Plays/stops the ohyeah track, same as clicking the logo.
@@ -506,9 +529,57 @@
     return ox * oy;
   }
 
+  // The NOOBULAR logo's keep-out box. Measured from the logo rather than
+  // guessed as a viewport fraction: a fraction is both too roomy on wide
+  // screens (the logo caps at 640px) and too tight on narrow ones (where it
+  // grows to 60vw and would poke out of it). Only the SIZE is measured — the
+  // position is derived by the caller, because #center animates its
+  // padding-bottom and a mid-transition read would be wrong.
+  function centerReserveSize() {
+    var logo = document.querySelector('.noob-logo');
+    var r = logo ? logo.getBoundingClientRect() : null;
+    var gap = CONFIG.CENTER_GAP;
+    if (r && r.width > 0 && r.height > 0) {
+      return { w: r.width + gap * 2, h: r.height + gap * 2 };
+    }
+    return {
+      w: window.innerWidth * CONFIG.CENTER_RESERVE_W,
+      h: window.innerHeight * CONFIG.CENTER_RESERVE_H
+    };
+  }
+
+  // Combined footprint of every region at scale 1, including each one's own
+  // seeded size multiplier — the denominator of the area budget below.
+  function totalRegionArea() {
+    var sum = 0;
+    for (var i = 0; i < REGIONS.length; i++) {
+      var def = REGIONS[i];
+      var mul = sizeMulFor(def);
+      sum += (def.baseW || 200) * (def.baseH || 120) * mul * mul;
+    }
+    return sum;
+  }
+
+  // Scale from an area budget rather than a viewport ratio. Work out how much
+  // room the buttons actually have — the viewport, less the banner strip, the
+  // cookie banner and the logo's keep-out box — then pick the scale that makes
+  // them fill TARGET_FILL of it. Because it's an area, the scale is the square
+  // root of the ratio.
+  //
+  // The point is that button DENSITY comes out the same everywhere: a layout
+  // that sits comfortably on a 1440p monitor stays just as comfortable on a
+  // laptop or a phone, instead of keeping its 1440p size and collapsing into a
+  // pile of overlaps. min(vw,vh)/900 had no idea whether anything fit.
   function currentScale() {
-    var m = Math.min(window.innerWidth, window.innerHeight);
-    var s = m / CONFIG.SCALE_BASIS;
+    var margin = 8;
+    var freeW = window.innerWidth - margin * 2;
+    var freeH = window.innerHeight - getTopReserve() - getBottomReserve() - margin * 2;
+    var reserve = centerReserveSize();
+    var usable = Math.max(1, freeW) * Math.max(1, freeH) - reserve.w * reserve.h;
+    var total = totalRegionArea();
+    if (!(usable > 0) || !(total > 0)) return CONFIG.SCALE_MIN;
+
+    var s = Math.sqrt(usable * CONFIG.TARGET_FILL / total);
     return Math.max(CONFIG.SCALE_MIN, Math.min(CONFIG.SCALE_MAX, s));
   }
 
@@ -714,7 +785,11 @@
     var vw = window.innerWidth;
     var vh = window.innerHeight;
     var scale = currentScale();
-    var pad = CONFIG.REGION_PADDING;
+    // The gap between regions has to scale with them. Left flat, a 24px gap is
+    // breathing room around a 260px button but a wall around a 50px one — on a
+    // phone it more than doubled each button's effective footprint and ate over
+    // half the area budget, so everything got shrink-stepped into confetti.
+    var pad = Math.max(3, CONFIG.REGION_PADDING * scale);
 
     // Cookie banner sits fixed at the bottom, banner strip at the top —
     // keep buttons + header clear of both.
@@ -723,21 +798,8 @@
     document.documentElement.style.setProperty('--bottom-reserve', bottomReserve + 'px');
 
     // Reserved center rectangle (NOOBULAR logo) — treated as an obstacle.
-    // Measure the logo rather than guessing a viewport fraction: a fraction is
-    // both too roomy on wide screens (the logo caps at 640px) and too tight on
-    // narrow ones (where the logo grows to 60vw and would poke out of it).
-    // Only the SIZE is measured — the position is derived, because #center
-    // animates its padding-bottom and a mid-transition read would be wrong.
-    var reserve;
-    var logo = document.querySelector('.noob-logo');
-    var logoRect = logo ? logo.getBoundingClientRect() : null;
-    var gap = CONFIG.CENTER_GAP;
-
-    if (logoRect && logoRect.width > 0 && logoRect.height > 0) {
-      reserve = { w: logoRect.width + gap * 2, h: logoRect.height + gap * 2 };
-    } else {
-      reserve = { w: vw * CONFIG.CENTER_RESERVE_W, h: vh * CONFIG.CENTER_RESERVE_H };
-    }
+    // Same box currentScale() subtracts from the area budget.
+    var reserve = centerReserveSize();
     reserve.x = (vw - reserve.w) / 2;
     reserve.y = (vh - bottomReserve - reserve.h) / 2;
 
