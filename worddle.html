@@ -49,7 +49,15 @@ body{background:var(--bg);color:var(--fg);font:15px/1.5 var(--font-body);
     hsl(var(--h) 85% calc(var(--tileL) - 11%)));
   box-shadow:inset 0 1px 0 rgba(255,255,255,.45),
              inset 0 -2px 3px rgba(0,0,0,.28),
-             inset 0 0 0 1px rgba(0,0,0,.10)}
+             inset 0 0 0 1px rgba(0,0,0,.10);
+  position:relative}
+/* A faint W stamped on every square. It rides in a pseudo-element rather than
+   as a second background layer on the tile itself, because the script rewrites
+   --h constantly and a shared background shorthand would be a nuisance to keep
+   in step. Same URL on every tile, so the gif is decoded once. */
+#tiles i::after{content:'';position:absolute;inset:0;
+  background:url(assets/gifs/w.gif) center/174% no-repeat;
+  opacity:.18}
 
 /* ---- the panel everything reads off ----------------------------------- */
 .wrap{max-width:760px;margin:12px auto 26px;padding:10px 20px 20px;
@@ -66,6 +74,17 @@ h1{margin:4px 0 8px;text-align:center}
 h2{font:400 30px/1 var(--font-head);letter-spacing:1px;text-transform:uppercase;
   color:var(--head);margin:20px 0 4px;
   text-shadow:2px 2px 0 #c9b458,4px 4px 0 rgba(0,0,0,.28)}
+/* Point at a heading and it flashes. Each colour is held across a range and
+   then jumps, so it cuts rather than fading -- a flash, not a crossfade.
+   The shadow changes with the text, a step behind it round the same ramp. */
+h2:hover{animation:headflash .44s infinite}
+@keyframes headflash{
+  0%,24%  {color:#e0452f;text-shadow:2px 2px 0 #c9b458,4px 4px 0 rgba(0,0,0,.28)}
+  25%,49% {color:#2fae57;text-shadow:2px 2px 0 #5b7cff,4px 4px 0 rgba(0,0,0,.28)}
+  50%,74% {color:#5b7cff;text-shadow:2px 2px 0 #e0452f,4px 4px 0 rgba(0,0,0,.28)}
+  75%,100%{color:#c9b458;text-shadow:2px 2px 0 #2fae57,4px 4px 0 rgba(0,0,0,.28)}
+}
+@media (prefers-reduced-motion:reduce){h2:hover{animation:none}}
 
 
 a{color:var(--link)}
@@ -116,6 +135,8 @@ button:disabled{opacity:.5;cursor:default}
 .game button{margin-right:5px}
 /* the input is capped at 100% by the rule above, so on a phone the buttons
    would be pushed off the right edge; wrap them under it instead */
+#f{position:sticky;top:0;z-index:5;background:var(--panel);
+  margin:0 -20px;padding:9px 20px;border-bottom:3px double #787c7e}
 #g1-form{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
 #g1-form input{flex:1 1 11em;min-width:0}
 #g1-form button{margin-right:0}
@@ -133,7 +154,7 @@ button:disabled{opacity:.5;cursor:default}
   <button id="bgm-go" type="button"></button>
 </div>
 <audio id="bgm-audio" loop preload="auto" src="assets/audio/incredibly-bad.mp3"></audio>
-<h1><img src="assets/gifs/worddle-title.gif" alt="Worddle" class="logo"></h1>
+<h1><img src="assets/gifs/worddle.gif" alt="Worddle - america's game" class="logo"></h1>
 <p>Type any word ever</p>
 <p class="creed">compound words/weird forms are for posers REAL patriots know rare singular nouns</p>
 
@@ -331,10 +352,11 @@ const LIST_TEXT = {
   label_gap:  'show gaps'
 };
 
-/* Either count can be switched off, and the choice sticks. Absent from
-   storage means on, so a first visit shows both. */
+/* Either count can be switched on, and the choice sticks. Absent from
+   storage means off, so a first visit shows neither and the list stays a
+   plain list until you ask for more. */
 const SHOW_TIED='rw-show-tied', SHOW_GAP='rw-show-gap';
-const flagOn=k=>{ try{ return localStorage.getItem(k)!=='0'; }catch(e){ return true; } };
+const flagOn=k=>{ try{ return localStorage.getItem(k)==='1'; }catch(e){ return false; } };
 const flagSet=(k,v)=>{ try{ localStorage.setItem(k, v?'1':'0'); }catch(e){} };
 for(const [id,key] of [['show-tied',SHOW_TIED],['show-gap',SHOW_GAP]]){
   const box=$(id);
@@ -999,11 +1021,14 @@ function maybeStart(){
   var cells=[], due=[], n=0;
   var MIN=500, MAX=3400;              // a tile's own gap between repaints
 
-  // Hue 0 is the commonest-word red and 120 the rarest-word green: the same
-  // ramp color() paints the words themselves with, in ten-degree steps so the
-  // wall stays blocky rather than smearing into a gradient.
+  // The title's own ramp: yellow at 55, through green at 120, to blue at 230.
+  // Thirteen fixed rungs rather than a free hue, so the wall stays blocky and
+  // neighbouring tiles can repeat a colour instead of smearing into a
+  // gradient. (The words in the list keep the separate red-to-green scale --
+  // that one means something.)
+  var HUE0=55, HUE1=230, RUNGS=13, STEP=(HUE1-HUE0)/(RUNGS-1);
   function paint(t){
-    t.style.setProperty('--h', Math.floor(Math.random()*13)*10);
+    t.style.setProperty('--h', HUE0 + Math.floor(Math.random()*RUNGS)*STEP);
   }
 
   function build(){
