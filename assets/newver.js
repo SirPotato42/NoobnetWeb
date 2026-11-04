@@ -239,16 +239,22 @@
             '</button>'
     },
     {
-      // Worddle - the word-rarity game. No plate behind it: the logo gif is
-      // transparent and carries its own label, so it floats on the background
-      // the way the play button does. 265x123 keeps the gif's own 240x111
-      // ratio, so the placer reserves exactly the space the logo occupies.
-      // No point asking for more: TARGET_FILL is an area budget, so a bigger
-      // footprint here just lowers the global scale and renders the same.
-      id: 'worddle', baseW: 265, baseH: 123, fixedShape: 'none',
-      html: '<img class="worddle-btn" src="assets/gifs/worddle.gif" ' +
-            'alt="WORDDLE - america\'s game" title="america\'s game" ' +
-            'onclick="window.location.href=\'/worddle.html\'">'
+      // Worddle - the word-rarity game. A normal plate like every other
+      // button here, rather than the bare floating gif it was briefly: it
+      // gets the standard shape, bevel and shadow. The plate is white because
+      // the logo is a transparent gif whose "america's game" sub-line is
+      // black, which disappears on anything dark.
+      // 265x135 is the gif's 240x111 plus room for the padding, so the plate
+      // hugs the logo instead of leaving a band of dead white above and below.
+      id: 'worddle', baseW: 265, baseH: 135,
+      html: '<button class="region-btn no-pixel" style="background:#fff;' +
+            'display:flex;align-items:center;justify-content:center;padding:8px" ' +
+            'title="america\'s game" ' +
+            'onclick="window.location.href=\'/worddle.html\'">' +
+            '<img src="assets/gifs/worddle.gif" alt="WORDDLE - america\'s game" ' +
+            'onerror="this.style.display=\'none\'" ' +
+            'style="max-height:100%;max-width:100%;width:auto;display:block">' +
+            '</button>'
     },
     {
       // Plays/stops the ohyeah track, same as clicking the logo.

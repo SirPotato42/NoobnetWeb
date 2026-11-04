@@ -426,30 +426,6 @@ html.bg-mosaic #bg {
   transform: translateY(2px);
 }
 
-/* Worddle logo button. The gif is transparent and carries its own wordmark,
-   so it gets no plate — it sits straight on the sky. The drop-shadow traces
-   the alpha rather than a box, which is also what lifts the black
-   "america's game" sub-line off the background. */
-   Unlike the play button this one is scaled DOWN from its natural 240x111,
-   so it keeps the browser's smooth resampling — image-rendering:pixelated
-   only helps a blow-up, and on a downscale it just aliases the sub-line into
-   mush. */
-.region .worddle-btn {
-  width: 100%;
-  height: 100%;
-  display: block;
-  cursor: pointer;
-  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.55));
-}
-
-.region .worddle-btn:hover {
-  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.55)) brightness(1.08);
-}
-
-.region .worddle-btn:active {
-  transform: translateY(2px);
-}
-
 /* --- Birds flyby -----------------------------------------------------------
    Sits above everything, including the cookie banner (9998) and the sign-in /
    warning popups (10000). Purely decorative, so it never eats a click.
