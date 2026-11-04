@@ -1264,6 +1264,67 @@
     for (var i = 0; i < els.length; i++) els[i].innerHTML = html;
   }
 
+  /* ------------------------------------------------------------------ */
+  /* Worddle wins -- one star per win, stamped on the plate               */
+  /* ------------------------------------------------------------------ */
+  /* worddle.html leaves its score in localStorage under rw-wins, because
+     working out a win from scratch needs the 12MB word table and this page
+     is not about to load that to decorate a button. Nothing there yet, or
+     storage blocked, just means no stars. */
+  function winCount() {
+    var raw;
+    try { raw = localStorage.getItem('rw-wins'); } catch (e) { return 0; }
+    var n = parseInt(raw, 10);
+    return (isFinite(n) && n > 0) ? n : 0;
+  }
+
+  function stampWins(el, def) {
+    var btn = el.querySelector('.region-btn');
+    var n = winCount();
+    if (!btn || !n) return;
+
+    // Sized against the plate's own 265x135, which the homepage then draws
+    // at roughly 0.45 scale -- so 26px here is about 12px on screen, which a
+    // single star needs to be to get noticed at all over the logo. Shrinks
+    // as the score climbs: they scatter and may overlap, and this just stops
+    // a long run turning the plate into a solid sheet of gold.
+    var size = n <= 8 ? 26 : n <= 16 ? 19 : 14;
+
+    // Seeded like every other per-button trait, so the scatter is the same
+    // on every visit and survives the re-render on resize instead of the
+    // stars hopping about. Seeded by region + purpose, so the run of numbers
+    // is fixed: winning again keeps the stars you had and adds one.
+    var rand = seededRandFor(def, 'wins');
+
+    var strip = document.createElement('div');
+    strip.className = 'worddle-wins';
+    strip.style.fontSize = size + 'px';
+    strip.setAttribute('aria-label', n === 1 ? '1 win' : n + ' wins');
+
+    for (var i = 0; i < n; i++) {
+      // Plates are clipped to a seed-chosen shape, so a star in a corner can
+      // get sliced off. Keep drawing until the point is inside the ellipse
+      // the plate contains, which every one of those shapes covers.
+      var x, y, tries = 0;
+      do {
+        x = 8 + rand() * 84;
+        y = 10 + rand() * 80;
+        tries++;
+      } while (tries < 24 && Math.pow((x - 50) / 42, 2) + Math.pow((y - 50) / 40, 2) > 1);
+
+      var star = document.createElement('span');
+      star.textContent = '★';
+      star.style.left = x.toFixed(2) + '%';
+      star.style.top = y.toFixed(2) + '%';
+      // Break the unison, or the whole plate blinks as one.
+      star.style.animationDelay = (-rand()).toFixed(3) + 's';
+      strip.appendChild(star);
+    }
+
+    btn.style.position = 'relative';
+    btn.appendChild(strip);
+  }
+
   function renderRegion(layer, def, rect, scale, sizeMul) {
     var el = document.createElement('div');
     el.className = 'region';
@@ -1298,6 +1359,8 @@
     applyFont(def, el.querySelector('.region-btn'));
     // Seed-determined highly saturated color for plain text buttons.
     applyColor(def, el.querySelector('.region-btn'));
+
+    if (def.id === 'worddle') stampWins(el, def);
 
     layer.appendChild(el);
   }

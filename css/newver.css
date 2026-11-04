@@ -629,3 +629,23 @@ html.bg-mosaic #bg {
     background-position: 200% center;
   }
 }
+
+/* ---- Worddle wins -------------------------------------------------------
+   One gold star per win, scattered at random across the Worddle plate. The
+   positions come from newver.js as left/top percentages off a seeded PRNG,
+   so the layer is just the frame they sit in. Same hard two-frame twinkle
+   the list on worddle.html uses -- a blunt flip rather than a smooth pulse.
+   The plate is white, so the stars carry a dark outline as well as a glow.
+   Transform belongs to the animation, so each star is centred on its point
+   with negative margins rather than a translate. */
+.worddle-wins{position:absolute;inset:0;line-height:1;pointer-events:none;
+  overflow:hidden}
+.worddle-wins span{position:absolute;display:block;margin:-.5em 0 0 -.5em;
+  color:#ffd700;
+  text-shadow:0 0 4px #ffb300,0 0 2px #000,1px 1px 0 rgba(0,0,0,.65);
+  animation:worddle-twinkle 1s steps(1) infinite}
+@keyframes worddle-twinkle{
+  0%,49%  {transform:scale(1) rotate(0deg)}
+  50%,100%{transform:scale(1.3) rotate(18deg)}
+}
+@media (prefers-reduced-motion:reduce){.worddle-wins span{animation:none}}
