@@ -7,18 +7,135 @@
 <link rel="icon" type="image/gif" href="/assets/noobularlogo.gif">
 <meta name="claude:viewport-fit-sides" content="cover">
 <style>
-:root{--bg:#fff;--fg:#000;--link:#00e;--L:36%}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#000;--fg:#fff;--link:#9cf;--L:58%;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#000;--fg:#fff;--link:#9cf;--L:58%;color-scheme:dark}
-body{background:var(--bg);color:var(--fg);font:16px "Times New Roman",Times,serif;
-  padding-block:8px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-input{max-width:100%}
+/* =======================================================================
+   2000s treatment. Five typefaces that have no business together, ridged
+   borders, a wall of wordle tiles behind the lot. The one rule: it still
+   has to be readable, so the text sits on a near-opaque panel and the
+   tiles stay faint behind it.
+   ======================================================================= */
+:root{
+  --bg:#e8ece8;--fg:#000;--link:#00e;--L:30%;
+  --panel:#fff;                  /* solid: no tiles bleeding through the text */
+  --tileL:55%;                   /* tile lightness; hue is the rarity ramp */
+  --head:#1a7a3c;
+  --ink:#000;
+  --font-body:Verdana,Geneva,Tahoma,sans-serif;
+  --font-head:Impact,Haettenschweiler,"Arial Narrow Bold",sans-serif;
+  --font-num:"Courier New",Courier,monospace;
+  --font-btn:"Trebuchet MS",Tahoma,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#07090a;--fg:#fff;--link:#9cf;--L:62%;
+  --panel:#0a100b;--tileL:46%;--head:#7ddc8f;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#07090a;--fg:#fff;--link:#9cf;--L:62%;
+  --panel:#0a100b;--tileL:46%;--head:#7ddc8f;color-scheme:dark}
+
+body{background:var(--bg);color:var(--fg);font:15px/1.5 var(--font-body);
+  padding-block:8px;padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(10px,env(safe-area-inset-right,0px))}
+
+/* ---- the tile wall ---------------------------------------------------- */
+#tiles{position:fixed;inset:0;z-index:-2;display:grid;gap:4px;padding:4px;
+  grid-template-columns:repeat(auto-fill,minmax(54px,1fr));grid-auto-rows:54px;
+  opacity:.92;pointer-events:none;overflow:hidden}
+/* Shaded rather than flat: a light source up and to the left, a darker
+   face at the bottom and a hairline highlight along the top, so each one
+   reads as a physical tile. The hue is the only thing the script sets --
+   everything below is derived from it, so repainting stays one property. */
+#tiles i{--h:60;border-radius:3px;
+  background:linear-gradient(158deg,
+    hsl(var(--h) 85% calc(var(--tileL) + 13%)),
+    hsl(var(--h) 85% var(--tileL)) 46%,
+    hsl(var(--h) 85% calc(var(--tileL) - 11%)));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.45),
+             inset 0 -2px 3px rgba(0,0,0,.28),
+             inset 0 0 0 1px rgba(0,0,0,.10)}
+
+/* ---- the panel everything reads off ----------------------------------- */
+.wrap{max-width:760px;margin:12px auto 26px;padding:10px 20px 20px;
+  background:var(--panel);border:7px ridge hsl(120 85% 40%);
+  box-shadow:0 0 0 4px hsl(0 85% 45%),10px 10px 0 rgba(0,0,0,.45)}
+
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 2px}
+.topbar .home{display:inline-block;text-decoration:none}
+.topbar .home,.topbar .home:visited{color:#000}
+.topbar button,.topbar a.home{font-size:15px;line-height:1;padding:2px 9px 4px}
+h1{margin:4px 0 8px;text-align:center}
+.logo{display:block;margin:0 auto;width:480px;max-width:100%;height:auto;
+  image-rendering:pixelated;image-rendering:crisp-edges}
+h2{font:400 30px/1 var(--font-head);letter-spacing:1px;text-transform:uppercase;
+  color:var(--head);margin:20px 0 4px;
+  text-shadow:2px 2px 0 #c9b458,4px 4px 0 rgba(0,0,0,.28)}
+
+
+a{color:var(--link)}
+a:visited{color:#a0a}
+
+input:not([type=checkbox]){max-width:100%;font:14px var(--font-num);
+  padding:4px 6px;border:3px inset #787c7e;background:#fff;color:#000}
+button,.topbar .home{font:700 13px var(--font-btn);padding:3px 11px;cursor:pointer;color:#000;
+  background:linear-gradient(#fff,#ccd1cc);border:3px outset #6aaa64}
+button:active,.topbar .home:active{border-style:inset}
+button:disabled{opacity:.5;cursor:default}
+
+#out{font:700 15px var(--font-body);min-height:1.4em}
+
+#log{padding-left:30px}
+#log li{margin:5px 0;font:700 14px var(--font-num)}
+#log .tied,#log .gap{font:400 11px/1.35 var(--font-body);opacity:.75;color:var(--fg)}
+#log .gap{margin:1px 0 7px}
+#log .rm{font-size:10px;line-height:1;padding:0 5px;margin-left:8px;border-width:2px;vertical-align:1px}
+.wotd{display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin:8px 0}
+#wotd-tiles{display:flex;gap:5px}
+.wotd b{display:inline-flex;cursor:pointer;width:34px;height:34px;align-items:center;justify-content:center;
+  font:400 21px/1 var(--font-head);text-transform:uppercase;
+  border:2px solid #63676a;color:#fff;border-radius:3px;
+  background:linear-gradient(158deg,#909496,#787c7e 46%,#63676a);
+  text-shadow:1px 1px 0 rgba(0,0,0,.45);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.35),
+             inset 0 -3px 4px rgba(0,0,0,.3),
+             1px 2px 3px rgba(0,0,0,.35)}
+.wotd b:hover{filter:brightness(1.18)}
+.wotd b.on{border-color:hsl(120 85% 24%);
+  background:linear-gradient(158deg,hsl(120 85% 47%),hsl(120 85% 36%) 46%,hsl(120 85% 27%))}
+#wotd-note{font:400 12px var(--font-body);opacity:.8;margin:2px 0 0}
+.toggles{margin:4px 0 8px;font:11px var(--font-body);text-transform:uppercase;letter-spacing:.5px}
+.toggles label{margin-right:14px;cursor:pointer;white-space:nowrap}
+
+
+/* ---- the two games, for when they come back --------------------------- */
+.game{margin-top:30px;border-top:3px double #787c7e;padding-top:2px}
+.posts{display:flex;align-items:stretch;gap:12px;flex-wrap:wrap;margin:12px 0}
+.post{border:4px outset #787c7e;padding:5px 10px;min-width:8.5em;text-align:center;display:flex;flex-direction:column;justify-content:center}
+.post.yours{border:4px double #c9b458}
+.post b{display:block;font:700 1.2em/1.15 var(--font-num)}
+.post small{display:block;opacity:.85}
+.post .tag{font-size:.65em;opacity:.7;display:block;margin-top:1px;text-transform:uppercase}
+.vs{font:400 1.1em var(--font-head);letter-spacing:1px;opacity:.8}
+.status{font:11px var(--font-body);text-transform:uppercase;letter-spacing:.5px;opacity:.85}
+.game button{margin-right:5px}
+/* the input is capped at 100% by the rule above, so on a phone the buttons
+   would be pushed off the right edge; wrap them under it instead */
+#g1-form{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+#g1-form input{flex:1 1 11em;min-width:0}
+#g1-form button{margin-right:0}
+/* stacked on a narrow screen, or the "to" strands itself beside the first
+   plate while the second drops to its own line */
+@media (max-width:460px){.posts{flex-direction:column;align-items:stretch}}
 </style>
 
 </head>
 <body>
-<h1>word dle</h1>
+<div id="tiles" aria-hidden="true"></div>
+<div class="wrap">
+<div class="topbar">
+  <a class="home" href="index.html" title="back to noobnet" aria-label="back to noobnet">←</a>
+  <button id="bgm-go" type="button"></button>
+</div>
+<audio id="bgm-audio" loop preload="auto" src="assets/audio/incredibly-bad.mp3"></audio>
+<h1><img src="assets/gifs/worddle-title.gif" alt="Worddle" class="logo"></h1>
 <p>Type any word ever</p>
+<p class="creed">compound words/weird forms are for posers REAL patriots know rare singular nouns</p>
 
 <form id="f" autocomplete="off">
   <input id="w" size="30" spellcheck="false" autocapitalize="none">
@@ -27,11 +144,52 @@ input{max-width:100%}
 
 <p id="out"></p>
 
+<h2 id="wotd-title"></h2>
+<p class="wotd"><span id="wotd-tiles"></span></p>
+<p id="wotd-note"></p>
+
 <h2>Your words</h2>
+<p class="toggles">
+  <label><input type="checkbox" id="show-tied"> <span id="lbl-tied"></span></label>
+  <label><input type="checkbox" id="show-gap"> <span id="lbl-gap"></span></label>
+</p>
 <ol id="log"></ol>
 <p><button id="clear">clear list</button></p>
 
-<p><a href="index.html">back to noobnet</a></p>
+<!-- The two games are off the page for now. Take the `hidden` off the
+     wrapper below and they come straight back; none of their code has
+     gone anywhere. -->
+<div id="games" hidden>
+<div class="game" id="g1">
+  <h2 id="g1-title"></h2>
+  <p id="g1-intro"></p>
+  <p id="g1-seed" hidden></p>
+  <div class="posts" id="g1-posts"></div>
+  <form id="g1-form" autocomplete="off">
+    <input id="g1-input" size="24" spellcheck="false" autocapitalize="none" disabled>
+    <button id="g1-go" disabled></button>
+    <button id="g1-skip" type="button" disabled></button>
+    <button id="g1-restart" type="button" hidden></button>
+  </form>
+  <p id="g1-out"></p>
+  <p class="status" id="g1-status"></p>
+</div>
+
+<div class="game" id="g2">
+  <h2 id="g2-title"></h2>
+  <p id="g2-intro"></p>
+  <div class="posts" id="g2-posts"></div>
+  <p>
+    <button id="g2-rarer" type="button" disabled></button>
+    <button id="g2-commoner" type="button" disabled></button>
+    <button id="g2-restart" type="button" hidden></button>
+  </p>
+  <p id="g2-out"></p>
+  <p class="status" id="g2-status"></p>
+</div>
+</div><!-- /games -->
+
+</div><!-- /wrap -->
 
 
 <script>
@@ -52,7 +210,11 @@ fetch('assets/worddle-words.bin')
   const u=new Uint8Array(buf);
   if(u[0]===0x1f&&u[1]===0x8b) buf=await new Response(new Blob([buf]).stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer();
   DATA=new TextDecoder().decode(buf);
+  census();      // ~0.2s, and the list needs it to count anything
+  wotdNote();    // its frequency comes out of the table too
+  render();      // redraw with the counts the census just made possible
   $('go').disabled=false; $('go').textContent='check';
+  maybeStart();   // the games wait on the same table
 }).catch(()=>{ $('go').textContent='failed to load'; });
 
 // binary search the sorted "word<TAB>code" lines
@@ -109,13 +271,230 @@ let list=[];
 try{ list=JSON.parse(localStorage.getItem('rw-list')||'[]'); }catch(e){}
 function save(){ try{ localStorage.setItem('rw-list',JSON.stringify(list)); }catch(e){} }
 
+
+/* ---- the census --------------------------------------------------------
+   How many words sit at each frequency, so the list can say what you are
+   still missing. One pass over the table fills a map of code -> how many
+   words carry it; 2.8 million words land on only ~3,500 distinct
+   frequencies, so what comes out is tiny and every question below is two
+   binary searches over it.
+
+   The pass costs about 0.2s and runs once, on the back of a download that
+   already took seconds. The alternative was shipping a second file of
+   precomputed counts, which would quietly go wrong the day the table is
+   rebuilt and the counts are not.
+   ------------------------------------------------------------------------- */
+let RAR=null, CNT=null, PRE=null, ALL=0;   // rungs, words on each, running total
+
+function census(){
+  const hist=new Map();
+  let i=0; const n=DATA.length;
+  while(i<n){
+    const tab=DATA.indexOf('\t',i); if(tab<0) break;
+    let end=DATA.indexOf('\n',tab); if(end<0) end=n;
+    const code=DATA.slice(tab+1,end);
+    hist.set(code,(hist.get(code)||0)+1);
+    i=end+1;
+  }
+  const rungs=[];
+  hist.forEach((c,code)=>rungs.push([rarity(code),c]));
+  rungs.sort((a,b)=>a[0]-b[0]);
+  RAR=[]; CNT=[];
+  for(const [r,c] of rungs){
+    // two different codes can work out to the same rarity, so fold them in
+    if(RAR.length && RAR[RAR.length-1]===r) CNT[CNT.length-1]+=c;
+    else { RAR.push(r); CNT.push(c); }
+  }
+  PRE=new Array(RAR.length); ALL=0;
+  for(let k=0;k<RAR.length;k++){ PRE[k]=ALL; ALL+=CNT[k]; }
+}
+
+const atRung=r=>{ let lo=0,hi=RAR.length-1; while(lo<=hi){ const m=(lo+hi)>>1; if(RAR[m]===r) return m; if(RAR[m]<r) lo=m+1; else hi=m-1; } return -1; };
+const below=r=>{ let lo=0,hi=RAR.length; while(lo<hi){ const m=(lo+hi)>>1; if(RAR[m]<r) lo=m+1; else hi=m; } return lo<RAR.length?PRE[lo]:ALL; };
+const atOrBelow=r=>{ let lo=0,hi=RAR.length; while(lo<hi){ const m=(lo+hi)>>1; if(RAR[m]<=r) lo=m+1; else hi=m; } return lo<RAR.length?PRE[lo]:ALL; };
+
+// words strictly between two frequencies, r1 the commoner of the two
+const tween=(r1,r2)=>Math.max(0, below(r2)-atOrBelow(r1));
+// words at exactly this frequency, the one you already have included
+const tied=r=>{ const i=atRung(r); return i<0?0:CNT[i]; };
+
+/* The three lines the list can print. Change the wording here; {n} is the
+   count, {w} the word, {a} and {b} the two words either side of a gap. */
+const LIST_TEXT = {
+  tied_0: '',                                      // nothing else at this frequency
+  tied_1: '1 other word is tied with {w}',
+  tied:   '{n} other words are tied with {w}',
+  gap_0:  '',                                      // adjacent: say nothing
+  gap_1:  'there is 1 word between {a} and {b}',
+  gap:    'there are {n} words between {a} and {b}',
+  label_tied: 'show ties',                        // the two checkboxes
+  label_gap:  'show gaps'
+};
+
+/* Either count can be switched off, and the choice sticks. Absent from
+   storage means on, so a first visit shows both. */
+const SHOW_TIED='rw-show-tied', SHOW_GAP='rw-show-gap';
+const flagOn=k=>{ try{ return localStorage.getItem(k)!=='0'; }catch(e){ return true; } };
+const flagSet=(k,v)=>{ try{ localStorage.setItem(k, v?'1':'0'); }catch(e){} };
+for(const [id,key] of [['show-tied',SHOW_TIED],['show-gap',SHOW_GAP]]){
+  const box=$(id);
+  box.checked=flagOn(key);
+  box.onchange=()=>{ flagSet(key,box.checked); render(); };
+}
+$('lbl-tied').textContent=LIST_TEXT.label_tied;
+$('lbl-gap').textContent=LIST_TEXT.label_gap;
+
+/* ---- word of the day ----------------------------------------------------
+   Boarded up behind blank tiles, one click per letter. It resets at midnight
+   and picks again, which is a grand way of saying it is noobular today, was
+   noobular yesterday and will be noobular tomorrow.
+
+   The letters stay out of the DOM until their tile is turned, so a stray
+   text selection cannot spoil it. Which letters you have turned is kept
+   against today's date, so it survives a reload and starts over tomorrow.
+   ------------------------------------------------------------------------- */
+const WOTD_TEXT = {
+  title: 'word of the day',
+  hint:  '',                    // shown while any are still face down
+  note:  ''                     // shown once every tile is turned
+};
+const WOTD_WORD='noobular';
+const WOTD_KEY='rw-wotd';
+const wotdDay=()=>{ const d=new Date(); return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); };
+
+function wotdLoad(){
+  try{
+    const raw=JSON.parse(localStorage.getItem(WOTD_KEY)||'null');
+    if(raw && raw.d===wotdDay() && Array.isArray(raw.r)) return new Set(raw.r);
+  }catch(e){}
+  return new Set();             // a new day, or nothing stored: all face down
+}
+const wotdUp=wotdLoad();
+function wotdSave(){
+  try{ localStorage.setItem(WOTD_KEY, JSON.stringify({d:wotdDay(), r:[...wotdUp]})); }catch(e){}
+}
+
+const wotdTiles=[...WOTD_WORD].map((ch,i)=>{
+  const b=document.createElement('b');
+  b.dataset.ch=ch;
+  b.onclick=()=>{
+    if(wotdUp.has(i)) wotdUp.delete(i); else wotdUp.add(i);
+    wotdSave(); wotdPaint();
+  };
+  $('wotd-tiles').appendChild(b);
+  return b;
+});
+
+function wotdPaint(){
+  wotdTiles.forEach((b,i)=>{
+    const on=wotdUp.has(i);
+    b.className=on?'on':'';
+    b.textContent=on?b.dataset.ch:'';
+    b.title=on?'':'turn it over';
+  });
+  wotdNote();
+}
+/* The note only lands once every tile is up. The state is read from wotdUp
+   rather than the tiles, so this is right whenever it is called -- including
+   from the table loader, long after the last click. */
+function wotdNote(){
+  const el=$('wotd-note');
+  const all=wotdUp.size===wotdTiles.length;
+  const code=all&&DATA?look(WOTD_WORD):null;
+  if(!code){ el.textContent=all?'':WOTD_TEXT.hint; el.style.color=''; return; }
+  const r=rarity(code);
+  el.textContent=WOTD_TEXT.note.replace('{n}',fmt(r)).replace('{w}',WOTD_WORD);
+  el.style.color=color(r);
+}
+$('wotd-title').textContent=WOTD_TEXT.title;
+wotdPaint();
+
+/* ---- background music ---------------------------------------------------
+   On by default, the way a page in 1999 would have it, but no browser will
+   start audio before the page has been touched. So it asks once on load,
+   swallows the refusal, and takes the first click or keypress as its cue.
+
+   Whether you turned it off is remembered, and that is checked before every
+   attempt, so a muted visitor is never ambushed by the first click.
+   ------------------------------------------------------------------------- */
+const BGM_TEXT = { on:'🔊', off:'🔇',
+                   titleOn:'mute the music', titleOff:'unmute the music' };
+const BGM_KEY='rw-bgm';
+const bgm=$('bgm-audio');
+bgm.volume=0.5;
+
+const bgmOn=()=>{ try{ return localStorage.getItem(BGM_KEY)!=='0'; }catch(e){ return true; } };
+function bgmLabel(){
+  const on=bgmOn();
+  $('bgm-go').textContent = on?BGM_TEXT.on:BGM_TEXT.off;
+  $('bgm-go').title = on?BGM_TEXT.titleOn:BGM_TEXT.titleOff;
+  $('bgm-go').setAttribute('aria-label', $('bgm-go').title);
+}
+function bgmPlay(){
+  if(!bgmOn()) return;
+  const p=bgm.play();
+  if(p&&p['catch']) p['catch'](()=>{});   // blocked until the page is touched
+}
+$('bgm-go').onclick=()=>{
+  const on=!bgmOn();
+  try{ localStorage.setItem(BGM_KEY, on?'1':'0'); }catch(e){}
+  bgmLabel();
+  if(on) bgmPlay(); else bgm.pause();
+};
+bgmLabel();
+bgmPlay();
+for(const ev of ['pointerdown','keydown']) addEventListener(ev, bgmPlay, {once:true});
+const listSay=(key,vars)=>(LIST_TEXT[key]||'').replace(/\{(\w+)\}/g,(m,k)=>k in vars?String(vars[k]):m);
+const commas=n=>n.toLocaleString('en-US');
+// what a list entry is worth, with the Infinity that JSON turned into null
+// put back
+const worth=x=>(x.oneIn==null?Infinity:x.oneIn);
+
+function sub(li,cls,text){
+  if(!text) return;
+  const d=document.createElement('div');
+  d.className=cls; d.textContent=text;
+  li.appendChild(d);
+}
+
 function render(){
   const ol=$('log'); ol.innerHTML='';
   list.sort((a,b)=>(b.oneIn??Infinity)-(a.oneIn??Infinity)||0);
-  for(const x of list){
+  for(let k=0;k<list.length;k++){
+    const x=list[k], next=list[k+1];
     const li=document.createElement('li');
     li.style.color=color(x.oneIn);
-    li.textContent=x.w+' — '+(x.oneIn==null||x.oneIn===Infinity?'less than 1 in '+fmt(FLOOR):'1 in '+fmt(x.oneIn));
+    const t=document.createElement('span');
+    t.textContent=x.w+' — '+(x.oneIn==null||x.oneIn===Infinity?'less than 1 in '+fmt(FLOOR):'1 in '+fmt(x.oneIn));
+    // drop just this one, rather than having to clear the whole list
+    const rm=document.createElement('button');
+    rm.type='button'; rm.className='rm'; rm.textContent='x';
+    rm.title='remove '+x.w;
+    rm.setAttribute('aria-label','remove '+x.w);
+    rm.onclick=()=>{
+      const i=list.indexOf(x);       // splice, so the array keeps its identity
+      if(i>=0) list.splice(i,1);
+      save(); render();
+    };
+    li.append(t,' ',rm);
+
+    // Counts need the census, which only exists once the table has landed.
+    if(RAR){
+      const r=worth(x);
+      // Words you have not found at this exact frequency. Anything else of
+      // yours sitting on the same rung is not missing either, so it comes off.
+      if(look(x.w)!==null && $('show-tied').checked){
+        const mine=list.reduce((a,y)=>a+(worth(y)===r?1:0),0);
+        const n=Math.max(0, tied(r)-mine);
+        sub(li,'tied',listSay(n===0?'tied_0':n===1?'tied_1':'tied',{n:commas(n),w:x.w}));
+      }
+      // The list is sorted rarest first, so `next` is the commoner neighbour
+      // and everything in the gap is a word you have not got.
+      if(next && $('show-gap').checked){
+        const n=tween(worth(next),r);
+        sub(li,'gap',listSay(n===0?'gap_0':n===1?'gap_1':'gap',{n:commas(n),a:x.w,b:next.w}));
+      }
+    }
     ol.appendChild(li);
   }
 }
@@ -143,6 +522,528 @@ $('f').addEventListener('submit',e=>{
 });
 
 $('clear').onclick=()=>{ list=[]; save(); render(); };
+
+/* =========================================================================
+   TWO MORE GAMES -- "in between" and "more or less"
+   -------------------------------------------------------------------------
+   Both run off the table already loaded above, plus a 20,000-word pick pool
+   (assets/wordpool.txt). The pool exists because the full table is 2.8
+   million entries of surnames, inflections and transliterations: picking a
+   goalpost at random out of that is unplayable. The pool carries no
+   frequencies of its own -- every number below still comes from the table,
+   so the two files cannot drift apart.
+   ========================================================================= */
+
+/* -------------------------------------------------------------------------
+   DIALOGUE -- everything these two games say to the player is in here.
+   Rewrite the right-hand side of a line and that is the whole job: nothing
+   else in the file puts words on the screen. The {curly} bits get filled in:
+
+       {w} a word        {n} its frequency, already comma-formatted
+       {a} a goalpost word
+       {round} {strikes} {streak} {best}
+
+   {n} is always the bare number, so write the "1 in" part yourself. An
+   empty string prints nothing, which is how you delete a label.
+   ------------------------------------------------------------------------- */
+const TEXT = {
+  n_is: '1 in {n}',            // the small line under a word
+
+  /* ---- in between: name a word that lands between two goalposts ---- */
+  b_title: 'in between',
+  b_intro: 'name a word rarer than the left goalpost and commoner than the right one.',
+  b_vs: 'to',                  // sits between the two goalposts
+  b_yours: 'yours',            // badge on a goalpost taken from your list above
+  b_mine: '',                  // badge on a goalpost this game picked itself
+  b_seed: 'check a few words up there and they start turning up as goalposts.',
+  b_go: 'guess',
+  b_skip: 'give up',
+  b_restart: 'start over',
+  b_status: 'round {round}. {strikes} wrong left. best {best}.',
+  b_win: '{w} is 1 in {n}. in.',
+  b_low: '{w} is 1 in {n}. too common.',
+  b_high: '{w} is 1 in {n}. too rare.',
+  b_tie: '{w} is 1 in {n}, dead level with {a}. that one is free.',
+  b_unmeasured: '{w} is too rare to measure, so it is past the far post.',
+  b_notword: '{w} is not a word.',
+  b_dupe: 'you tried {w} already.',
+  b_ispost: '{w} is one of the goalposts.',
+  b_example: '{w} is 1 in {n}, which would have done it.',
+  b_noexample: 'nothing fits in there.',
+  b_over: 'out of guesses. you cleared {round}. best {best}.',
+
+  /* ---- more or less: is the second word rarer or commoner ---- */
+  m_title: 'more or less',
+  m_intro: 'you can see what the left word is worth. is the right one rarer or commoner?',
+  m_hidden: '???',             // stands in for the hidden frequency
+  m_vs: 'vs',
+  m_rarer: 'rarer',
+  m_commoner: 'commoner',
+  m_restart: 'start over',
+  m_status: 'streak {streak}. best {best}.',
+  m_right: '{w} is 1 in {n}. right.',
+  m_wrong: '{w} is 1 in {n}. wrong.',
+  m_over: 'run over on {streak}. best {best}.'
+};
+
+function say(key, vars){
+  const s = TEXT[key];
+  if(s == null) return '';
+  return s.replace(/\{(\w+)\}/g, (m,k) => (vars && k in vars) ? String(vars[k]) : m);
+}
+
+/* ---- difficulty ---------------------------------------------------------
+   Both games are tuned in DEX -- powers of ten of rarity -- because that is
+   the only scale on which "close" means anything here: 1 in 500 against 1 in
+   5,000 is the same guess as 1 in 50,000 against 1 in 500,000.
+
+   The table itself is quantised to 0.01 dex, about 2.3% apart, so STEP is
+   the floor on any gap worth asking about and the tightest settings below
+   stay well clear of it.
+   ------------------------------------------------------------------------- */
+const STEP = 0.02;
+const MIN_INSIDE = 6;   // pool words that must sit strictly inside a window
+
+// Round 1 opens a window 1.8 dex wide -- say 1 in 8,000 to 1 in 500,000 --
+// and every round cleared closes it by a fifth, down to a floor of 0.18 dex
+// (1 in 100,000 to 1 in 151,000), about as fine as a person can aim.
+function windowFor(round){ return Math.max(0.18, 1.80 * Math.pow(0.82, round - 1)); }
+
+// More or less opens with the two words a decade and a half apart and
+// tightens on every correct call. By a streak of 20 they are a tenth of a
+// dex apart and it is mostly nerve.
+function gapFor(streak){ return Math.max(0.10, 1.40 * Math.pow(0.88, streak)); }
+
+/* ---- the pick pool ----------------------------------------------------- */
+let POOL = null;
+const DEXC = [];        // log10(rarity) per pool index, worked out on demand
+
+// Switched off along with the markup: no sense pulling 161KB down for
+// two games that are not on the page. maybeStart() never fires while
+// POOL stays null, so the rest of this file just sits there.
+const GAMES_ON = !document.getElementById('games').hidden;
+if(GAMES_ON){
+  fetch('assets/wordpool.txt')
+    .then(r=>{ if(!r.ok) throw new Error('HTTP '+r.status); return r.text(); })
+    .then(t=>{ POOL = t.split('\n').filter(Boolean); maybeStart(); })
+    .catch(()=>{});
+}
+
+function dexAt(i){
+  let d = DEXC[i];
+  if(d === undefined){
+    const c = look(POOL[i]);
+    d = DEXC[i] = c ? Math.log10(rarity(c)) : NaN;
+  }
+  return d;
+}
+function dexMin(){ return dexAt(0); }
+function dexMax(){ return dexAt(POOL.length - 1); }
+
+// The pool is stored commonest first, so dex runs non-decreasing down it and
+// these are plain binary searches.
+function poolLower(t){                     // first index with dex >= t
+  let lo=0, hi=POOL.length;
+  while(lo<hi){ const m=(lo+hi)>>1; if(dexAt(m) < t) lo=m+1; else hi=m; }
+  return lo;
+}
+function poolUpper(t){                     // first index with dex > t
+  let lo=0, hi=POOL.length;
+  while(lo<hi){ const m=(lo+hi)>>1; if(dexAt(m) <= t) lo=m+1; else hi=m; }
+  return lo;
+}
+function insideCount(lo, hi){ return Math.max(0, poolLower(hi) - poolUpper(lo)); }
+
+const randIn = (a,b) => a + Math.random()*(b-a);
+const pick = a => a[Math.floor(Math.random()*a.length)];
+function shuffle(a){
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); const t=a[i]; a[i]=a[j]; a[j]=t; }
+  return a;
+}
+
+// Hundreds of words can share one quantised frequency and the pool keeps
+// ties in alphabetical order, so landing on an index and using it would
+// serve up the same handful of words forever. Spread over the whole tied run.
+function spread(i){
+  if(i == null || i < 0 || i >= POOL.length) return null;
+  const d = dexAt(i);
+  let a=i, b=i;
+  while(a > 0 && dexAt(a-1) === d) a--;
+  while(b+1 < POOL.length && dexAt(b+1) === d) b++;
+  return a + Math.floor(Math.random()*(b-a+1));
+}
+function pickNear(t){                      // pool word closest to a dex target
+  const i = poolLower(t);
+  let best = null;
+  for(const j of [i-1, i]){
+    if(j < 0 || j >= POOL.length) continue;
+    if(best === null || Math.abs(dexAt(j)-t) < Math.abs(dexAt(best)-t)) best = j;
+  }
+  return spread(best);
+}
+function pickInside(lo, hi){               // pool word strictly inside a window
+  const a = poolUpper(lo), b = poolLower(hi);
+  return b <= a ? null : a + Math.floor(Math.random()*(b-a));
+}
+function poolPost(i){
+  const w = POOL[i];
+  return { w: w, dex: dexAt(i), oneIn: rarity(look(w)), yours: false };
+}
+
+/* ---- scores ------------------------------------------------------------ */
+function bestGet(k){ try{ return +localStorage.getItem(k) || 0; }catch(e){ return 0; } }
+function bestSet(k, v){ try{ if(v > bestGet(k)) localStorage.setItem(k, String(v)); }catch(e){} }
+
+/* ---- shared bits ------------------------------------------------------- */
+function norm(s){
+  return s.trim().toLowerCase().replace(/[‘’`]/g, "'").split(/\s+/)[0];
+}
+function line(id, key, vars, oneIn){
+  const el = $(id);
+  el.textContent = say(key, vars);
+  el.style.color = (oneIn === undefined) ? '' : color(oneIn);
+}
+// A word plate: the word, its frequency, and a badge saying whose word it is.
+function plate(p, hideNumber){
+  const d = document.createElement('div');
+  d.className = 'post' + (p.yours ? ' yours' : '');
+  const b = document.createElement('b');
+  b.textContent = p.w;
+  if(!hideNumber) b.style.color = color(p.oneIn);
+  const s = document.createElement('small');
+  s.textContent = hideNumber ? TEXT.m_hidden : say('n_is', { n: fmt(p.oneIn) });
+  d.append(b, s);
+  const tag = p.yours ? TEXT.b_yours : TEXT.b_mine;
+  if(tag){
+    const t = document.createElement('span');
+    t.className = 'tag';
+    t.textContent = tag;
+    d.appendChild(t);
+  }
+  return d;
+}
+function showPosts(id, a, b, joiner, hideB){
+  const box = $(id);
+  box.innerHTML = '';
+  const mid = document.createElement('span');
+  mid.className = 'vs';
+  mid.textContent = joiner;
+  box.append(plate(a, false), mid, plate(b, hideB));
+}
+
+/* =========================================================================
+   IN BETWEEN
+   -------------------------------------------------------------------------
+   The goalposts come out of your own list above wherever they can: two of
+   your words if any pair happens to sit the right distance apart, else one
+   of yours with a word of mine planted at the target distance, else two of
+   mine. Either way the window is only used if the pool holds a few words
+   strictly inside it, so there is always something findable in there.
+   ========================================================================= */
+const G1_BEST = 'rw-between-best';
+const G1 = { round: 1, strikes: 3, tried: {}, lo: null, hi: null, over: false };
+
+// Your words, out of the same list the checker above writes. Entries with no
+// measurable frequency are no use as a goalpost, so they are dropped.
+function myWords(){
+  const seen = {}, out = [];
+  for(const x of list){
+    const o = x.oneIn;
+    if(typeof o !== 'number' || !isFinite(o) || o <= 0) continue;
+    if(seen[x.w]) continue;
+    seen[x.w] = 1;
+    out.push({ w: x.w, oneIn: o, dex: Math.log10(o), yours: true });
+  }
+  return out.sort((a,b) => a.dex - b.dex);
+}
+
+function makeWindow(round){
+  const W = windowFor(round);
+  const mine = myWords();
+
+  // 1. two of your own words, if any pair is roughly the right width apart
+  const pairs = [];
+  for(let i=0;i<mine.length;i++){
+    for(let j=i+1;j<mine.length;j++){
+      const g = mine[j].dex - mine[i].dex;
+      if(g < 0.55*W || g > 1.9*W) continue;
+      if(insideCount(mine[i].dex, mine[j].dex) < MIN_INSIDE) continue;
+      pairs.push([mine[i], mine[j]]);
+    }
+  }
+  if(pairs.length){ const p = pick(pairs); return { lo:p[0], hi:p[1] }; }
+
+  // 2. one of yours, and one of mine planted the target distance away
+  for(const m of shuffle(mine.slice())){
+    for(const dir of shuffle([1,-1])){
+      const t = m.dex + dir*W;
+      if(t < dexMin() || t > dexMax()) continue;
+      const i = pickNear(t);
+      if(i === null) continue;
+      const other = poolPost(i);
+      const lo = dir > 0 ? m : other, hi = dir > 0 ? other : m;
+      if(hi.dex - lo.dex < 0.5*W) continue;
+      if(insideCount(lo.dex, hi.dex) < MIN_INSIDE) continue;
+      return { lo:lo, hi:hi };
+    }
+  }
+
+  // 3. nothing of yours fits this width -- both posts are mine
+  for(let tries=0; tries<60; tries++){
+    const lo = randIn(dexMin(), dexMax()-W);
+    const a = pickNear(lo), b = pickNear(lo+W);
+    if(a === null || b === null) continue;
+    const pa = poolPost(a), pb = poolPost(b);
+    if(pb.dex - pa.dex < 0.5*W) continue;
+    if(insideCount(pa.dex, pb.dex) < MIN_INSIDE) continue;
+    return { lo:pa, hi:pb };
+  }
+  return { lo: poolPost(0), hi: poolPost(POOL.length-1) };
+}
+
+function g1status(){
+  if(G1.over) line('g1-status', 'b_over', { round: G1.round-1, best: bestGet(G1_BEST) });
+  else line('g1-status', 'b_status', { round: G1.round, strikes: G1.strikes, best: bestGet(G1_BEST) });
+}
+function g1deal(){
+  const win = makeWindow(G1.round);
+  G1.lo = win.lo; G1.hi = win.hi; G1.tried = {};
+  showPosts('g1-posts', G1.lo, G1.hi, TEXT.b_vs, false);
+  $('g1-seed').hidden = !!myWords().length || !TEXT.b_seed;
+  $('g1-input').value = '';
+  g1status();
+}
+function g1strike(){
+  G1.strikes--;
+  if(G1.strikes > 0){ g1deal(); return; }
+  G1.over = true;
+  $('g1-input').disabled = true;
+  $('g1-go').disabled = true;
+  $('g1-skip').disabled = true;
+  $('g1-restart').hidden = false;
+  g1status();
+}
+function g1reset(){
+  G1.round = 1; G1.strikes = 3; G1.over = false;
+  $('g1-input').disabled = false;
+  $('g1-go').disabled = false;
+  $('g1-skip').disabled = false;
+  $('g1-restart').hidden = true;
+  $('g1-out').textContent = '';
+  g1deal();
+}
+
+$('g1-form').addEventListener('submit', e => {
+  e.preventDefault();
+  if(!started || G1.over) return;
+  const w = norm($('g1-input').value);
+  if(!w) return;
+  $('g1-input').select();
+
+  const code = look(w);
+  // None of these cost a guess: they are "that is not an answer" rather than
+  // a wrong answer.
+  if(!code){ line('g1-out', 'b_notword', { w:w }); return; }
+  if(w === G1.lo.w || w === G1.hi.w){ line('g1-out', 'b_ispost', { w:w }); return; }
+  if(G1.tried[w]){ line('g1-out', 'b_dupe', { w:w }); return; }
+
+  const r = rarity(code);
+  // A tie is free too. The table is quantised, so plenty of words sit exactly
+  // on a goalpost through no fault of the player, and charging a guess for
+  // something they cannot see would just be mean.
+  if(r === G1.lo.oneIn || r === G1.hi.oneIn){
+    line('g1-out', 'b_tie', { w:w, n:fmt(r), a:(r === G1.lo.oneIn ? G1.lo.w : G1.hi.w) }, r);
+    return;
+  }
+
+  G1.tried[w] = 1;
+  if(!isFinite(r)){ line('g1-out', 'b_unmeasured', { w:w }); g1strike(); return; }
+  if(r < G1.lo.oneIn){ line('g1-out', 'b_low', { w:w, n:fmt(r) }, r); g1strike(); return; }
+  if(r > G1.hi.oneIn){ line('g1-out', 'b_high', { w:w, n:fmt(r) }, r); g1strike(); return; }
+
+  line('g1-out', 'b_win', { w:w, n:fmt(r) }, r);
+  G1.round++;
+  bestSet(G1_BEST, G1.round-1);
+  g1deal();
+});
+
+$('g1-skip').onclick = () => {
+  if(!started || G1.over) return;
+  const i = pickInside(G1.lo.dex, G1.hi.dex);
+  if(i === null) line('g1-out', 'b_noexample', {});
+  else { const p = poolPost(i); line('g1-out', 'b_example', { w:p.w, n:fmt(p.oneIn) }, p.oneIn); }
+  g1strike();                 // otherwise it is just a free reroll
+};
+$('g1-restart').onclick = g1reset;
+
+/* =========================================================================
+   MORE OR LESS
+   -------------------------------------------------------------------------
+   Higher-or-lower on word frequency: the word you have just judged becomes
+   the word to judge against, so one chain runs until you get one wrong.
+   ========================================================================= */
+const G2_BEST = 'rw-moreless-best';
+const G2 = { i: null, j: null, streak: 0, over: false };
+
+// A pool word the target gap away from index i, in whichever direction has
+// room. Ties are refused outright: there is no right answer to one.
+function partnerFor(i, g){
+  const d = dexAt(i);
+  for(const scale of [1, 0.6, 0.3]){
+    for(const s of shuffle([1,-1])){
+      const t = d + s*g*scale;
+      if(t < dexMin() || t > dexMax()) continue;
+      const j = pickNear(t);
+      if(j === null || POOL[j] === POOL[i]) continue;
+      if(Math.abs(dexAt(j) - d) < STEP) continue;
+      return j;
+    }
+  }
+  return null;
+}
+function g2status(){
+  if(G2.over) line('g2-status', 'm_over', { streak: G2.streak, best: bestGet(G2_BEST) });
+  else line('g2-status', 'm_status', { streak: G2.streak, best: bestGet(G2_BEST) });
+}
+function g2deal(fresh){
+  for(let tries=0; tries<40; tries++){
+    if(fresh || G2.i === null) G2.i = spread(poolLower(randIn(dexMin()+0.2, dexMax()-0.2)));
+    const j = partnerFor(G2.i, gapFor(G2.streak));
+    if(j !== null){
+      G2.j = j;
+      showPosts('g2-posts', poolPost(G2.i), poolPost(G2.j), TEXT.m_vs, true);
+      g2status();
+      return;
+    }
+    fresh = true;             // that word is boxed in, start somewhere else
+  }
+}
+function g2answer(saidRarer){
+  if(!started || G2.over) return;
+  const a = poolPost(G2.i), b = poolPost(G2.j);
+  if(saidRarer === (b.dex > a.dex)){
+    G2.streak++;
+    bestSet(G2_BEST, G2.streak);
+    line('g2-out', 'm_right', { w:b.w, n:fmt(b.oneIn) }, b.oneIn);
+    G2.i = G2.j;              // what you just judged is the next thing to beat
+    g2deal(false);
+    return;
+  }
+  G2.over = true;
+  line('g2-out', 'm_wrong', { w:b.w, n:fmt(b.oneIn) }, b.oneIn);
+  showPosts('g2-posts', a, b, TEXT.m_vs, false);   // show what it actually was
+  $('g2-rarer').disabled = true;
+  $('g2-commoner').disabled = true;
+  $('g2-restart').hidden = false;
+  g2status();
+}
+function g2reset(){
+  G2.streak = 0; G2.over = false; G2.i = null;
+  $('g2-rarer').disabled = false;
+  $('g2-commoner').disabled = false;
+  $('g2-restart').hidden = true;
+  $('g2-out').textContent = '';
+  g2deal(true);
+}
+$('g2-rarer').onclick = () => g2answer(true);
+$('g2-commoner').onclick = () => g2answer(false);
+$('g2-restart').onclick = g2reset;
+
+/* ---- labels and the start gate ------------------------------------------
+   Labels go up straight away so the page reads properly while the table is
+   still coming down the wire; the buttons stay dead until it lands.
+   ------------------------------------------------------------------------- */
+let started = false;
+
+$('g1-title').textContent = TEXT.b_title;
+$('g1-intro').textContent = TEXT.b_intro;
+$('g1-seed').textContent = TEXT.b_seed;
+$('g1-go').textContent = TEXT.b_go;
+$('g1-skip').textContent = TEXT.b_skip;
+$('g1-restart').textContent = TEXT.b_restart;
+$('g2-title').textContent = TEXT.m_title;
+$('g2-intro').textContent = TEXT.m_intro;
+$('g2-rarer').textContent = TEXT.m_rarer;
+$('g2-commoner').textContent = TEXT.m_commoner;
+$('g2-restart').textContent = TEXT.m_restart;
+
+// Called by the table loader above and by the pool fetch; whichever finishes
+// second is the one that actually starts the games.
+function maybeStart(){
+  if(started || !DATA || !POOL) return;
+  started = true;
+  $('g1-input').disabled = false;
+  $('g1-go').disabled = false;
+  $('g1-skip').disabled = false;
+  $('g2-rarer').disabled = false;
+  $('g2-commoner').disabled = false;
+  g1deal();
+  g2deal(true);
+}
+</script>
+
+<script>
+/* ---- the tile wall -------------------------------------------------------
+   A wall of squares in the red-to-green rarity ramp, all of them changing
+   their minds. Pure decoration: it holds no text, so the page reads exactly
+   the same with it ripped out, and it sits at z-index -2 under an almost
+   opaque panel, which is what lets it be this loud without costing a word.
+
+   Style changes are attribute mutations, which the noobular observer does not
+   watch, so the flicker never drags it into a sweep.
+   ------------------------------------------------------------------------- */
+(function tiles(){
+  var box=document.getElementById('tiles');
+  if(!box) return;
+  var PITCH=58;                       // 54px square + the 4px gap
+  var cells=[], due=[], n=0;
+  var MIN=500, MAX=3400;              // a tile's own gap between repaints
+
+  // Hue 0 is the commonest-word red and 120 the rarest-word green: the same
+  // ramp color() paints the words themselves with, in ten-degree steps so the
+  // wall stays blocky rather than smearing into a gradient.
+  function paint(t){
+    t.style.setProperty('--h', Math.floor(Math.random()*13)*10);
+  }
+
+  function build(){
+    var want=(Math.ceil(innerWidth/PITCH)+1)*(Math.ceil(innerHeight/PITCH)+1);
+    if(want===n) return;
+    n=want;
+    var f=document.createDocumentFragment();
+    cells=[]; due=[];
+    for(var i=0;i<n;i++){
+      var t=document.createElement('i');
+      paint(t);
+      f.appendChild(t); cells.push(t);
+      // first fires scattered across the whole window, so the wall does not
+      // start out in lockstep
+      due.push(performance.now()+Math.random()*MAX);
+    }
+    box.innerHTML='';
+    box.appendChild(f);
+  }
+  build();
+
+  var t=null;
+  addEventListener('resize',function(){ clearTimeout(t); t=setTimeout(build,250); });
+
+  // Every square keeps its own clock and repaints when its own time is up,
+  // so nothing fires in step with anything else. One loop reads those clocks
+  // rather than giving each tile a timer of its own: a resize throws the
+  // whole grid away, and several hundred orphaned timers would go on firing
+  // at detached nodes forever.
+  if(!matchMedia('(prefers-reduced-motion:reduce)').matches){
+    setInterval(function(){
+      var now=performance.now();
+      for(var i=0;i<cells.length;i++){
+        if(now < due[i]) continue;
+        paint(cells[i]);
+        due[i]=now+MIN+Math.random()*(MAX-MIN);
+      }
+    },40);
+  }
+}());
 </script>
 
 <script src="/assets/noobular.js"></script>
