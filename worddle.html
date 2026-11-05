@@ -107,15 +107,16 @@ button:disabled{opacity:.5;cursor:default}
 /* Gold, and twinkling on a hard two-frame flip rather than a smooth pulse --
    same blunt timing as the heading flash. */
 #log li.won{text-shadow:0 0 7px rgba(255,200,0,.45)}
-#log .star{display:inline-block;margin-right:5px;color:#ffd700;
+#log .star,.creed .star,#wotd-lock .star{display:inline-block;color:#ffd700;
   text-shadow:0 0 5px #ffb300,1px 1px 0 rgba(0,0,0,.55);
   animation:twinkle 1s steps(1) infinite}
+#log .star{margin-right:5px}
 @keyframes twinkle{
   0%,49%  {transform:scale(1) rotate(0deg);filter:brightness(1)}
   50%,100%{transform:scale(1.3) rotate(18deg);filter:brightness(1.7)}
 }
-@media (prefers-reduced-motion:reduce){#log .star{animation:none}}
-.wotd{display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin:8px 0}
+@media (prefers-reduced-motion:reduce){#log .star,.creed .star,#wotd-lock .star{animation:none}}
+.wotd{display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin:26px 0}
 #wotd-tiles{display:flex;gap:5px}
 .wotd b{display:inline-flex;cursor:pointer;width:34px;height:34px;align-items:center;justify-content:center;
   font:400 21px/1 var(--font-head);text-transform:uppercase;
@@ -129,6 +130,92 @@ button:disabled{opacity:.5;cursor:default}
 .wotd b.on{border-color:hsl(120 85% 24%);
   background:linear-gradient(158deg,hsl(120 85% 47%),hsl(120 85% 36%) 46%,hsl(120 85% 27%))}
 #wotd-note{font:400 12px var(--font-body);opacity:.8;margin:2px 0 0}
+/* ---- the chains --------------------------------------------------------
+   The word of the day stays bolted shut until there is a starred win in the
+   list, which is why the padlock wears a star instead of a keyhole: the star
+   is the key, and saying so with the picture saves saying it in words.
+   Two bands of chain crossing at the lock. They are a repeating background
+   rather than one long drawing so the links keep their shape at any width;
+   the tile is seamless because the half link hanging off x=0 lands on top of
+   the half link at x=22 of the tile before it. */
+#wotd-box{position:relative;display:inline-block}
+#wotd-lock{position:absolute;inset:-7px 0;cursor:pointer}
+#wotd-lock[hidden]{display:none}
+#wotd-lock i{position:absolute;top:50%;height:18px;left:-17px;width:calc(100% + 34px);
+  background:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='22' height='18' viewBox='0 0 22 18'><g fill='none'><ellipse cx='11' cy='9' rx='7.5' ry='4.5' stroke='%231d2022' stroke-width='5.4'/><ellipse cx='0' cy='9' rx='4.5' ry='6' stroke='%231d2022' stroke-width='5.4'/><ellipse cx='22' cy='9' rx='4.5' ry='6' stroke='%231d2022' stroke-width='5.4'/><ellipse cx='11' cy='9' rx='7.5' ry='4.5' stroke='%238d9399' stroke-width='3'/><ellipse cx='0' cy='9' rx='4.5' ry='6' stroke='%238d9399' stroke-width='3'/><ellipse cx='22' cy='9' rx='4.5' ry='6' stroke='%238d9399' stroke-width='3'/><ellipse cx='11' cy='8.2' rx='7.5' ry='4.5' stroke='%23e3e8ea' stroke-width='1'/><ellipse cx='0' cy='8.2' rx='4.5' ry='6' stroke='%23e3e8ea' stroke-width='1'/><ellipse cx='22' cy='8.2' rx='4.5' ry='6' stroke='%23e3e8ea' stroke-width='1'/></g></svg>") repeat-x left center;
+  filter:drop-shadow(0 2px 2px rgba(0,0,0,.5))}
+#wotd-lock i:nth-of-type(1){transform:translateY(-50%) rotate(-5deg)}
+#wotd-lock i:nth-of-type(2){transform:translateY(-50%) rotate(5deg)}
+/* Answers the click, so the clank has something to land on. One pass, over
+   almost before it starts, hitting hardest on the first frame and falling
+   away from there -- an impact, not a wobble. steps(1) again: nothing here
+   eases, it jumps. The lock takes a twist as well as a shove, since it is
+   the thing being hit; the chains only get thrown about.
+   These use the translate and rotate properties rather than transform,
+   which already holds the chains' tilt and the lock's centring. */
+/* Timed off the clip itself rather than by eye. It opens on 40ms of silence,
+   so the shake waits that long; it then clatters at near full volume until
+   about 280ms and is down to a fifth by 380ms. So the throw stays wide for
+   the first half instead of decaying from the off, and the whole thing is
+   over at 380ms, leaving only the quiet ring-out. */
+#wotd-lock.rattle i{animation:rattle .34s .04s steps(1) 1}
+#wotd-lock.rattle .padlock{animation:rattle-lock .34s .04s steps(1) 1}
+/* The chains get thrown mostly up and down, and whip rather than slide: a
+   band is 350-odd px of the panel's width and only a few pixels short of the
+   border on a phone, so a sideways shove the size of the lock's would punch
+   out through the frame. A degree and a half of tilt swings the far links
+   about 5px instead, which looks like more, not less. */
+@keyframes rattle{
+  0% {translate:-3px  5px; rotate:-1.6deg}
+  10%{translate: 3px -5px; rotate: 1.6deg}
+  20%{translate:-3px -4px; rotate:-1.5deg}
+  30%{translate: 3px  5px; rotate: 1.5deg}
+  40%{translate:-2px  4px; rotate:-1.3deg}
+  50%{translate: 2px -4px; rotate: 1.1deg}
+  60%{translate:-2px -3px; rotate:-0.8deg}
+  70%{translate: 1px  2px; rotate: 0.5deg}
+  80%{translate:-1px  1px; rotate:-0.3deg}
+  90%{translate: 1px  0;   rotate: 0.1deg}
+  100%{translate:0 0;      rotate: 0deg}
+}
+@keyframes rattle-lock{
+  0% {translate:-10px  6px; rotate:-14deg}
+  10%{translate: 10px -6px; rotate: 13deg}
+  20%{translate: -9px -5px; rotate:-12deg}
+  30%{translate: 10px  5px; rotate: 12deg}
+  40%{translate: -9px  5px; rotate:-10deg}
+  50%{translate:  8px -4px; rotate:  8deg}
+  60%{translate: -6px -3px; rotate: -6deg}
+  70%{translate:  5px  2px; rotate:  4deg}
+  80%{translate: -3px  1px; rotate: -2deg}
+  90%{translate:  1px  0;   rotate:  1deg}
+  100%{translate: 0 0;      rotate:  0deg}
+}
+@media (prefers-reduced-motion:reduce){
+  #wotd-lock.rattle i,#wotd-lock.rattle .padlock{animation:none}
+}
+/* Sits a little below centre so the shackle, which hangs above the body,
+   does not push the whole lock off the middle of the row. */
+#wotd-lock .padlock{position:absolute;left:50%;top:calc(50% + 4px);
+  transform:translate(-50%,-50%);
+  display:flex;align-items:center;justify-content:center;
+  width:31px;height:25px;border:2px solid #23272a;border-radius:4px;
+  background:linear-gradient(158deg,#b2b7bb,#73787c 46%,#454a4d);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.4),
+             inset 0 -3px 4px rgba(0,0,0,.35),
+             0 2px 4px rgba(0,0,0,.55)}
+#wotd-lock .padlock::before{content:'';position:absolute;left:50%;bottom:100%;
+  box-sizing:border-box;width:20px;height:14px;margin-left:-10px;
+  border:4px solid #9fa5a9;border-bottom:0;border-radius:11px 11px 0 0;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.35),0 1px 2px rgba(0,0,0,.5)}
+#wotd-lock .star{margin:0;font:400 15px/1 var(--font-num)}
+/* Eight tiles at full size already ran a little past the panel on a phone,
+   and the chains hang 11px wider still. Shrink the row rather than let it
+   wrap: two short rows of chain would read as two chains, not one. */
+@media (max-width:460px){
+  #wotd-tiles{gap:4px}
+  .wotd b{width:28px;height:28px;font-size:18px}
+}
 .toggles{margin:4px 0 8px;font:11px var(--font-body);text-transform:uppercase;letter-spacing:.5px}
 .toggles label{margin-right:14px;cursor:pointer;white-space:nowrap}
 
@@ -168,6 +255,7 @@ button:disabled{opacity:.5;cursor:default}
 <h1><img src="assets/gifs/worddle.gif" alt="Worddle - america's game" class="logo"></h1>
 <p>Type any word ever</p>
 <p class="creed">compound words/weird forms are for posers REAL patriots know rare singular nouns</p>
+<p class="creed">250,000 "words" are "winner's" <span class="star">★</span> (less than 1 in 825,000,000)</p>
 
 <form id="f" autocomplete="off">
   <input id="w" size="30" spellcheck="false" autocapitalize="none">
@@ -177,7 +265,7 @@ button:disabled{opacity:.5;cursor:default}
 <p id="out"></p>
 
 <h2 id="wotd-title"></h2>
-<p class="wotd"><span id="wotd-tiles"></span></p>
+<p class="wotd"><span id="wotd-box"><span id="wotd-tiles"></span><span id="wotd-lock" aria-hidden="true" hidden><i></i><i></i><span class="padlock"><span class="star">★</span></span></span></span></p>
 <p id="wotd-note"></p>
 
 <h2>Your words</h2>
@@ -229,6 +317,16 @@ const $=id=>document.getElementById(id);
 let DATA=null;
 const TOTAL=2474589909; // words in English Wikipedia sample
 const FLOOR=TOTAL/3;
+
+/* The score the homepage reads. It lives up here rather than beside the
+   code that writes it because the word of the day's chains ask for it too,
+   long before render() has ever run -- on a fresh page load the stored
+   number from last visit is the only answer anyone has. */
+const WINS_KEY='rw-wins';
+let winTally=(()=>{
+  try{ const n=parseInt(localStorage.getItem(WINS_KEY),10); return n>0?n:0; }
+  catch(e){ return 0; }
+})();
 
 const PREFIXES="a ab acro ad aero after agro all allo ambi amphi an ana andro angio ante anthropo anti apo arch archaeo archi arterio arthro astro audio auto bacterio baro bi biblio bio blasto brachy brady broncho by cardio cata centi cephalo cerebro chemo chiro chloro chondro chromo chrono circum cis co contra counter cranio cryo crypto cyber cyclo cyto de deca demi dendro dermato dermo deutero di dia dis dodeca dorso down dys eco ecto electro en endo entero epi equi ethno eu ex exo extra fibro fore gastro geo giga glosso gluco glyco gyneco hagio hemato hemi hemo hepato hepta hetero hexa histo holo homeo homo hydro hyper hypo ideo idio immuno in infra inter intra intro iso kilo lacto laryngo latero lepto leuko litho macro mal mammo mega megalo melano meso meta micro mid milli mini mis mono morpho multi myco myelo myo nano naso necro neo nephro neuro non octa octo oculo odonto oligo omni onco onto oo ophthalmo ortho osteo oto out over paleo pan para patho penta peri petro pharmaco pheno philo phlebo phono photo phyco phylo physio phyto pneumo poly post pre preter pro proto pseudo psycho pulmo pyro quadri quasi radio re recto retro rhino sacro sarco schizo sclero self semi socio somato spectro spheno spleno steno stereo sub super supra sym syn tachy techno tele tetra thermo thoraco thrombo trans tri tricho ultra un under uni uro vaso vertebro xeno xero zoo".split(" ");
 const SUFFIXES="s es ed d ing er ers est ly ness less ful fully ish ism ist ists ize ized izing ization isation al ally ic ical ically ity ities able ably ible ment ments ology ologist ologists ological ous ously ship hood like wise ward wards y".split(" ");
@@ -389,9 +487,10 @@ $('lbl-gap').textContent=LIST_TEXT.label_gap;
    against today's date, so it survives a reload and starts over tomorrow.
    ------------------------------------------------------------------------- */
 const WOTD_TEXT = {
-  title: 'word of the day',
-  hint:  '',                    // shown while any are still face down
-  note:  ''                     // shown once every tile is turned
+  title:  'word of the day',
+  hint:   '',                   // shown while any are still face down
+  note:   '',                   // shown once every tile is turned
+  locked: ''                    // shown while it is chained shut
 };
 const WOTD_WORD='noobular';
 const WOTD_KEY='rw-wotd';
@@ -420,12 +519,69 @@ const wotdTiles=[...WOTD_WORD].map((ch,i)=>{
   return b;
 });
 
+/* Chained until the list holds a word that won. The overlay swallows the
+   clicks on its own -- it covers the whole row -- so the tiles need nothing
+   doing to them beyond reading face down while it is up. The turns already
+   stored are left alone rather than cleared, so a win hands back the tiles
+   that were showing before the chains went on. */
+function wotdLocked(){ return winTally<1; }
+
+/* The chain is a repeating 22px link, so a band of whatever width the row
+   happens to be gets sliced through a link at each end. Round the span up to
+   whole links and hang the surplus off both sides: the chain then finishes on
+   a closed link, and runs a little past the tiles the way a real one would.
+   Exactly one link of surplus -- asking for a fixed number of pixels instead
+   lands anywhere in a 22px range once it is rounded up, and on a phone the
+   wide end of that range put the chain within a pixel of the panel border
+   once the rattle threw it about. Width changes with the viewport, hence the
+   resize. */
+const CHAIN_LINK=22;
+function wotdChains(){
+  const w=$('wotd-box').offsetWidth;
+  if(!w) return;
+  const span=(Math.ceil(w/CHAIN_LINK)+1)*CHAIN_LINK;
+  for(const band of $('wotd-lock').querySelectorAll('i')){
+    band.style.width=span+'px';
+    band.style.left=((w-span)/2)+'px';
+  }
+}
+addEventListener('resize',wotdChains);
+
+/* Four of them, taken in turn, so hammering on the lock overlaps clanks
+   rather than cutting each one off at the start of the next. */
+const CLANK=Array.from({length:4},()=>{
+  const a=new Audio('assets/audio/chain-hit.mp3');
+  a.preload='auto'; a.volume=.7; return a;
+});
+let clankAt=0;
+function clank(){
+  const a=CLANK[clankAt=(clankAt+1)%CLANK.length];
+  try{
+    a.currentTime=0;
+    const pr=a.play();
+    if(pr&&pr.catch) pr.catch(()=>{});
+  }catch(e){}
+}
+
+/* The overlay swallows every click on the row, so this is the one place a
+   locked tile can answer back. */
+$('wotd-lock').onclick=()=>{
+  const el=$('wotd-lock');
+  clank();
+  el.classList.remove('rattle');
+  void el.offsetWidth;          // forces a reflow, so a repeat click restarts it
+  el.classList.add('rattle');
+};
+
 function wotdPaint(){
+  const lk=wotdLocked();
+  $('wotd-lock').hidden=!lk;
+  if(lk) wotdChains();          // only measurable once it is on the page
   wotdTiles.forEach((b,i)=>{
-    const on=wotdUp.has(i);
+    const on=!lk&&wotdUp.has(i);
     b.className=on?'on':'';
     b.textContent=on?b.dataset.ch:'';
-    b.title=on?'':'turn it over';
+    b.title=lk?'':(on?'':'turn it over');
   });
   wotdNote();
 }
@@ -434,6 +590,7 @@ function wotdPaint(){
    from the table loader, long after the last click. */
 function wotdNote(){
   const el=$('wotd-note');
+  if(wotdLocked()){ el.textContent=WOTD_TEXT.locked; el.style.color=''; return; }
   const all=wotdUp.size===wotdTiles.length;
   const code=all&&DATA?look(WOTD_WORD):null;
   if(!code){ el.textContent=all?'':WOTD_TEXT.hint; el.style.color=''; return; }
@@ -492,11 +649,10 @@ function sub(li,cls,text){
   li.appendChild(d);
 }
 
-/* How many wins the homepage knows about. It cannot answer the question
-   itself -- deciding a win needs the 12MB table -- so this page leaves the
-   count behind for it. Only written once the table is in, otherwise the
-   first render of every visit would stamp a 0 over a real score. */
-const WINS_KEY='rw-wins';
+/* The homepage cannot answer "how many wins" itself -- deciding a win needs
+   the 12MB table -- so this page leaves the count behind for it. Only written
+   once the table is in, otherwise the first render of every visit would stamp
+   a 0 over a real score. */
 function keepScore(n){
   if(!DATA) return;
   try{ localStorage.setItem(WINS_KEY,String(n)); }catch(e){}
@@ -513,7 +669,12 @@ function render(){
      look() is a binary search over 2.8 million rows. */
   const won=new Map();
   for(const x of list) won.set(x, !!DATA && worth(x)===Infinity && look(x.w)!==null);
-  keepScore([...won.values()].filter(Boolean).length);
+  const nWon=[...won.values()].filter(Boolean).length;
+  keepScore(nWon);
+  // Without the table nothing can be judged a win, so a 0 here means "don't
+  // know yet", not "none" -- leave the stored count from last visit standing
+  // and the chains as they are.
+  if(DATA){ winTally=nWon; wotdPaint(); }
 
   // Rarest first. Real wins and compounds both sit at Infinity and so tie on
   // the first term -- the second puts the real ones above the posers.
